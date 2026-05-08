@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Program: Interrupt Service Routine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .program-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .program-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-row {
+            display: flex;
+            grid-template-columns: 80px 120px 1fr;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .table-row:hover {
+            background: linear-gradient(90deg, #f8f9fa, #e3f2fd);
+            transform: translateX(5px);
+        }
+
+        .table-row.header-row {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .table-row.header-row:hover {
+            transform: none;
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+        }
+
+        .cell {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .location {
+            font-weight: bold;
+            color: #e74c3c;
+            background: #fff5f5;
+            border-radius: 8px;
+            justify-content: center;
+            margin: 5px;
+        }
+
+        .instruction {
+            font-weight: 600;
+            color: #2980b9;
+        }
+
+        .comment {
+            color: #27ae60;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: linear-gradient(90deg, #fff3cd, #ffeaa7) !important;
+            animation: pulse 2s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .info-content {
+            display: none;
+        }
+
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #2c3e50;
+            margin-top: 2px;
+        }
+
+        .info-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .table-row {
+                grid-template-columns: 60px 100px 1fr;
+                font-size: 0.9em;
+            }
+            
+            .cell {
+                padding: 10px 8px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assembly Interrupt Service Program</h1>
+            <p>Program to Service an Interrupt</p>
+        </div>
+
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalLines">0</div>
+                    <div class="stat-label">Total Instructions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="memoryRange">0-0</div>
+                    <div class="stat-label">Memory Range</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uniqueOpcodes">0</div>
+                    <div class="stat-label">Unique Opcodes</div>
+                </div>
+            </div>
+
+            <div class="program-section">
+                <div class="section-title">
+                    <div class="icon">⚡</div>
+                    Program Code
+                </div>
+
+                <div class="controls">
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search instructions or comments...">
+                    <button class="btn" onclick="highlightInterrupts()">Highlight Interrupts</button>
+                    <button class="btn" onclick="highlightBranches()">Highlight Branches</button>
+                    <button class="btn" onclick="clearHighlights()">Clear Highlights</button>
+                </div>
+
+                <div class="program-table" id="programTable">
+                    <!-- Table will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-title">Program Analysis</div>
+                <div class="controls">
+                    <button class="btn" onclick="showInfo('overview')">Overview</button>
+                    <button class="btn" onclick="showInfo('flow')">Program Flow</button>
+                    <button class="btn" onclick="showInfo('instructions')">Instruction Guide</button>
+                </div>
+                
+                <div class="info-content" id="overview">
+                    <h3>Program Overview</h3>
+                    <p>This assembly program demonstrates a complete interrupt service routine. It begins by saving the processor state, handles input/output operations, and then restores the state before returning to the main program.</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Saves accumulator and flags to maintain system state</li>
+                        <li>Implements input character handling with interrupt</li>
+                        <li>Manages output buffer operations</li>
+                        <li>Restores original state before exit</li>
+                    </ul>
+                </div>
+                
+                <div class="info-content" id="flow">
+                    <h3>Program Flow Analysis</h3>
+                    <p>The program follows a structured interrupt handling pattern:</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>Entry (100-104):</strong> Interrupt setup and Main program</li>
+                        <li><strong>Service (200-NXT):</strong> Main interrupt service routine with I/O handling and state saving</li>
+                        <li><strong>Exit (EXT):</strong> State restoration and return to main program</li>
+                    </ul>
+                </div>
+                
+                <div class="info-content" id="instructions">
+                    <h3>Key Instructions</h3>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>STA SAC:</strong> Store accumulator content</li>
+                        <li><strong>CIR:</strong> Circular shift right the content into accumulator with E</li>
+                        <li><strong>SKI:</strong> Skip if input flag is set</li>
+                        <li><strong>BUN NXT:</strong> Branch unconditionally to NXT</li>
+                        <li><strong>ION/IOF:</strong> Turn interrupt facility on/off</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="index.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Next Unit</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        const programData = [
+            { location: "0", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;ZRO, -", comment: "Return address stored here" },
+            { location: "1", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN SRV", comment: "Branch to service routine" },
+            { location: "100", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLA", comment: "Portion of main program" },
+            { location: "101", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ION", comment: "Turn on interrupt facility" },
+            { location: "102", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA X", comment: "" },
+            { location: "103", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADD Y", comment: "Interrupt occurs here" },
+            { location: "104", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA Z", comment: "Program returns here after interrupt" },
+            { location: "⋮", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⋮", comment: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⋮" },
+            { location: "200", instruction: "SRV, STA SAC", comment: "Store content of AC : Interrupt service routine starts" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CIR", comment: "Move E into AC(1)" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA SE", comment: "Store content of E" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SKI", comment: "Check input flag" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN NXT", comment: "Flag is off, check next flag" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INP", comment: "Flag is on, input character" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUT", comment: "Print character" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA PT1 I", comment: "Store it in input buffer" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISZ PT1", comment: "Increment input pointer" },
+            { location: "...", instruction: "NXT, SKO", comment: "Check output flag" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN EXT", comment: "Flag is off, exit" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA PT2 I", comment: "Load character from output buffer" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUT", comment: "Output character" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISZ PT2", comment: "Increment output pointer" },
+            { location: "...", instruction: "EXT, LDA SE", comment: "Restore value of AC(1)" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CIL", comment: "Shift it to E" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA SAC", comment: "Restore content of AC" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ION", comment: "Turn interrupt on" },
+            { location: "", instruction: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN ZRO I", comment: "Return to running program" },
+            { location: "...", instruction: "SAC, —", comment: "AC is stored here" },
+            { location: "...", instruction: "SE,  —", comment: "E is stored here" },
+            { location: "...", instruction: "PT1, —", comment: "Pointer of input buffer" },
+            { location: "...", instruction: "PT2, —", comment: "Pointer of output buffer" }
+        ];
+
+        function initializeTable() {
+            const table = document.getElementById('programTable');
+            
+            // Add header
+            const headerRow = document.createElement('div');
+            headerRow.className = 'table-row header-row';
+            headerRow.innerHTML = `
+                <div class="cell">Location</div>
+                <div class="cell">Instruction</div>
+                <div class="cell">Comment</div>
+            `;
+            table.appendChild(headerRow);
+
+            // Add data rows
+            programData.forEach((row, index) => {
+                const tableRow = document.createElement('div');
+                tableRow.className = 'table-row';
+                tableRow.setAttribute('data-index', index);
+                
+                tableRow.innerHTML = `
+                    <div class="cell location">${row.location}</div>
+                    <div class="cell instruction">${row.instruction}</div>
+                    <div class="cell comment">${row.comment}</div>
+                `;
+                
+                tableRow.addEventListener('click', () => {
+                    clearHighlights();
+                    tableRow.classList.add('highlight');
+                });
+                
+                table.appendChild(tableRow);
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const validInstructions = programData.filter(row => 
+                row.instruction !== '⋮' && row.instruction !== '—'
+            );
+            
+            document.getElementById('totalLines').textContent = programData.length;
+            
+            const locations = programData.map(row => row.location).filter(loc => 
+                loc && loc !== '⋮' && !isNaN(parseInt(loc))
+            );
+            if (locations.length > 0) {
+                const min = Math.min(...locations.map(l => parseInt(l)));
+                const max = Math.max(...locations.map(l => parseInt(l)));
+                document.getElementById('memoryRange').textContent = `${min}-${max}`;
+            }
+            
+            const opcodes = new Set();
+            validInstructions.forEach(row => {
+                const instruction = row.instruction.split(' ')[0].replace(',', '');
+                if (instruction && instruction !== '⋮' && instruction !== '—') {
+                    opcodes.add(instruction);
+                }
+            });
+            document.getElementById('uniqueOpcodes').textContent = opcodes.size;
+        }
+
+        function highlightInterrupts() {
+            clearHighlights();
+            const rows = document.querySelectorAll('.table-row');
+            rows.forEach(row => {
+                const instruction = row.querySelector('.instruction')?.textContent || '';
+                if (instruction.includes('ION') || instruction.includes('IOF') || 
+                    instruction.includes('INP') || instruction.includes('OUT')) {
+                    row.classList.add('highlight');
+                }
+            });
+        }
+
+        function highlightBranches() {
+            clearHighlights();
+            const rows = document.querySelectorAll('.table-row');
+            rows.forEach(row => {
+                const instruction = row.querySelector('.instruction')?.textContent || '';
+                if (instruction.includes('BUN') || instruction.includes('SK')) {
+                    row.classList.add('highlight');
+                }
+            });
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.table-row').forEach(row => {
+                row.classList.remove('highlight');
+            });
+        }
+
+        function showInfo(type) {
+            document.querySelectorAll('.info-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(type).classList.add('active');
+            
+            // Update button states
+            document.querySelectorAll('.info-panel .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-row:not(.header-row)');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    row.style.display = 'grid';
+                    if (searchTerm && text.includes(searchTerm)) {
+                        row.classList.add('highlight');
+                    } else {
+                        row.classList.remove('highlight');
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Initialize the table when the page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeTable();
+            showInfo('overview'); // Show overview by default
+        });
+    </script>
+</body>
+</html>

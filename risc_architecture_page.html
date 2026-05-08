@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISC Architecture - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #718096;
+            margin-top: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .comparison-box {
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cisc-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .risc-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .comparison-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e7ff 100%);
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .instruction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .instruction-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .instruction-table td {
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s ease;
+        }
+
+        .instruction-table tr:hover td {
+            background: #f7fafc;
+        }
+
+        .instruction-table tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #2d3748;
+            color: #68d391;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .formula {
+            font-size: 1.8em;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #2d3748;
+            box-shadow: 0 5px 15px rgba(253, 203, 110, 0.4);
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .interactive-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .interactive-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-indicator {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ RISC Architecture</h1>
+            <p class="subtitle">Reduced Instruction Set Computer - Modern Computing Simplified</p>
+        </header>
+
+        <div class="card">
+            <h2><span class="icon">🔄</span>CISC vs RISC</h2>
+            <p style="margin-bottom: 25px; font-size: 1.1em;">Understanding the fundamental differences between two major processor architectures:</p>
+            
+            <div class="comparison-grid">
+                <div class="comparison-box cisc-box">
+                    <h3 style="margin-bottom: 15px; font-size: 1.8em;">🏛️ CISC</h3>
+                    <p style="font-size: 1.05em; line-height: 1.8;">
+                        <strong>Complex Instructions</strong><br>
+                        • 100-250+ instructions<br>
+                        • 5-20 addressing modes<br>
+                        • Direct memory manipulation<br>
+                        • Variable instruction length<br>
+                        • Specialized operations
+                    </p>
+                </div>
+                
+                <div class="comparison-box risc-box">
+                    <h3 style="margin-bottom: 15px; font-size: 1.8em;">⚡ RISC</h3>
+                    <p style="font-size: 1.05em; line-height: 1.8;">
+                        <strong>Simple & Fast</strong><br>
+                        • Few simple instructions<br>
+                        • Limited addressing modes<br>
+                        • Register-only operations<br>
+                        • Fixed instruction length<br>
+                        • Optimized for speed
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🎯</span>Core RISC Characteristics</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-number">1</span>
+                    <strong>Reduced Instruction Count:</strong> Minimal set of simple, frequently-used instructions
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">2</span>
+                    <strong>Limited Addressing Modes:</strong> Simplified addressing for faster decode
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">3</span>
+                    <strong>Register-Focused Operations:</strong> All arithmetic/logical operations use CPU registers
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">4</span>
+                    <strong>Strict Memory Access:</strong> Only LOAD and STORE instructions access memory
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">5</span>
+                    <strong>Fixed Instruction Format:</strong> Consistent length makes decoding faster
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">6</span>
+                    <strong>Single Cycle Execution:</strong> Most instructions complete in one clock cycle
+                </li>
+                <li class="feature-item">
+                    <span class="feature-number">7</span>
+                    <strong>Hardwired Control:</strong> Hardware-based control for maximum speed
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🚀</span>Performance Optimization Features</h2>
+            <div class="highlight-box">
+                <p style="font-size: 1.1em; margin-bottom: 15px;"><strong>🔹 Large Register Set:</strong> Many CPU registers minimize memory access</p>
+                <p style="font-size: 1.1em; margin-bottom: 15px;"><strong>🔹 Overlapped Register Windows:</strong> Fast procedure calls and returns</p>
+                <p style="font-size: 1.1em; margin-bottom: 15px;"><strong>🔹 Efficient Pipelining:</strong> Multiple instructions processed simultaneously</p>
+                <p style="font-size: 1.1em;"><strong>🔹 Compiler Support:</strong> Intelligent code optimization at compile time</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">💡</span>RISC in Action: Example</h2>
+            <p style="font-size: 1.1em; margin-bottom: 20px;">Let's compute this algebraic expression:</p>
+            
+            <div class="formula">
+                X = (A + B) × (C + D)
+            </div>
+
+            <p style="font-size: 1.05em; margin: 25px 0; padding: 15px; background: #fff5e1; border-radius: 10px;">
+                <strong>⚠️ Key Concept:</strong> In RISC, we must explicitly LOAD data from memory to registers, perform calculations on registers, then STORE the result back to memory.
+            </p>
+
+            <table class="instruction-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Operation</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="code">LOAD R1, A</span></td>
+                        <td>R1 ← M[A]</td>
+                        <td><span class="step-indicator">STEP 1</span>Load A from memory to R1</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">LOAD R2, B</span></td>
+                        <td>R2 ← M[B]</td>
+                        <td><span class="step-indicator">STEP 2</span>Load B from memory to R2</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">LOAD R3, C</span></td>
+                        <td>R3 ← M[C]</td>
+                        <td><span class="step-indicator">STEP 3</span>Load C from memory to R3</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">LOAD R4, D</span></td>
+                        <td>R4 ← M[D]</td>
+                        <td><span class="step-indicator">STEP 4</span>Load D from memory to R4</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">ADD R1, R1, R2</span></td>
+                        <td>R1 ← R1 + R2</td>
+                        <td><span class="step-indicator">STEP 5</span>Calculate (A + B) → R1</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">ADD R3, R3, R4</span></td>
+                        <td>R3 ← R3 + R4</td>
+                        <td><span class="step-indicator">STEP 6</span>Calculate (C + D) → R3</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">MUL R1, R1, R3</span></td>
+                        <td>R1 ← R1 × R3</td>
+                        <td><span class="step-indicator">STEP 7</span>Calculate (A+B) × (C+D) → R1</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">STORE X, R1</span></td>
+                        <td>M[X] ← R1</td>
+                        <td><span class="step-indicator">STEP 8</span>Store final result to memory X</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="interactive-btn" onclick="animateSteps()">▶️ Animate Execution</button>
+                <button class="interactive-btn" onclick="resetAnimation()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="card" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 style="color: white;"><span class="icon" style="background: white; color: #667eea;">✨</span>Why RISC Matters</h2>
+            <p style="font-size: 1.2em; line-height: 1.8;">
+                RISC architecture revolutionized computing by focusing on <strong>simplicity</strong> and <strong>speed</strong>. 
+                By reducing instruction complexity and leveraging efficient pipelining, RISC processors achieve 
+                remarkable performance with lower power consumption—making them ideal for modern mobile devices, 
+                embedded systems, and high-performance computing.
+            </p>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="register-windows-edu.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Overlapped Register Window in RISC</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        let animationRunning = false;
+
+        function animateSteps() {
+            if (animationRunning) return;
+            animationRunning = true;
+
+            const rows = document.querySelectorAll('.instruction-table tbody tr');
+            rows.forEach(row => row.style.background = '');
+
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index > 0) {
+                    rows[index - 1].style.background = '';
+                }
+                if (index < rows.length) {
+                    rows[index].style.background = 'linear-gradient(90deg, #667eea, #764ba2)';
+                    rows[index].style.color = 'white';
+                    rows[index].style.transform = 'scale(1.02)';
+                    rows[index].style.transition = 'all 0.3s ease';
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        rows.forEach(row => {
+                            row.style.background = '';
+                            row.style.color = '';
+                            row.style.transform = '';
+                        });
+                        animationRunning = false;
+                    }, 1000);
+                }
+            }, 800);
+        }
+
+        function resetAnimation() {
+            const rows = document.querySelectorAll('.instruction-table tbody tr');
+            rows.forEach(row => {
+                row.style.background = '';
+                row.style.color = '';
+                row.style.transform = '';
+            });
+            animationRunning = false;
+        }
+
+        // Add hover effects to feature items
+        document.querySelectorAll('.feature-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                this.style.color = 'white';
+                setTimeout(() => {
+                    this.style.background = '';
+                    this.style.color = '';
+                }, 1000);
+            });
+        });
+
+        // Smooth scroll animation for cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

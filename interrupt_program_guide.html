@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interrupt Program - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .interactive-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: #e0e7ff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flowchart {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .flow-step:hover {
+            transform: translateX(10px);
+        }
+
+        .arrow {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 5px 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffd700 0%, #ffed4e 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+	.topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .memory-diagram {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .memory-state {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e1;
+        }
+
+        .memory-state h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .memory-cell {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .register {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .memory-diagram { grid-template-columns: 1fr; }
+            .content-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Interrupt Program</h1>
+            <p class="subtitle">Understanding Programmed I/O & Interrupt Cycles</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>📋 What is Program Interrupt?</h2>
+                <p>Program interrupt is a method of <span class="highlight">programmed control transfer</span> where the computer continuously checks the flag bit for input-output device readiness.</p>
+                <div class="info-box">
+                    <strong>Key Feature:</strong> The computer can process other tasks while waiting for I/O device readiness, periodically checking the flag bit.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚡ Transfer Rates</h2>
+                <p><strong>Slow Transfer:</strong> When flag bit = 1, transfer occurs at maximum 10 characters/second.</p>
+                <p><strong>Fast Transfer:</strong> Computer processes information at much higher rates.</p>
+                <p style="margin-top: 10px;">This speed difference allows the computer to handle other tasks between transfers.</p>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Interrupt Control</h2>
+                <p>The interrupt flip-flop <span class="highlight">IEN</span> can be set and cleared with two instructions:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>ION:</strong> Set IEN to 1 (enable interrupts)</li>
+                    <li><strong>IOF:</strong> Clear IEN to 0 (disable interrupts)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="interactive-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🔄 Interactive Interrupt Cycle</h2>
+            
+            <div class="tab-container">
+                <button class="tab-button active" onclick="showTab('flowchart')">Flowchart</button>
+                <button class="tab-button" onclick="showTab('cycle')">Interrupt Cycle</button>
+                <button class="tab-button" onclick="showTab('memory')">Memory Changes</button>
+                <button class="tab-button" onclick="showTab('code')">Register Transfers</button>
+            </div>
+
+            <div id="flowchart" class="tab-content active">
+                <div class="flowchart">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Interrupt Handling Flow</h3>
+                    <center><img src="interrupt_flow.png" alt="Flowchart of Interrupt" width="600px"></center>
+                </div>
+            </div>
+
+            <div id="cycle" class="tab-content">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Interrupt Cycle Process</h3>
+                <p>The interrupt cycle is triggered after the execute phase when <strong>R = 1</strong>, <strong>IEN = 1</strong>, and the flag bit is set.</p>
+                
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px;">🔄 What Happens During Interrupt?</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Store Context:</strong> Return address is saved to location 0</li>
+                        <li><strong>Branch to Handler:</strong> Program jumps to interrupt service routine at location 1</li>
+                        <li><strong>Clear Flags:</strong> IEN = 0 and R = 0</li>
+                        <li><strong>Process Interrupt:</strong> Execute service routine</li>
+                        <li><strong>Return:</strong> Use indirect branch to resume main program</li>
+                    </ol>
+                </div>
+
+                <div class="code-block" style="margin-top: 20px;">
+Example: Address 255 executing any instruction<br>
+Interrupt occurs → PC = 256<br>
+After interrupt cycle:<br>
+&nbsp;&nbsp;  - Return address 256 stored in location 0<br>
+&nbsp;&nbsp;  - IEN and R cleared to 0 <br>
+&nbsp;&nbsp;  - Program jumps to location 1, execute service routine<br>
+                </div>
+            </div>
+
+            <div id="memory" class="tab-content">
+                
+            <center> <img src="interrupt_cycle.png" alt="Int Cycle" width="800px">   </center>
+            </div>
+
+            <div id="code" class="tab-content">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Register Transfer Statements</h3>
+                <p>The interrupt cycle involves the following sequence of operations:</p>
+                
+                <div class="code-block">
+<strong>Timing Signals and Operations:</strong>
+
+T₀'T₁'T₂'(IEN)(FGO + FGI): R ← 1<br><br>
+
+<strong>First Timing Signal (R = 1, T₀):</strong><br>
+RT₀:  AR ← 0,    TR ← PC<br><br>
+
+<strong>Second Timing Signal (R = 1, T₁):</strong><br>
+RT₁:  M[AR] ← TR,    PC ← 0<br><br>
+
+<strong>Third Timing Signal (R = 1, T₂):</strong><br>
+RT₂:  PC ← PC + 1,    IEN ← 0,    R ← 0,    SC ← 0
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4>Explanation:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>T₀:</strong> Transfer PC to TR, set AR to 0</li>
+                        <li><strong>T₁:</strong> Store return address in memory location 0, clear PC</li>
+                        <li><strong>T₂:</strong> Increment PC to 1, disable interrupts, return to instruction cycle</li>
+                    </ul>
+                </div>
+
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #f59e0b;">
+                    <strong>💡 Key Point:</strong> The control goes through fetch phase with PC=0, then indirect phase to read effective address from location 0, jumping to the interrupt service routine.
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>🎓 Summary</h2>
+            <p>Program interrupt provides an efficient mechanism for handling I/O operations by:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Allowing CPU to work on other tasks while waiting for I/O</li>
+                <li>Automatically saving program context when interrupt occurs</li>
+                <li>Branching to service routines to handle I/O operations</li>
+                <li>Returning control to the interrupted program seamlessly</li>
+            </ul>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="computer_description_webpage.html" class="btn btn-primary">Start Learning Complete Computer Description</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

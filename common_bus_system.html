@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Bus System - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .bus-simulator {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .register-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .register {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .register:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .register.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .register-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .register-bits {
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+
+        .bus-line {
+            height: 60px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            position: relative;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        .bus-line::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: busFlow 2s infinite;
+        }
+
+        @keyframes busFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .selection-control {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .select-input {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .bit-toggle {
+            width: 60px;
+            height: 60px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .bit-toggle.active {
+            background: #667eea;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f5f7fa;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 5px solid #e17055;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	 .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+        .info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-display {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Common Bus System</h1>
+            <p class="subtitle">Interactive Computer Architecture Learning Module</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">💡</span>Why a Common Bus?</h2>
+                <p>A basic computer system has eight registers, memory, and a control unit. Instead of connecting every register to every other register (which would require excessive wiring), we use a <strong>common bus system</strong>.</p>
+                <div class="highlight-box">
+                    <strong>Key Benefit:</strong> Efficient information transfer between multiple registers with minimal hardware complexity!
+                </div>
+                <ul class="feature-list">
+                    <li>Reduces wiring complexity exponentially</li>
+                    <li>Uses multiplexers or three-state buffers</li>
+                    <li>Enables simultaneous access control</li>
+                    <li>Scalable for multiple components</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">📐</span>System Specifications</h2>
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="info-badge">16-bit Common Bus</div>
+                    <div class="info-badge">7 Connected Components</div>
+                    <div class="info-badge">3 Selection Inputs</div>
+                </div>
+                <p><strong>Components Connected:</strong></p>
+                <ul class="feature-list">
+                    <li>6 Registers (AR, PC, DR, AC, IR, TR)</li>
+                    <li>1 Memory Unit (4096×16 bits)</li>
+                    <li>Control via S₂S₁S₀ selection lines</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Memory Configuration:</strong> 4096 words × 16 bits per word</p>
+            </div>
+	     <div class="card full-width">
+                <h2><span class="icon">📐</span>System Architecture</h2>
+		<center><img src="reg_bus.png"></center>
+	     </div>
+	    
+
+	    
+            <div class="card full-width">
+                <h2><span class="icon">🎮</span>Interactive Bus Simulator</h2>
+                <div class="bus-simulator">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Click a register to select it on the bus</h3>
+                    
+                    <div class="register-container">
+                        <div class="register" data-select="001" data-name="AR" data-bits="12">
+                            <div class="register-name">AR</div>
+                            <div class="register-bits">Address Register (12-bit)</div>
+                        </div>
+                        <div class="register" data-select="010" data-name="PC" data-bits="12">
+                            <div class="register-name">PC</div>
+                            <div class="register-bits">Program Counter (12-bit)</div>
+                        </div>
+                        <div class="register" data-select="011" data-name="DR" data-bits="16">
+                            <div class="register-name">DR</div>
+                            <div class="register-bits">Data Register (16-bit)</div>
+                        </div>
+                        <div class="register" data-select="100" data-name="AC" data-bits="16">
+                            <div class="register-name">AC</div>
+                            <div class="register-bits">Accumulator (16-bit)</div>
+                        </div>
+                        <div class="register" data-select="101" data-name="IR" data-bits="16">
+                            <div class="register-name">IR</div>
+                            <div class="register-bits">Instruction Register (16-bit)</div>
+                        </div>
+                        <div class="register" data-select="110" data-name="TR" data-bits="16">
+                            <div class="register-name">TR</div>
+                            <div class="register-bits">Temporary Register (16-bit)</div>
+                        </div>
+                        <div class="register" data-select="111" data-name="Memory" data-bits="16">
+                            <div class="register-name">Memory</div>
+                            <div class="register-bits">Memory Unit (16-bit)</div>
+                        </div>
+                    </div>
+
+                    <div class="bus-line" id="busLine">
+                        16-BIT COMMON BUS
+                    </div>
+
+                    <div class="selection-control">
+                        <h4 style="text-align: center;">Bus Selection Control: S₂S₁S₀</h4>
+                        <div class="select-input">
+                            <div>
+                                <div>S₂</div>
+                                <div class="bit-toggle" data-bit="0">0</div>
+                            </div>
+                            <div>
+                                <div>S₁</div>
+                                <div class="bit-toggle" data-bit="1">0</div>
+                            </div>
+                            <div>
+                                <div>S₀</div>
+                                <div class="bit-toggle" data-bit="2">0</div>
+                            </div>
+                        </div>
+                        <div class="status-display" id="statusDisplay">
+                            Select a register or toggle selection bits
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <h2><span class="icon">📊</span>Bus Selection Table</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Output Line</th>
+                            <th>Register/Unit</th>
+                            <th>Binary Select (S₂S₁S₀)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><strong>AR</strong></td>
+                            <td>001</td>
+                            <td>Address Register (12-bit, 4 MSBs = 0)</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>PC</strong></td>
+                            <td>010</td>
+                            <td>Program Counter (12-bit, 4 MSBs = 0)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>DR</strong></td>
+                            <td>011</td>
+                            <td>Data Register (16-bit)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>AC</strong></td>
+                            <td>100</td>
+                            <td>Accumulator (16-bit, via Adder/Logic)</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td><strong>IR</strong></td>
+                            <td>101</td>
+                            <td>Instruction Register (16-bit)</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td><strong>TR</strong></td>
+                            <td>110</td>
+                            <td>Temporary Register (16-bit)</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td><strong>Memory</strong></td>
+                            <td>111</td>
+                            <td>Memory Unit (16-bit output)</td>
+                        </tr>
+                        <tr>
+                            <td>—</td>
+                            <td><strong>None</strong></td>
+                            <td>000</td>
+                            <td>No register selected</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+	     <div class="card">
+                <h2><span class="icon">🔧</span>Register Details</h2>
+                <h3 style="color: #667eea; margin: 20px 0 10px 0;">16-bit Registers</h3>
+                <ul class="feature-list">
+                    <li><strong>DR, TR:</strong> Full 16-bit data transfer</li>
+                    <li><strong>AC:</strong> Connected via Adder/Logic Circuit</li>
+                    <li><strong>IR:</strong> Holds instruction code (LD only)</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px 0;">12-bit Registers</h3>
+                <ul class="feature-list">
+                    <li><strong>AR, PC:</strong> Memory address registers</li>
+                    <li>4 MSBs set to 0 on bus transfer</li>
+                    <li>Only 12 LSBs loaded from bus</li>
+                    <li>PC supports INR (increment)</li>
+                </ul>
+
+                <h3 style="color: #667eea; margin: 20px 0 10px 0;">8-bit I/O Registers</h3>
+                <ul class="feature-list">
+                    <li><strong>INPR:</strong> Connected to Adder/Logic Unit</li>
+                    <li><strong>OUTR:</strong> Receives from bus only</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">⚙️</span>Control Inputs</h2>
+                <p>Most registers have three control inputs:</p>
+                <div style="margin: 20px 0;">
+                    <div class="info-badge">LD - Load</div>
+                    <div class="info-badge">INR - Increment</div>
+                    <div class="info-badge">CLR - Clear</div>
+                </div>
+                
+                <h3 style="color: #667eea; margin: 20px 0 10px 0;">Special Cases:</h3>
+                <ul class="feature-list">
+                    <li><strong>IR:</strong> Only has LD input</li>
+                    <li><strong>AC:</strong> Loads via Adder/Logic Circuit</li>
+                    <li><strong>Memory:</strong> Uses Read/Write signals</li>
+                    <li><strong>AR:</strong> Always specifies memory address</li>
+                </ul>
+
+                <div class="highlight-box" style="margin-top: 20px;">
+                    <strong>Memory Operations:</strong><br>
+                    Read: DR ← M[AR]<br>
+                    Write: M[AR] ← Data from Bus
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="computer_instructions_webpage.html" class="btn btn-primary">
+        Start Learning Computer Instructions
+    </a>
+</div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        const registers = document.querySelectorAll('.register');
+        const bitToggles = document.querySelectorAll('.bit-toggle');
+        const statusDisplay = document.getElementById('statusDisplay');
+        let selectionBits = [0, 0, 0];
+
+        registers.forEach(reg => {
+            reg.addEventListener('click', () => {
+                registers.forEach(r => r.classList.remove('active'));
+                reg.classList.add('active');
+                
+                const selectCode = reg.dataset.select;
+                const name = reg.dataset.name;
+                const bits = reg.dataset.bits;
+                
+                selectionBits = selectCode.split('').map(Number);
+                updateBitToggles();
+                
+                statusDisplay.textContent = `✓ ${name} selected on bus (${bits}-bit transfer) - Select: ${selectCode}`;
+            });
+        });
+
+        bitToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const bitIndex = parseInt(toggle.dataset.bit);
+                selectionBits[bitIndex] = selectionBits[bitIndex] === 0 ? 1 : 0;
+                updateBitToggles();
+                updateRegisterSelection();
+            });
+        });
+
+        function updateBitToggles() {
+            bitToggles.forEach((toggle, index) => {
+                const bitIndex = parseInt(toggle.dataset.bit);
+                toggle.textContent = selectionBits[bitIndex];
+                toggle.classList.toggle('active', selectionBits[bitIndex] === 1);
+            });
+        }
+
+        function updateRegisterSelection() {
+            const selectCode = selectionBits.join('');
+            registers.forEach(r => r.classList.remove('active'));
+            
+            const selectedReg = Array.from(registers).find(r => r.dataset.select === selectCode);
+            if (selectedReg) {
+                selectedReg.classList.add('active');
+                statusDisplay.textContent = `✓ ${selectedReg.dataset.name} selected on bus (${selectedReg.dataset.bits}-bit transfer) - Select: ${selectCode}`;
+            } else {
+                statusDisplay.textContent = selectCode === '000' ? 'No register selected (000)' : `Invalid selection: ${selectCode}`;
+            }
+        }
+    </script>
+</body>
+</html>

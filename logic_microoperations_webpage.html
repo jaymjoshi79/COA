@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Microoperations - Section 4.5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .operation {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .operation:hover {
+            transform: scale(1.05);
+        }
+
+        .hardware-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .hardware-section h3 {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .select-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .select-input {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        .applications {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .application {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .example {
+            background: rgba(103, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid #667eea;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .binary-display {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #e74c3c;
+        }
+	.btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+	  dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            color: #555;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .operations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .select-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="fade-in">
+            <h1>Logic Microoperations</h1>
+        </header>
+
+        <div class="intro-text fade-in">
+            <strong>Microoperations</strong> are fundamental, low-level operations executed on data stored in registers within a digital computer. They are crucial for manipulating individual bits or portions of binary data within registers and can be used to implement complex machine instructions.
+        </div>
+
+        <div class="content-grid">
+            <div class="card full-width fade-in">
+                <h2>16 Logic Microoperations</h2>
+                <p>The following are key logic microoperations that can be performed on two binary variables (x and y):</p>
+                <table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse; width: 100%; text-align: center;">
+            <thead>
+                <tr>
+                    <th>x</th>
+                    <th>y</th>
+                    <th>F<sub>0</sub></th>
+                    <th>F<sub>1</sub></th>
+                    <th>F<sub>2</sub></th>
+                    <th>F<sub>3</sub></th>
+                    <th>F<sub>4</sub></th>
+                    <th>F<sub>5</sub></th>
+                    <th>F<sub>6</sub></th>
+                    <th>F<sub>7</sub></th>
+                    <th>F<sub>8</sub></th>
+                    <th>F<sub>9</sub></th>
+                    <th>F<sub>10</sub></th>
+                    <th>F<sub>11</sub></th>
+                    <th>F<sub>12</sub></th>
+                    <th>F<sub>13</sub></th>
+                    <th>F<sub>14</sub></th>
+                    <th>F<sub>15</sub></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td><td>0</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                    <td>1</td><td>1</td><td>1</td><td>1</td>
+                    <td>1</td><td>1</td><td>1</td><td>1</td>
+                </tr>
+                <tr>
+                    <td>0</td><td>1</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                    <td>1</td><td>1</td><td>1</td><td>1</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                    <td>1</td><td>1</td><td>1</td><td>1</td>
+                </tr>
+                <tr>
+                    <td>1</td><td>0</td>
+                    <td>0</td><td>0</td><td>1</td><td>1</td>
+                    <td>0</td><td>0</td><td>1</td><td>1</td>
+                    <td>0</td><td>0</td><td>1</td><td>1</td>
+                    <td>0</td><td>0</td><td>1</td><td>1</td>
+                </tr>
+                <tr>
+                    <td>1</td><td>1</td>
+                    <td>0</td><td>1</td><td>0</td><td>1</td>
+                    <td>0</td><td>1</td><td>0</td><td>1</td>
+                    <td>0</td><td>1</td><td>0</td><td>1</td>
+                    <td>0</td><td>1</td><td>0</td><td>1</td>
+                </tr>
+            </tbody>
+        </table>
+                <div class="operations-grid">
+                    <div class="operation">F₀ = 0<br>F ← 0 (Clear)</div>
+                    <div class="operation">F₁ = xy<br>F ← A ∧ B (AND)</div>
+		    <div class="operation">F<sub>2</sub> = xy'<br>F ← A ∧ <span style="text-decoration: overline;">B</span> </div>
+                    <div class="operation">F₃ = x<br>F ← A (Transfer A)</div>
+		     <div class="operation">F<sub>4</sub> = x'y<br>F ← <span style="text-decoration: overline;">A</span> ∧ B </div>
+                    <div class="operation">F₅ = y<br>F ← B (Transfer B)</div>
+                    <div class="operation">F₆ = x ⊕ y<br>F ← A ⊕ B (Exclusive-OR)</div>
+                    <div class="operation">F₇ = x + y<br>F ← A ∨ B (OR Operation)</div>
+                    <div class="operation">F₈ = (x + y)'<br>F ← <span style="text-decoration: overline;">A ∨ B</span> (NOR)</div>
+		    <div class="operation">F<sub>9</sub> = (x ⊕ y)'<br>F ← <span style="text-decoration: overline;">A ⊕ B</span> (Exclusive-NOR)</div>
+		    <div class="operation">F<sub>10</sub> = y'<br>F ← <span style="text-decoration: overline;">B</span> (Complement B)</div>
+                    <div class="operation">F<sub>11</sub> = x + y'<br>F ← A ∨ <span style="text-decoration: overline;">B</span></div>
+                    <div class="operation">F₁₂ = x'<br>F ← <span style="text-decoration: overline;">A</span> (Complement A)</div>
+                     <div class="operation">F<sub>13</sub> = x' + y<br>F ← <span style="text-decoration: overline;">A</span> ∨ B</div>
+                    <div class="operation">F₁₄ = (xy)'<br>F ← <span style="text-decoration: overline;">A ∧ B</span> (NAND)</div>
+                    <div class="operation">F₁₅ = 1<br>F ← all 1's (Set all bits to 1)</div>
+                </div>
+            </div>
+
+            <div class="card full-width fade-in">
+                <div class="hardware-section">
+                    <h3>Hardware Implementation</h3>
+                    <p style="color: white;">Logic microoperations are implemented using logic gates combined with multiplexers. A one-stage logic circuit can generate four basic operations using a 4x1 multiplexer.</p>
+                    
+                    <div class="select-inputs">
+                        <div class="select-input">S<sub>1</sub>S<sub>0</sub> = 00<br>AND Operation</div>
+                        <div class="select-input">S<sub>1</sub>S<sub>0</sub> = 01<br>OR Operation</div>
+                        <div class="select-input">S<sub>1</sub>S<sub>0</sub> = 10<br>XOR Operation</div>
+                        <div class="select-input">S<sub>1</sub>S<sub>0</sub> = 11<br>Complement A</div>
+                    </div>
+		</div>
+		<div style="text-align: center;">
+		<button class="btn" button id="showFigureBtn">See the Figure</button>
+		</div>
+    <dialog id="figureDialog">
+        <img src="logic_circuit.png" alt="Logic Circuit" width="400px">
+        <br><br>
+        <button class="btn"  button id="closeDialogBtn">Close</button>
+    </dialog>
+            </div>
+	    
+            <div class="card full-width fade-in">
+                <h2>Common Applications</h2>
+                <div class="applications">
+                    <div class="application">
+                        <h3>1. Selective Set Operation</h3>
+                        <p>Sets bits in register A to '1' where corresponding bits in register B are '1'.</p>
+                        <p><strong>Formula:</strong> A ← A ∨ B</p>
+                        <div class="example">
+                            <div class="example-title">Example:</div>
+                            A before: <span class="binary-display">1010</span><br>
+                            B (operand): <span class="binary-display">1100</span><br>
+                            A after: <span class="binary-display">1110</span>
+                        </div>
+                    </div>
+
+                    <div class="application">
+                        <h3>2. Selective Clear Operation</h3>
+                        <p>Clears bits in register A where corresponding bits in register B are '1'.</p>
+                        <p><strong>Formula:</strong> A ← A ∧ <span style="text-decoration: overline;">B</span></p>
+                        <div class="example">
+                            <div class="example-title">Example:</div>
+                            A before: <span class="binary-display">1010</span><br>
+                            B (operand): <span class="binary-display">1100</span><br>
+                            A after: <span class="binary-display">0010</span>
+                        </div>
+                    </div>
+
+                    <div class="application">
+                        <h3>3. Selective Complement Operation</h3>
+                        <p>Complements bits in register A where corresponding bits in register B are '1'.</p>
+                        <p><strong>Formula:</strong> A ← A ⊕ B</p>
+                        <div class="example">
+                            <div class="example-title">Example:</div>
+                            A before: <span class="binary-display">1010</span><br>
+                            B (operand): <span class="binary-display">1100</span><br>
+                            A after: <span class="binary-display">0110</span>
+                        </div>
+                    </div>
+
+                    <div class="application">
+                        <h3>4. Mask Operation</h3>
+                        <p>Clears bits in register A where corresponding bits in register B are '0', isolating specific bit groups.</p>
+                        <p><strong>Formula:</strong> A ← A ∧ B</p>
+                        <div class="example">
+                            <div class="example-title">Example:</div>
+                            A before: <span class="binary-display">1010</span><br>
+                            B (mask): <span class="binary-display">1100</span><br>
+                            A after: <span class="binary-display">1000</span>
+                        </div>
+                    </div>
+
+                    <div class="application">
+                        <h3>5. Insert Operation</h3>
+                        <p>Inserts a new value into specific bit positions using a two-step process: mask to clear, then OR to insert.</p>
+                        <div class="example">
+                            <div class="example-title">Example: Insert 1001 into left four bits:</div>
+                            A before: <span class="binary-display">0110 1010</span><br>
+                            After masking: <span class="binary-display">0000 1010</span><br>
+                            After insertion: <span class="binary-display">1001 1010</span>
+                        </div>
+                    </div>
+
+                    <div class="application">
+                        <h3>6. Clear Operation (Comparison)</h3>
+                        <p>Compares two numbers and produces all '0's if they are equal using XOR operation.</p>
+                        <p><strong>Formula:</strong> A ← A ⊕ B</p>
+                        <div class="example">
+                            <div class="example-title">Example:</div>
+                            A: <span class="binary-display">1010</span><br>
+                            B: <span class="binary-display">1010</span><br>
+                            Result: <span class="binary-display">0000</span> (Equal!)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="shift-microoperations-webpage.html" class="btn btn-primary">
+        Start Learning Shift Microoperations
+    </a>
+</div>
+	
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+	const showBtn = document.getElementById('showFigureBtn');
+        const closeBtn = document.getElementById('closeDialogBtn');
+        const dialog = document.getElementById('figureDialog');
+
+        showBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            dialog.close();
+        });
+        // Add smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards for animation
+        document.querySelectorAll('.card, .application').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Add interactive hover effects
+        document.querySelectorAll('.operation').forEach(op => {
+            op.addEventListener('mouseenter', () => {
+                op.style.transform = 'scale(1.1) rotate(2deg)';
+                op.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+            });
+            
+            op.addEventListener('mouseleave', () => {
+                op.style.transform = 'scale(1) rotate(0deg)';
+                op.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

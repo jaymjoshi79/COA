@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Transfer & Manipulation Instructions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subsection-title {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .instruction-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .instruction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .instruction-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .instruction-mnemonic {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .addressing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .addressing-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .addressing-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .addressing-table tr:hover {
+            background: #f5f7fa;
+        }
+
+        .addressing-table code {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #555;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #667eea;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .visualization-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .register {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 3px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#333;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            margin: 5px 0;
+        }
+
+        .keyword {
+            color: #ff79c6;
+        }
+
+        .comment {
+            color: #6272a4;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .instruction-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .addressing-table {
+                font-size: 0.9em;
+            }
+
+            .register-demo {
+                flex-direction: column;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 CPU Instructions</h1>
+            <p>Data Transfer & Manipulation Instructions</p>
+        </header>
+
+        <div class="content">
+           
+
+            <div class="category-tabs">
+                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="showTab('transfer')">Data Transfer</button>
+                <button class="tab-btn" onclick="showTab('arithmetic')">Arithmetic</button>
+                <button class="tab-btn" onclick="showTab('logical')">Logical & Bit</button>
+                <button class="tab-btn" onclick="showTab('shift')">Shift</button>
+                <button class="tab-btn" onclick="showTab('control')">Program Control</button>
+            </div>
+
+            <div id="overview" class="tab-content active">
+                <h2 class="section-title">Instruction Categories</h2>
+                <p style="margin-bottom: 20px;">Computer instructions are classified into three major categories:</p>
+                
+                <div class="stats-container">
+                    <div class="stat-card" onclick="showTab('transfer')" style="cursor: pointer;">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Data Transfer</div>
+                    </div>
+                    <div class="stat-card" onclick="showTab('arithmetic')" style="cursor: pointer;">
+                        <div class="stat-number">18</div>
+                        <div class="stat-label">Data Manipulation</div>
+                    </div>
+                    <div class="stat-card" onclick="showTab('control')" style="cursor: pointer;">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">Program Control</div>
+                    </div>
+                </div>
+
+                <div class="visualization-box">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">📊 Instruction Distribution</h3>
+                    <div>
+                        <p style="margin: 10px 0;"><strong>Data Transfer Instructions</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 24%;">24%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="margin: 10px 0;"><strong>Data Manipulation Instructions</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 55%;">55%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="margin: 10px 0;"><strong>Program Control Instructions</strong></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 21%;">21%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>💡 Did You Know?</h3>
+                    <p>The addressing mode determines how an instruction accesses its operands. Different modes provide flexibility in how data is referenced and manipulated, making programs more efficient and compact.</p>
+                </div>
+
+                <div class="visualization-box">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">🎯 Quick Demo: Data Transfer</h3>
+                    <div class="register-demo" id="demoArea">
+                        <div class="register" id="reg1">AC: 0000</div>
+                        <div class="arrow">←</div>
+                        <div class="register" id="reg2">MEM: 1234</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="demo-button" onclick="runDemo('load')">LD Demo</button>
+                        <button class="demo-button" onclick="runDemo('add')">ADD Demo</button>
+                        <button class="demo-button" onclick="runDemo('shift')">SHL Demo</button>
+                        <button class="demo-button" onclick="resetDemo()">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transfer" class="tab-content">
+                <h2 class="section-title">Data Transfer Instructions</h2>
+                <p style="margin-bottom: 20px;">These instructions move data between registers, memory, and I/O devices.</p>
+
+                <div class="visualization-box">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💻 Code Example</h3>
+                    <div class="code-example">
+                        <div class="code-line"><span class="keyword">LD</span> R1        <span class="comment">; Load R1 into AC</span></div>
+                        <div class="code-line"><span class="keyword">ST</span> RESULT    <span class="comment">; Store AC to RESULT</span></div>
+                        <div class="code-line"><span class="keyword">MOV</span> R2, R1   <span class="comment">; Move R1 to R2</span></div>
+                        <div class="code-line"><span class="keyword">PUSH</span> AC      <span class="comment">; Push AC onto stack</span></div>
+                        <div class="code-line"><span class="keyword">POP</span> AC       <span class="comment">; Pop from stack to AC</span></div>
+                    </div>
+                </div>
+
+                <div class="instruction-grid" id="transferGrid">
+                    <div class="instruction-card" onclick="showModal('Load', 'LD', 'Loads data from memory or register into the accumulator')">
+                        <div class="instruction-name">Load</div>
+                        <div class="instruction-mnemonic">LD</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Store', 'ST', 'Stores data from accumulator to memory')">
+                        <div class="instruction-name">Store</div>
+                        <div class="instruction-mnemonic">ST</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Move', 'MOV', 'Moves data between registers')">
+                        <div class="instruction-name">Move</div>
+                        <div class="instruction-mnemonic">MOV</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Exchange', 'XCH', 'Exchanges contents of two registers')">
+                        <div class="instruction-name">Exchange</div>
+                        <div class="instruction-mnemonic">XCH</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Input', 'IN', 'Reads data from input device')">
+                        <div class="instruction-name">Input</div>
+                        <div class="instruction-mnemonic">IN</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Output', 'OUT', 'Sends data to output device')">
+                        <div class="instruction-name">Output</div>
+                        <div class="instruction-mnemonic">OUT</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Push', 'PUSH', 'Pushes data onto the stack')">
+                        <div class="instruction-name">Push</div>
+                        <div class="instruction-mnemonic">PUSH</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Pop', 'POP', 'Pops data from the stack')">
+                        <div class="instruction-name">Pop</div>
+                        <div class="instruction-mnemonic">POP</div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Addressing Modes with LD Instruction</h3>
+                <table class="addressing-table">
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Assembly Convention</th>
+                            <th>Register Transfer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Direct address</strong></td>
+                            <td><code>LD ADR</code></td>
+                            <td>AC ← M[ADR]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Indirect address</strong></td>
+                            <td><code>LD @ADR</code></td>
+                            <td>AC ← M[M[ADR]]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relative address</strong></td>
+                            <td><code>LD $ADR</code></td>
+                            <td>AC ← M[PC + ADR]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Immediate operand</strong></td>
+                            <td><code>LD #NBR</code></td>
+                            <td>AC ← NBR</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Index addressing</strong></td>
+                            <td><code>LD ADR(X)</code></td>
+                            <td>AC ← M[ADR + XR]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Register</strong></td>
+                            <td><code>LD R1</code></td>
+                            <td>AC ← R1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Register indirect</strong></td>
+                            <td><code>LD (R1)</code></td>
+                            <td>AC ← M[R1]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Autoincrement</strong></td>
+                            <td><code>LD (R1)+</code></td>
+                            <td>AC ← M[R1], R1 ← R1 + 1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="arithmetic" class="tab-content">
+                <h2 class="section-title">Arithmetic Instructions</h2>
+                <p style="margin-bottom: 20px;">Perform numerical computations on data.</p>
+
+                <div class="visualization-box">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🧮 Interactive Calculator</h3>
+                    <div style="display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 20px 0;">
+                        <input type="number" id="num1" placeholder="First number" style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; width: 150px; font-size: 1em;">
+                        <select id="operation" style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 1em;">
+                            <option value="add">ADD</option>
+                            <option value="sub">SUB</option>
+                            <option value="mul">MUL</option>
+                            <option value="div">DIV</option>
+                        </select>
+                        <input type="number" id="num2" placeholder="Second number" style="padding: 10px; border: 2px solid #667eea; border-radius: 8px; width: 150px; font-size: 1em;">
+                        <button class="demo-button" onclick="calculate()">Calculate</button>
+                    </div>
+                    <div id="calcResult" style="text-align: center; font-size: 1.5em; color: #667eea; font-weight: bold; margin-top: 15px;"></div>
+                </div>
+
+                <div class="instruction-grid" id="arithmeticGrid">
+                    <div class="instruction-card" onclick="showModal('Increment', 'INC', 'Adds 1 to the operand')">
+                        <div class="instruction-name">Increment</div>
+                        <div class="instruction-mnemonic">INC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Decrement', 'DEC', 'Subtracts 1 from the operand')">
+                        <div class="instruction-name">Decrement</div>
+                        <div class="instruction-mnemonic">DEC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Add', 'ADD', 'Adds two operands')">
+                        <div class="instruction-name">Add</div>
+                        <div class="instruction-mnemonic">ADD</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Subtract', 'SUB', 'Subtracts second operand from first')">
+                        <div class="instruction-name">Subtract</div>
+                        <div class="instruction-mnemonic">SUB</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Multiply', 'MUL', 'Multiplies two operands')">
+                        <div class="instruction-name">Multiply</div>
+                        <div class="instruction-mnemonic">MUL</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Divide', 'DIV', 'Divides first operand by second')">
+                        <div class="instruction-name">Divide</div>
+                        <div class="instruction-mnemonic">DIV</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Add with Carry', 'ADDC', 'Adds two operands plus carry flag')">
+                        <div class="instruction-name">Add with Carry</div>
+                        <div class="instruction-mnemonic">ADDC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Subtract with Borrow', 'SUBB', 'Subtracts with borrow flag')">
+                        <div class="instruction-name">Subtract with Borrow</div>
+                        <div class="instruction-mnemonic">SUBB</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Negate', 'NEG', 'Computes 2s complement (negation)')">
+                        <div class="instruction-name">Negate</div>
+                        <div class="instruction-mnemonic">NEG</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logical" class="tab-content">
+                <h2 class="section-title">Logical & Bit Manipulation Instructions</h2>
+                <p style="margin-bottom: 20px;">Perform Boolean operations and bit-level manipulations.</p>
+
+                <div class="instruction-grid" id="logicalGrid">
+                    <div class="instruction-card" onclick="showModal('Clear', 'CLR', 'Clears (zeros) the operand')">
+                        <div class="instruction-name">Clear</div>
+                        <div class="instruction-mnemonic">CLR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Complement', 'COM', 'Performs 1s complement')">
+                        <div class="instruction-name">Complement</div>
+                        <div class="instruction-mnemonic">COM</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('AND', 'AND', 'Performs bitwise AND operation')">
+                        <div class="instruction-name">AND</div>
+                        <div class="instruction-mnemonic">AND</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('OR', 'OR', 'Performs bitwise OR operation')">
+                        <div class="instruction-name">OR</div>
+                        <div class="instruction-mnemonic">OR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Exclusive-OR', 'XOR', 'Performs bitwise XOR operation')">
+                        <div class="instruction-name">Exclusive-OR</div>
+                        <div class="instruction-mnemonic">XOR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Clear Carry', 'CLRC', 'Clears the carry flag')">
+                        <div class="instruction-name">Clear Carry</div>
+                        <div class="instruction-mnemonic">CLRC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Set Carry', 'SETC', 'Sets the carry flag')">
+                        <div class="instruction-name">Set Carry</div>
+                        <div class="instruction-mnemonic">SETC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Complement Carry', 'COMC', 'Complements the carry flag')">
+                        <div class="instruction-name">Complement Carry</div>
+                        <div class="instruction-mnemonic">COMC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Enable Interrupt', 'EI', 'Enables interrupt system')">
+                        <div class="instruction-name">Enable Interrupt</div>
+                        <div class="instruction-mnemonic">EI</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Disable Interrupt', 'DI', 'Disables interrupt system')">
+                        <div class="instruction-name">Disable Interrupt</div>
+                        <div class="instruction-mnemonic">DI</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="shift" class="tab-content">
+                <h2 class="section-title">Shift Instructions</h2>
+                <p style="margin-bottom: 20px;">Move bits of a word left or right with various modes.</p>
+
+                <div class="visualization-box">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🔄 Bit Shift Visualizer</h3>
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Courier New', monospace; font-size: 1.5em; margin: 20px 0; color: #667eea; font-weight: bold;" id="bitDisplay">10110100</div>
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button class="demo-button" onclick="shiftBits('left')">← SHL</button>
+                            <button class="demo-button" onclick="shiftBits('right')">SHR →</button>
+                            <button class="demo-button" onclick="shiftBits('rotateLeft')">↺ ROL</button>
+                            <button class="demo-button" onclick="shiftBits('rotateRight')">ROR ↻</button>
+                            <button class="demo-button" onclick="resetBits()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-grid" id="shiftGrid">
+                    <div class="instruction-card" onclick="showModal('Logical Shift Right', 'SHR', 'Shifts bits right, fills with 0')">
+                        <div class="instruction-name">Logical Shift Right</div>
+                        <div class="instruction-mnemonic">SHR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Logical Shift Left', 'SHL', 'Shifts bits left, fills with 0')">
+                        <div class="instruction-name">Logical Shift Left</div>
+                        <div class="instruction-mnemonic">SHL</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Arithmetic Shift Right', 'SHRA', 'Shifts right, preserves sign bit')">
+                        <div class="instruction-name">Arithmetic Shift Right</div>
+                        <div class="instruction-mnemonic">SHRA</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Arithmetic Shift Left', 'SHLA', 'Shifts left arithmetically')">
+                        <div class="instruction-name">Arithmetic Shift Left</div>
+                        <div class="instruction-mnemonic">SHLA</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Rotate Right', 'ROR', 'Rotates bits right circularly')">
+                        <div class="instruction-name">Rotate Right</div>
+                        <div class="instruction-mnemonic">ROR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Rotate Left', 'ROL', 'Rotates bits left circularly')">
+                        <div class="instruction-name">Rotate Left</div>
+                        <div class="instruction-mnemonic">ROL</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Rotate Right Through Carry', 'RORC', 'Rotates right including carry')">
+                        <div class="instruction-name">Rotate Right Through Carry</div>
+                        <div class="instruction-mnemonic">RORC</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Rotate Left Through Carry', 'ROLC', 'Rotates left including carry')">
+                        <div class="instruction-name">Rotate Left Through Carry</div>
+                        <div class="instruction-mnemonic">ROLC</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="control" class="tab-content">
+                <h2 class="section-title">Program Control Instructions</h2>
+                <p style="margin-bottom: 20px;">Control the flow of program execution by modifying the Program Counter (PC).</p>
+
+                <div class="info-box">
+                    <h3>🎯 Program Control</h3>
+                    <p>These instructions alter the address value in the Program Counter, enabling branching and changing the normal sequential flow of program execution.</p>
+                </div>
+
+                <div class="instruction-grid" id="controlGrid">
+                    <div class="instruction-card" onclick="showModal('Branch', 'BR', 'Conditional branch to address')">
+                        <div class="instruction-name">Branch</div>
+                        <div class="instruction-mnemonic">BR</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Jump', 'JMP', 'Unconditional jump to address')">
+                        <div class="instruction-name">Jump</div>
+                        <div class="instruction-mnemonic">JMP</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Skip', 'SKP', 'Skip next instruction conditionally')">
+                        <div class="instruction-name">Skip</div>
+                        <div class="instruction-mnemonic">SKP</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Call', 'CALL', 'Calls a subroutine')">
+                        <div class="instruction-name">Call</div>
+                        <div class="instruction-mnemonic">CALL</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Return', 'RET', 'Returns from subroutine')">
+                        <div class="instruction-name">Return</div>
+                        <div class="instruction-mnemonic">RET</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Compare', 'CMP', 'Compares by subtraction')">
+                        <div class="instruction-name">Compare</div>
+                        <div class="instruction-mnemonic">CMP</div>
+                    </div>
+                    <div class="instruction-card" onclick="showModal('Test', 'TST', 'Tests by ANDing')">
+                        <div class="instruction-name">Test</div>
+                        <div class="instruction-mnemonic">TST</div>
+                    </div>
+                </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="program_control_webpage.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Program Control</a>
+                </div>
+            </div>
+		
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+	
+        </div>
+
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="color: #667eea; margin-bottom: 10px;"></h2>
+            <p><strong>Mnemonic:</strong> <code id="modalMnemonic" style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px; color: #667eea;"></code></p>
+            <p id="modalDescription" style="margin-top: 15px; color: #555;"></p>
+        </div>
+    </div>
+
+    <script>
+        let currentBits = '10110100';
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update button active state
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabName) || 
+                    (tabName === 'transfer' && btn.textContent.includes('Transfer')) ||
+                    (tabName === 'arithmetic' && btn.textContent.includes('Arithmetic')) ||
+                    (tabName === 'logical' && btn.textContent.includes('Logical')) ||
+                    (tabName === 'shift' && btn.textContent.includes('Shift')) ||
+                    (tabName === 'control' && btn.textContent.includes('Control')) ||
+                    (tabName === 'overview' && btn.textContent.includes('Overview'))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function showModal(name, mnemonic, description) {
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalMnemonic').textContent = mnemonic;
+            document.getElementById('modalDescription').textContent = description;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+       
+
+        // Demo functions
+        function runDemo(type) {
+            const reg1 = document.getElementById('reg1');
+            const reg2 = document.getElementById('reg2');
+            
+            if (type === 'load') {
+                reg1.textContent = 'AC: 1234';
+                reg1.style.animation = 'none';
+                setTimeout(() => {
+                    reg1.style.animation = 'fadeIn 0.5s ease';
+                }, 10);
+            } else if (type === 'add') {
+                reg1.textContent = 'AC: 0000';
+                reg2.textContent = 'MEM: 5678';
+                setTimeout(() => {
+                    reg1.textContent = 'AC: 5678';
+                    reg1.style.animation = 'fadeIn 0.5s ease';
+                }, 500);
+            } else if (type === 'shift') {
+                reg1.textContent = 'AC: 0010';
+                reg2.textContent = 'SHL';
+                setTimeout(() => {
+                    reg1.textContent = 'AC: 0100';
+                    reg1.style.animation = 'fadeIn 0.5s ease';
+                }, 500);
+            }
+        }
+
+        function resetDemo() {
+            document.getElementById('reg1').textContent = 'AC: 0000';
+            document.getElementById('reg2').textContent = 'MEM: 1234';
+        }
+
+        // Calculator function
+        function calculate() {
+            const num1 = parseFloat(document.getElementById('num1').value) || 0;
+            const num2 = parseFloat(document.getElementById('num2').value) || 0;
+            const operation = document.getElementById('operation').value;
+            let result = 0;
+            let opName = '';
+
+            switch(operation) {
+                case 'add':
+                    result = num1 + num2;
+                    opName = 'ADD';
+                    break;
+                case 'sub':
+                    result = num1 - num2;
+                    opName = 'SUB';
+                    break;
+                case 'mul':
+                    result = num1 * num2;
+                    opName = 'MUL';
+                    break;
+                case 'div':
+                    result = num2 !== 0 ? num1 / num2 : 'Error: Div by 0';
+                    opName = 'DIV';
+                    break;
+            }
+
+            document.getElementById('calcResult').textContent = 
+                typeof result === 'number' ? `${opName}: ${num1} → ${result}` : result;
+        }
+
+        // Bit shift functions
+        function shiftBits(direction) {
+            let bits = currentBits;
+            
+            switch(direction) {
+                case 'left':
+                    bits = bits.substring(1) + '0';
+                    break;
+                case 'right':
+                    bits = '0' + bits.substring(0, bits.length - 1);
+                    break;
+                case 'rotateLeft':
+                    bits = bits.substring(1) + bits[0];
+                    break;
+                case 'rotateRight':
+                    bits = bits[bits.length - 1] + bits.substring(0, bits.length - 1);
+                    break;
+            }
+            
+            currentBits = bits;
+            document.getElementById('bitDisplay').textContent = bits;
+        }
+
+        function resetBits() {
+            currentBits = '10110100';
+            document.getElementById('bitDisplay').textContent = currentBits;
+        }
+    </script>
+</body>
+</html>

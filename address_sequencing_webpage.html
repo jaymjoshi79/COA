@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Sequencing in Microprogrammed Control Units</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #3498db, #2c3e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #3498db;
+            position: relative;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .capability-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .capability-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .capability-card:hover::before {
+            left: 100%;
+        }
+
+        .capability-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .capability-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .components-diagram {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .component-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .component-box:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .component-details {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0 8px 8px 0;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .component-details.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-output {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .operation-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .flow-step:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .flow-step::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: #3498db;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8ff78 0%, #78ffd6 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .tab-container {
+            margin: 2rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px 25px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+
+        .tab-btn.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .tab-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0 15px 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #495057;
+            margin-top: 2px;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .capabilities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Address Sequencing in Microprogrammed Control Units</h1>
+            <p>Interactive Learning Experience</p>
+            <div class="progress-bar">
+                <div class="progress" id="readingProgress"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Introduction</h2>
+            <p>In a digital computer, the <span class="highlight">control unit's primary function</span> is to initiate a sequence of operations. When a control unit is microprogrammed, it uses <span class="highlight">microcode</span> – a lower-level control program – to implement the necessary control signals for executing instructions.</p>
+            
+            <p><strong>Address sequencing</strong> refers to the capabilities required within a microprogrammed control unit to determine the order in which microinstructions are fetched and executed.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Key Capabilities Required</h2>
+            <div class="capabilities-grid">
+                <div class="capability-card" onclick="highlightCapability(1)">
+                    <h4>1. Incrementing CAR</h4>
+                    <p>Advancing to the next microinstruction in sequential program flow</p>
+                </div>
+                <div class="capability-card" onclick="highlightCapability(2)">
+                    <h4>2. Conditional/Unconditional Branching</h4>
+                    <p>Changing sequence based on conditions or unconditionally</p>
+                </div>
+                <div class="capability-card" onclick="highlightCapability(3)">
+                    <h4>3. Instruction Mapping</h4>
+                    <p>Translating opcode to control memory address</p>
+                </div>
+                <div class="capability-card" onclick="highlightCapability(4)">
+                    <h4>4. Subroutine Support</h4>
+                    <p>Call and return facility for microprogram subroutines</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏗️ System Components</h2>
+            <div class="components-diagram">
+                <div class="component-box" onclick="toggleDetails('rom-details')">
+                    Control Memory (ROM) 📁
+                </div>
+                <div class="component-details" id="rom-details">
+                    <strong>Function:</strong> Stores microprograms - groups of microinstructions that implement computer instructions. Each word specifies a control word/microinstruction.
+                </div>
+
+                <div class="component-box" onclick="toggleDetails('car-details')">
+                    Control Address Register (CAR) 📍
+                </div>
+                <div class="component-details" id="car-details">
+                    <strong>Function:</strong> Holds the address of the next microinstruction to be fetched. Central to determining microprogram execution flow.
+                </div>
+
+                <div class="component-box" onclick="toggleDetails('sequencer-details')">
+                    Next-Address Generator 🔄
+                </div>
+                <div class="component-details" id="sequencer-details">
+                    <strong>Function:</strong> Determines address sequence for control memory. Handles CAR incrementing, external address loading, and processes mapping/branch logic.
+                </div>
+
+                <div class="component-box" onclick="toggleDetails('sbr-details')">
+                    Subroutine Register (SBR) 💾
+                </div>
+                <div class="component-details" id="sbr-details">
+                    <strong>Function:</strong> Stores return address during subroutine calls, enabling proper return to calling routine after subroutine completion.
+                </div>
+
+                <div class="component-box" onclick="toggleDetails('cdr-details')">
+                    Control Data Register (CDR) 🚀
+                </div>
+                <div class="component-details" id="cdr-details">
+                    <strong>Function:</strong> Pipeline register holding current microinstruction, allowing simultaneous execution and next-address generation for performance optimization.
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚡ Interactive Address Sequencing Demo</h2>
+            <div class="interactive-demo">
+                <h3>Simulate Address Sequencing Operations</h3>
+                <div class="demo-controls">
+                    <button class="btn" onclick="simulateIncrement()">Increment CAR</button>
+                    <button class="btn" onclick="simulateJump()">Conditional Jump</button>
+                    <button class="btn" onclick="simulateCall()">Subroutine Call</button>
+                    <button class="btn" onclick="simulateReturn()">Return</button>
+                    <button class="btn" onclick="simulateMapping()">Instruction Mapping</button>
+                    <button class="btn" onclick="resetDemo()">Reset</button>
+                </div>
+                <div class="demo-output" id="demoOutput">
+                    <div>Welcome to Address Sequencing Simulator!</div>
+                    <div>CAR: 0x0000 | SBR: 0x0000 | Status: Ready</div>
+                    <div>Click any operation button to see how address sequencing works...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Detailed Operations</h2>
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showTab('increment')">Incrementing</button>
+                    <button class="tab-btn" onclick="showTab('branching')">Branching</button>
+                    <button class="tab-btn" onclick="showTab('mapping')">Mapping</button>
+                    <button class="tab-btn" onclick="showTab('subroutines')">Subroutines</button>
+                </div>
+
+                <div class="tab-content active" id="increment">
+                    <h3>CAR Incrementing</h3>
+                    <p>The simplest form of address sequencing where CAR is incremented by one to fetch the next sequential microinstruction.</p>
+                    <div class="operation-flow">
+                        <div class="flow-step">Current CAR = n</div>
+                        <div class="flow-step">Increment Operation</div>
+                        <div class="flow-step">New CAR = n + 1</div>
+                        <div class="flow-step">Fetch Next Instruction</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="branching">
+                    <h3>Conditional & Unconditional Branching</h3>
+                    <p>Allows microprogram flow to jump based on status bits or unconditionally.</p>
+                    <h4>Branch Operations:</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li><strong>JMP:</strong> Jump to address if condition met, else increment CAR</li>
+                        <li><strong>Unconditional:</strong> Always branch (condition = 1)</li>
+                    </ul>
+                    <p><strong>Status bits tested:</strong> I bit - DR(15), S bit - AC(15), Z bit - AC=0, etc.</p>
+                </div>
+
+                <div class="tab-content" id="mapping">
+                    <h3>Instruction Mapping</h3>
+                    <p>Transforms instruction opcode bits into control memory addresses.</p>
+                    <div class="operation-flow">
+                        <div class="flow-step">4-bit Opcode</div>
+                        <div class="flow-step">Mapping Logic</div>
+                        <div class="flow-step">7-bit Address</div>
+                        <div class="flow-step">Routine Start</div>
+                    </div>
+                    <p><strong>Example:</strong> DR(11-14) → CAR(2-5), CAR(0,1,6) = 0</p>
+                </div>
+
+                <div class="tab-content" id="subroutines">
+                    <h3>Subroutine Call & Return</h3>
+                    <p>Supports reusable microprogram routines for common operations.</p>
+                    <h4>CALL Operation:</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li>Save CAR + 1 to SBR (return address)</li>
+                        <li>Load target address to CAR</li>
+                        <li>Begin subroutine execution</li>
+                    </ul>
+                    <h4>RET Operation:</h4>
+                    <ul style="margin-left: 2rem;">
+                        <li>Load SBR contents to CAR</li>
+                        <li>Resume calling routine</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Microinstruction Format</h2>
+            <div style="background: #f8f9fa; padding: 2rem; border-radius: 15px; margin: 1rem 0;">
+                <h3>Field Breakdown:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong>CD Field (2 bits)</strong><br>
+                        Condition for branching
+                    </div>
+                    <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong>BR Field (2 bits)</strong><br>
+                        Branch operation type
+                    </div>
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong>AD Field (7 bits)</strong><br>
+                        Target address
+                    </div>
+                </div>
+                
+                <h4>BR Field Values:</h4>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>00 - JMP:</strong> Jump if condition met</li>
+                    <li><strong>01 - CALL:</strong> Subroutine call if condition met</li>
+                    <li><strong>10 - RET:</strong> Return from subroutine</li>
+                    <li><strong>11 - MAP:</strong> Map instruction bits to address</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section pulse">
+            <h2>🎓 Ready to Explore More?</h2>
+            <p style="font-size: 1.2rem; text-align: center; margin: 2rem 0;">
+                Do you want to explore the <span class="highlight">design of the input logic for the microprogram sequencer</span> in more detail?
+            </p>
+            <div style="text-align: center;">
+                <button class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 1.1rem; padding: 1rem 2rem;" onclick="showNextTopic()">
+                    <a href="microprogram_webpage.html" style="text-decoration: none;">Start Learning Microprogrammed Example</a>
+                </button>
+            </div>
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        let carValue = 0;
+        let sbrValue = 0;
+        let operationCount = 0;
+
+        function highlightCapability(num) {
+            const cards = document.querySelectorAll('.capability-card');
+            cards.forEach((card, index) => {
+                if (index === num - 1) {
+                    card.style.transform = 'scale(1.1) rotate(5deg)';
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1.05)';
+                    }, 300);
+                }
+            });
+        }
+
+        function toggleDetails(id) {
+            const details = document.getElementById(id);
+            const allDetails = document.querySelectorAll('.component-details');
+            
+            allDetails.forEach(detail => {
+                if (detail.id !== id) {
+                    detail.classList.remove('active');
+                }
+            });
+            
+            details.classList.toggle('active');
+        }
+
+        function updateDemoOutput(operation, details) {
+            const output = document.getElementById('demoOutput');
+            operationCount++;
+            
+            output.innerHTML = `
+                <div style="color: #4CAF50;">Operation ${operationCount}: ${operation}</div>
+                <div>CAR: 0x${carValue.toString(16).padStart(4, '0').toUpperCase()} | SBR: 0x${sbrValue.toString(16).padStart(4, '0').toUpperCase()}</div>
+                <div style="color: #2196F3;">${details}</div>
+                <div style="opacity: 0.8; margin-top: 1rem;">Status: Operation completed successfully ✓</div>
+            `;
+        }
+
+        function simulateIncrement() {
+            carValue = (carValue + 1) % 0x10000;
+            updateDemoOutput("CAR INCREMENT", `CAR incremented by 1. Next microinstruction will be fetched from address 0x${carValue.toString(16).padStart(4, '0').toUpperCase()}`);
+        }
+
+        function simulateJump() {
+            const jumpAddr = Math.floor(Math.random() * 0x1000);
+            carValue = jumpAddr;
+            updateDemoOutput("CONDITIONAL JUMP", `Condition evaluated to TRUE. Jumped to address 0x${jumpAddr.toString(16).padStart(4, '0').toUpperCase()}`);
+        }
+
+        function simulateCall() {
+            sbrValue = carValue + 1;
+            const callAddr = Math.floor(Math.random() * 0x1000);
+            carValue = callAddr;
+            updateDemoOutput("SUBROUTINE CALL", `Return address 0x${sbrValue.toString(16).padStart(4, '0').toUpperCase()} saved to SBR. Called subroutine at 0x${callAddr.toString(16).padStart(4, '0').toUpperCase()}`);
+        }
+
+        function simulateReturn() {
+            if (sbrValue !== 0) {
+                carValue = sbrValue;
+                updateDemoOutput("RETURN", `Returned to calling routine at address 0x${carValue.toString(16).padStart(4, '0').toUpperCase()}`);
+            } else {
+                updateDemoOutput("RETURN", "No subroutine call active. SBR is empty.");
+            }
+        }
+
+        function simulateMapping() {
+            const opcode = Math.floor(Math.random() * 16);
+            carValue = (opcode << 2);
+            updateDemoOutput("INSTRUCTION MAPPING", `4-bit opcode ${opcode.toString(2).padStart(4, '0')} mapped to address 0x${carValue.toString(16).padStart(4, '0').toUpperCase()}`);
+        }
+
+        function resetDemo() {
+            carValue = 0;
+            sbrValue = 0;
+            operationCount = 0;
+            const output = document.getElementById('demoOutput');
+            output.innerHTML = `
+                <div>Address Sequencing Simulator Reset!</div>
+                <div>CAR: 0x0000 | SBR: 0x0000 | Status: Ready</div>
+                <div>Click any operation button to see how address sequencing works...</div>
+            `;
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showNextTopic() {
+            alert('🎉 Great! This would typically navigate to the next section about microprogram sequencer input logic design. Keep exploring the fascinating world of computer architecture!');
+        }
+
+        // Reading progress tracker
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight - windowHeight;
+            const scrollTop = window.pageYOffset;
+            const progress = (scrollTop / documentHeight) * 100;
+            
+            document.getElementById('readingProgress').style.width = progress + '%';
+        });
+
+        // Add some initial animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(20px)';
+                    section.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

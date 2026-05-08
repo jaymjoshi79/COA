@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Processors | Modern Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chapter-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .intro-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .intro-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .processor-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .card h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .page-ref {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .card-content {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 5px solid #fdcb6e;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .highlight-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .highlight-box h3::before {
+            content: '⚡';
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
+
+        .interactive-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .simd-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .instruction-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .instruction-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+            animation: pulse-soft 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .data-elements {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .data-box {
+            background: #f0f0f0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .data-box:hover {
+            background: linear-gradient(135deg, #81ecec, #74b9ff);
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-item h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .note-box {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #2196f3;
+            margin: 30px 0;
+        }
+
+        .note-box strong {
+            color: #1976d2;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            color: #666;
+            border-top: 3px solid #667eea;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .explore-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .explore-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .processor-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            
+            <h1>Array Processors</h1>
+            <p class="subtitle">Parallel Computing for High-Performance Data Operations</p>
+        </header>
+
+        <div class="content">
+            <div class="intro-card">
+                <h2 style="color: #333; margin-bottom: 15px;">What are Array Processors?</h2>
+                <p style="font-size: 1.1em; color: #555;">
+                    Array processors are specialized computer systems engineered to efficiently handle computations involving 
+                    <strong>large datasets and matrix operations</strong>. They leverage parallel processing techniques to 
+                    simultaneously perform multiple calculations, dramatically improving computational speed and efficiency.
+                </p>
+            </div>
+
+            <h2 style="color: #333; margin-bottom: 25px; font-size: 2em;">Types of Array Processors</h2>
+
+            <div class="processor-types">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📎</div>
+                        <div>
+                            <h3>Attached Array Processor</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p>
+                            An attached array processor functions as an auxiliary processing unit connected to a host computer. 
+                            It specializes in handling computationally intensive array and matrix operations, offloading 
+                            these tasks from the main processor to enhance overall system performance.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">⚡</div>
+                        <div>
+                            <h3>SIMD Array Processor</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p>
+                            SIMD (Single Instruction, Multiple Data) array processors execute a single instruction across 
+                            multiple data elements simultaneously. This architecture is ideal for vector operations and 
+                            data-parallel computations, making it perfect for multimedia and analytics applications.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>SIMD in Modern Computing</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>🖥️ SSE (Streaming SIMD Extensions)</h4>
+                        <p>Intel's x86 processor extension for parallel data processing</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>🚀 AVX (Advanced Vector Extensions)</h4>
+                        <p>Enhanced SIMD instructions for wider vector operations</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>🎬 Multimedia Applications</h4>
+                        <p>Video encoding, image processing, and audio synthesis</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>📊 Data Analytics</h4>
+                        <p>Large-scale data processing and scientific computations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <strong>Note on Parallelism:</strong> Array processors employ parallelism—a fundamental computing technique 
+                where multiple calculations occur simultaneously. This approach significantly improves processing speed and 
+                efficiency, especially for problems that can be divided into smaller, independent computational tasks. 
+                This makes array processors ideal for scientific computing, graphics rendering, and big data analysis.
+            </div>
+
+            <div class="btn-container">
+                <button class="explore-btn" onclick="showAlert()">🔍 Explore More</button>
+            </div>
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p>© Dr. Jay M. Joshi</p>
+            
+        </footer>
+    </div>
+
+    <script>
+        // Add interactive hover effects
+        const dataBoxes = document.querySelectorAll('.data-box');
+        dataBoxes.forEach((box, index) => {
+            box.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.15) rotate(5deg)';
+            });
+            box.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Add click animation to cards
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-10px)';
+                }, 100);
+            });
+        });
+
+        function showAlert() {
+            alert('🎓 Continue exploring parallel processing concepts!\n\n✅ Attached Array Processor\n✅ SIMD Processor');
+	    window.location.href = "attached_comp.html";
+        }
+
+        // Add scroll animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.card, .highlight-box, .interactive-demo').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

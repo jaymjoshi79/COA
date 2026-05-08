@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Program: Double-Precision Addition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9ff;
+            border-bottom: 2px solid #e0e6ed;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9ff;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab:hover {
+            background: #e8ecff;
+            color: #5a6acf;
+        }
+
+        .tab-content {
+            display: none;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .program-section {
+            padding: 40px;
+            background: #f8f9ff;
+            border-right: 1px solid #e0e6ed;
+        }
+
+        .memory-section {
+            padding: 40px;
+            background: #ffffff;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .instruction-row {
+            display: grid;
+            grid-template-columns: 100px 100px 1fr;
+            gap: 15px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .instruction-row:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-left-color: #667eea;
+        }
+
+        .instruction-row.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .opcode {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .operand {
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .instruction-row.active .operand {
+            color: #ffeaa7;
+        }
+
+        .comment {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .instruction-row.active .comment {
+            color: #ddd;
+        }
+
+        .memory-location {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 10px;
+            border: 2px solid #e0e6ed;
+            transition: all 0.3s ease;
+        }
+
+        .memory-location:hover {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .memory-location.highlight {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            transform: scale(1.05);
+        }
+
+        .location-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .location-description {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .memory-value {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .controls {
+            padding: 30px 40px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            text-align: center;
+        }
+
+        .btn {
+            background: white;
+            color: #0984e3;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background: #f8f9ff;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 2px;
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #00cec9;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .info-text {
+            color: #636e72;
+            line-height: 1.6;
+        }
+
+        .example-section {
+            background: white;
+            padding: 40px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .example-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e0e6ed;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .example-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .example-values {
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+
+        .binary-display {
+            background: #2c3e50;
+            color: #00ff88;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .binary-label {
+            color: #74b9ff;
+            font-weight: bold;
+        }
+
+        .calculator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .calc-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            text-align: center;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c3e50;
+        }
+
+        .step-explanation {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffeaa7;
+        }
+
+        .register-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .register {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .register.active {
+            background: #ffeaa7;
+            color: #2c3e50;
+            transform: scale(1.05);
+        }
+
+        .register-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+        }
+
+        .visualization-area {
+            background: white;
+            padding: 40px;
+            margin: 30px 0;
+            border-radius: 15px;
+            border: 2px solid #e0e6ed;
+        }
+
+        .bit-display {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            margin: 10px 0;
+        }
+
+        .bit {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 8px 4px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .bit.one {
+            background: #e74c3c;
+            color: white;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+
+        .bit.carry {
+            background: #f39c12;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .math-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 1024px) {
+            .example-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .calc-input {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .program-section {
+                border-right: none;
+                border-bottom: 1px solid #e0e6ed;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .instruction-row {
+                grid-template-columns: 80px 80px 1fr;
+                gap: 10px;
+                padding: 12px 15px;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .register-display {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assembly Program Simulator</h1>
+            <p>Interactive double-precision arithmetic with real examples</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('program')">📋 Program Flow</button>
+            <button class="tab" onclick="showTab('examples')">🧮 Live Examples</button>
+            <button class="tab" onclick="showTab('visualization')">📊 Binary Visualization</button>
+            <button class="tab" onclick="showTab('calculator')">⚡ Interactive Calculator</button>
+        </div>
+
+        <!-- Program Flow Tab -->
+        <div id="program-tab" class="tab-content active">
+            <div class="main-content">
+                <div class="program-section">
+                    <h2 class="section-title">
+                        <div class="icon">📋</div>
+                        Program Instructions
+                    </h2>
+                    
+                    <div id="instructions">
+                        <div class="instruction-row" data-step="0">
+                            <div class="opcode">LDA</div>
+                            <div class="operand">AL</div>
+                            <div class="comment">Load A low into accumulator</div>
+                        </div>
+                        <div class="instruction-row" data-step="1">
+                            <div class="opcode">ADD</div>
+                            <div class="operand">BL</div>
+                            <div class="comment">Add B low, carry stored in E register</div>
+                        </div>
+                        <div class="instruction-row" data-step="2">
+                            <div class="opcode">STA</div>
+                            <div class="operand">CL</div>
+                            <div class="comment">Store result in C low</div>
+                        </div>
+                        <div class="instruction-row" data-step="3">
+                            <div class="opcode">CLA</div>
+                            <div class="operand"></div>
+                            <div class="comment">Clear accumulator to zero</div>
+                        </div>
+                        <div class="instruction-row" data-step="4">
+                            <div class="opcode">CIL</div>
+                            <div class="operand"></div>
+                            <div class="comment">Circulate left to get carry into AC(16)</div>
+                        </div>
+                        <div class="instruction-row" data-step="5">
+                            <div class="opcode">ADD</div>
+                            <div class="operand">AH</div>
+                            <div class="comment">Add A high plus carry from previous</div>
+                        </div>
+                        <div class="instruction-row" data-step="6">
+                            <div class="opcode">ADD</div>
+                            <div class="operand">BH</div>
+                            <div class="comment">Add B high to accumulator</div>
+                        </div>
+                        <div class="instruction-row" data-step="7">
+                            <div class="opcode">STA</div>
+                            <div class="operand">CH</div>
+                            <div class="comment">Store final result in C high</div>
+                        </div>
+                        <div class="instruction-row" data-step="8">
+                            <div class="opcode">HLT</div>
+                            <div class="operand"></div>
+                            <div class="comment">Halt program execution</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="memory-section">
+                    <h2 class="section-title">
+                        <div class="icon">💾</div>
+                        Memory & Registers
+                    </h2>
+                    
+                    <div id="memory-locations">
+                        <div class="memory-location" data-location="AL">
+                            <div>
+                                <div class="location-name">AL</div>
+                                <div class="location-description">A Low (First operand, bits 0-15)</div>
+                            </div>
+                            <div class="memory-value" id="val-AL">0x1234</div>
+                        </div>
+                        <div class="memory-location" data-location="AH">
+                            <div>
+                                <div class="location-name">AH</div>
+                                <div class="location-description">A High (First operand, bits 16-31)</div>
+                            </div>
+                            <div class="memory-value" id="val-AH">0x5678</div>
+                        </div>
+                        <div class="memory-location" data-location="BL">
+                            <div>
+                                <div class="location-name">BL</div>
+                                <div class="location-description">B Low (Second operand, bits 0-15)</div>
+                            </div>
+                            <div class="memory-value" id="val-BL">0xABCD</div>
+                        </div>
+                        <div class="memory-location" data-location="BH">
+                            <div>
+                                <div class="location-name">BH</div>
+                                <div class="location-description">B High (Second operand, bits 16-31)</div>
+                            </div>
+                            <div class="memory-value" id="val-BH">0xEF01</div>
+                        </div>
+                        <div class="memory-location" data-location="CL">
+                            <div>
+                                <div class="location-name">CL</div>
+                                <div class="location-description">C Low (Result, bits 0-15)</div>
+                            </div>
+                            <div class="memory-value" id="val-CL">----</div>
+                        </div>
+                        <div class="memory-location" data-location="CH">
+                            <div>
+                                <div class="location-name">CH</div>
+                                <div class="location-description">C High (Result, bits 16-31)</div>
+                            </div>
+                            <div class="memory-value" id="val-CH">----</div>
+                        </div>
+                    </div>
+
+                    <div class="register-display">
+                        <div class="register" id="reg-AC">
+                            <div class="register-name">Accumulator (AC)</div>
+                            <div class="register-value">0x0000</div>
+                        </div>
+                        <div class="register" id="reg-E">
+                            <div class="register-name">Extension (E)</div>
+                            <div class="register-value">0</div>
+                        </div>
+                    </div>
+
+                    <div class="step-explanation" id="step-explanation">
+                        <strong>Ready to start:</strong> Click "Step Through" to begin execution. The program will add two 32-bit numbers by processing low and high words separately.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Examples Tab -->
+        <div id="examples-tab" class="tab-content">
+            <div class="example-section">
+                <h2 class="section-title">
+                    <div class="icon">🧮</div>
+                    Real-World Examples
+                </h2>
+                
+                <div class="example-grid">
+                    <div class="example-card active" onclick="loadExample(0)">
+                        <div class="example-title">🔢 Basic Addition</div>
+                        <div class="example-values">
+                            A = 0x56781234 (1450743348)<br>
+                            B = 0xEF01ABCD (4009644493)<br>
+                            Result = 0x1457A9BE01 (overflow!)
+                        </div>
+                    </div>
+                    
+                    <div class="example-card" onclick="loadExample(1)">
+                        <div class="example-title">💰 Financial Calculation</div>
+                        <div class="example-values">
+                            A = 0x00000000000F4240 (1,000,000)<br>
+                            B = 0x000000000098968F (10,000,015)<br>
+                            Result = 0x00000000009DDACF
+                        </div>
+                    </div>
+                    
+                    <div class="example-card" onclick="loadExample(2)">
+                        <div class="example-title">⚡ Large Numbers</div>
+                        <div class="example-values">
+                            A = 0xFFFFFFFF (4,294,967,295)<br>
+                            B = 0x00000001 (1)<br>
+                            Result = 0x100000000 (overflow demo)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="binary-display" id="example-binary">
+                    <div><span class="binary-label">A (32-bit):</span> 0101 0110 0111 1000 0001 0010 0011 0100</div>
+                    <div><span class="binary-label">B (32-bit):</span> 1110 1111 0000 0001 1010 1011 1100 1101</div>
+                    <div><span class="binary-label">Sum     :</span> 1 0100 0101 0111 1001 1011 1110 0000 0001</div>
+                    <div style="margin-top: 15px; color: #ffeaa7;">
+                        <strong>Note:</strong> The leading '1' shows carry overflow beyond 32 bits
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-title">💡 Why Double-Precision?</div>
+                    <div class="info-text">
+                        Early computers had limited word sizes (8 or 16 bits). To handle larger numbers, 
+                        programmers used "double-precision" arithmetic - splitting large numbers into 
+                        multiple smaller parts and processing them with carry propagation. This technique 
+                        is still used today in cryptography and big integer arithmetic!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Tab -->
+        <div id="visualization-tab" class="tab-content">
+            <div class="example-section">
+                <h2 class="section-title">
+                    <div class="icon">📊</div>
+                    Binary Addition Visualization
+                </h2>
+
+                <div class="visualization-area">
+                    <h3>Step-by-Step Binary Addition</h3>
+                    
+                    <div class="math-display">
+                        A Low  + B Low  = C Low  (+ Carry)<br>
+                        A High + B High + Carry = C High
+                    </div>
+
+                    <div style="margin: 30px 0;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">A Low (0x1234):</div>
+                        <div class="bit-display" id="bits-AL">
+                            <div class="bit">0</div><div class="bit">0</div><div class="bit">0</div><div class="bit one">1</div>
+                            <div class="bit">0</div><div class="bit">0</div><div class="bit one">1</div><div class="bit">0</div>
+                            <div class="bit">0</div><div class="bit">0</div><div class="bit one">1</div><div class="bit one">1</div>
+                            <div class="bit">0</div><div class="bit one">1</div><div class="bit">0</div><div class="bit">0</div>
+                        </div>
+                    </div>
+
+                    <div style="margin: 30px 0;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">B Low (0xABCD):</div>
+                        <div class="bit-display" id="bits-BL">
+                            <div class="bit one">1</div><div class="bit">0</div><div class="bit one">1</div><div class="bit">0</div>
+                            <div class="bit one">1</div><div class="bit">0</div><div class="bit one">1</div><div class="bit one">1</div>
+                            <div class="bit one">1</div><div class="bit one">1</div><div class="bit">0</div><div class="bit">0</div>
+                            <div class="bit one">1</div><div class="bit one">1</div><div class="bit">0</div><div class="bit one">1</div>
+                        </div>
+                    </div>
+
+                    <div style="margin: 30px 0;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">Result (0xBE01) + Carry:</div>
+                        <div class="bit-display" id="bits-result">
+                            <div class="bit one">1</div><div class="bit">0</div><div class="bit one">1</div><div class="bit one">1</div>
+                            <div class="bit one">1</div><div class="bit one">1</div><div class="bit one">1</div><div class="bit">0</div>
+                            <div class="bit">0</div><div class="bit">0</div><div class="bit">0</div><div class="bit">0</div>
+                            <div class="bit">0</div><div class="bit">0</div><div class="bit">0</div><div class="bit one">1</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px; color: #f39c12; font-weight: 600;">
+                            Carry = 1 (propagates to high word addition)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-title">🔍 Understanding Binary Addition</div>
+                    <div class="info-text">
+                        Each bit position adds independently, just like decimal addition. When the sum 
+                        of two bits exceeds 1, we generate a carry to the next position. In double-precision 
+                        arithmetic, the carry from the low word must be added to the high word calculation.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Tab -->
+        <div id="calculator-tab" class="tab-content">
+            <div class="example-section">
+                <div class="calculator">
+                    <h2 style="text-align: center; margin-bottom: 30px;">🧮 Interactive Double-Precision Calculator</h2>
+                    
+                    <div class="calc-input">
+                        <div class="input-group">
+                            <label for="input-a">First Number (A)</label>
+                            <input type="text" id="input-a" placeholder="0x12345678" oninput="calculate()">
+                        </div>
+                        <div class="input-group">
+                            <label for="input-b">Second Number (B)</label>
+                            <input type="text" id="input-b" placeholder="0xABCDEF01" oninput="calculate()">
+                        </div>
+                        <div class="input-group">
+                            <label for="result">Result (A + B)</label>
+                            <input type="text" id="result" placeholder="Result appears here" readonly>
+                        </div>
+                    </div>
+
+                    <div class="register-display">
+                        <div class="register">
+                            <div class="register-name">A Low (AL)</div>
+                            <div class="register-value" id="calc-AL">0x0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">A High (AH)</div>
+                            <div class="register-value" id="calc-AH">0x0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">B Low (BL)</div>
+                            <div class="register-value" id="calc-BL">0x0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">B High (BH)</div>
+                            <div class="register-value" id="calc-BH">0x0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">C Low (CL)</div>
+                            <div class="register-value" id="calc-CL">0x0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">C High (CH)</div>
+                            <div class="register-value" id="calc-CH">0x0000</div>
+                        </div>
+                    </div>
+
+                    <div class="step-explanation">
+                        <strong>How it works:</strong>
+                        <ol style="margin-top: 10px; padding-left: 20px;">
+                            <li>Enter two numbers in hexadecimal (0x format) or decimal</li>
+                            <li>Numbers are automatically split into high and low 16-bit words</li>
+                            <li>Low words are added first, generating a carry if needed</li>
+                            <li>High words are added with the carry from the low word addition</li>
+                            <li>Final result combines both high and low results</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="visualization-area">
+                    <h3>Live Assembly Execution</h3>
+                    <div id="live-execution" style="font-family: 'Courier New', monospace; line-height: 2;">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startAnimation()">▶️ Step Through</button>
+            <button class="btn" onclick="resetAnimation()">🔄 Reset</button>
+            <button class="btn" onclick="toggleAutoPlay()">⏯️ Auto Play</button>
+            <button class="btn" onclick="randomExample()">🎲 Random Example</button>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>    
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="computer_operations_guide.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Programming of Logic and Shift Operations</a>
+                </div>
+            </div>
+
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = -1;
+        let isPlaying = false;
+        let autoPlayInterval;
+        const totalSteps = 9;
+        let currentExample = 0;
+
+        const examples = [
+            {
+                name: "Basic Addition",
+                A: 0x56781234,
+                B: 0xEF01ABCD,
+                description: "Standard 32-bit addition with carry"
+            },
+            {
+                name: "Financial Calculation", 
+                A: 0x000F4240,
+                B: 0x0098968F,
+                description: "Adding monetary values"
+            },
+            {
+                name: "Large Numbers",
+                A: 0xFFFFFFFF,
+                B: 0x00000001,
+                description: "Maximum 32-bit value plus one"
+            }
+        ];
+
+        const stepExplanations = [
+            "Loading the low word of operand A into the accumulator",
+            "Adding the low word of operand B. Any overflow sets the carry flag",
+            "Storing the low word result. Carry is preserved in E register", 
+            "Clearing accumulator to prepare for high word processing",
+            "Moving the carry flag into the accumulator's least significant bit",
+            "Adding the high word of A, including any carry from low word addition",
+            "Adding the high word of B to complete the high word calculation",
+            "Storing the final high word result",
+            "Program complete! 32-bit addition finished successfully"
+        ];
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Initialize calculator if switching to that tab
+            if (tabName === 'calculator') {
+                calculate();
+            }
+        }
+
+        function loadExample(index) {
+            currentExample = index;
+            const example = examples[index];
+            
+            // Remove active class from all cards
+            document.querySelectorAll('.example-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to selected card
+            document.querySelectorAll('.example-card')[index].classList.add('active');
+            
+            // Update memory values
+            updateMemoryValues(example.A, example.B);
+            
+            // Update binary display
+            updateBinaryDisplay(example.A, example.B);
+            
+            resetAnimation();
+        }
+
+        function updateMemoryValues(A, B) {
+            const AL = A & 0xFFFF;
+            const AH = (A >> 16) & 0xFFFF;
+            const BL = B & 0xFFFF; 
+            const BH = (B >> 16) & 0xFFFF;
+            
+            document.getElementById('val-AL').textContent = `0x${AL.toString(16).toUpperCase().padStart(4, '0')}`;
+            document.getElementById('val-AH').textContent = `0x${AH.toString(16).toUpperCase().padStart(4, '0')}`;
+            document.getElementById('val-BL').textContent = `0x${BL.toString(16).toUpperCase().padStart(4, '0')}`;
+            document.getElementById('val-BH').textContent = `0x${BH.toString(16).toUpperCase().padStart(4, '0')}`;
+            document.getElementById('val-CL').textContent = '----';
+            document.getElementById('val-CH').textContent = '----';
+        }
+
+        function updateBinaryDisplay(A, B) {
+            const AL = A & 0xFFFF;
+            const BL = B & 0xFFFF;
+            const sum = AL + BL;
+            const result = sum & 0xFFFF;
+            const carry = sum > 0xFFFF ? 1 : 0;
+            
+            const binary = document.getElementById('example-binary');
+            binary.innerHTML = `
+                <div><span class="binary-label">A Low (0x${AL.toString(16).toUpperCase()}):</span> ${formatBinary(AL, 16)}</div>
+                <div><span class="binary-label">B Low (0x${BL.toString(16).toUpperCase()}):</span> ${formatBinary(BL, 16)}</div>
+                <div><span class="binary-label">Sum      :</span> ${carry ? '1 ' : '0 '}${formatBinary(result, 16)}</div>
+                <div style="margin-top: 15px; color: #ffeaa7;">
+                    <strong>Carry:</strong> ${carry} ${carry ? '(overflow to high word)' : '(no overflow)'}
+                </div>
+            `;
+        }
+
+        function formatBinary(num, bits) {
+            return num.toString(2).padStart(bits, '0').replace(/(.{4})/g, '$1 ').trim();
+        }
+
+        function highlightInstruction(step) {
+            // Remove all active classes
+            document.querySelectorAll('.instruction-row').forEach(row => {
+                row.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.memory-location').forEach(loc => {
+                loc.classList.remove('highlight');
+            });
+            
+            document.querySelectorAll('.register').forEach(reg => {
+                reg.classList.remove('active');
+            });
+            
+            // Add active class to current step
+            if (step >= 0 && step < totalSteps) {
+                const currentRow = document.querySelector(`[data-step="${step}"]`);
+                if (currentRow) {
+                    currentRow.classList.add('active');
+                    currentRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                
+                // Highlight relevant memory locations and registers
+                highlightRelevantElements(step);
+                
+                // Update step explanation
+                document.getElementById('step-explanation').innerHTML = 
+                    `<strong>Step ${step + 1}:</strong> ${stepExplanations[step]}`;
+            }
+            
+            // Update progress bar
+            const progress = ((step + 1) / totalSteps) * 100;
+            document.getElementById('progress').style.width = `${Math.max(0, progress)}%`;
+        }
+
+        function highlightRelevantElements(step) {
+            const example = examples[currentExample];
+            const AL = example.A & 0xFFFF;
+            const AH = (example.A >> 16) & 0xFFFF;
+            const BL = example.B & 0xFFFF;
+            const BH = (example.B >> 16) & 0xFFFF;
+            
+            switch(step) {
+                case 0: // LDA AL
+                    document.querySelector('[data-location="AL"]').classList.add('highlight');
+                    document.getElementById('reg-AC').classList.add('active');
+                    document.querySelector('#reg-AC .register-value').textContent = `0x${AL.toString(16).toUpperCase()}`;
+                    break;
+                    
+                case 1: // ADD BL
+                    document.querySelector('[data-location="BL"]').classList.add('highlight');
+                    document.getElementById('reg-AC').classList.add('active');
+                    document.getElementById('reg-E').classList.add('active');
+                    const sum1 = AL + BL;
+                    const carry1 = sum1 > 0xFFFF ? 1 : 0;
+                    document.querySelector('#reg-AC .register-value').textContent = `0x${(sum1 & 0xFFFF).toString(16).toUpperCase()}`;
+                    document.querySelector('#reg-E .register-value').textContent = carry1.toString();
+                    break;
+                    
+                case 2: // STA CL
+                    document.querySelector('[data-location="CL"]').classList.add('highlight');
+                    const result1 = (AL + BL) & 0xFFFF;
+                    document.getElementById('val-CL').textContent = `0x${result1.toString(16).toUpperCase()}`;
+                    break;
+                    
+                case 3: // CLA
+                    document.getElementById('reg-AC').classList.add('active');
+                    document.querySelector('#reg-AC .register-value').textContent = '0x0000';
+                    break;
+                    
+                case 4: // CIL
+                    document.getElementById('reg-AC').classList.add('active');
+                    const carry2 = (AL + BL) > 0xFFFF ? 1 : 0;
+                    document.querySelector('#reg-AC .register-value').textContent = `0x${carry2.toString(16).padStart(4, '0').toUpperCase()}`;
+                    break;
+                    
+                case 5: // ADD AH
+                    document.querySelector('[data-location="AH"]').classList.add('highlight');
+                    document.getElementById('reg-AC').classList.add('active');
+                    const carry3 = (AL + BL) > 0xFFFF ? 1 : 0;
+                    const sum2 = AH + carry3;
+                    document.querySelector('#reg-AC .register-value').textContent = `0x${sum2.toString(16).toUpperCase()}`;
+                    break;
+                    
+                case 6: // ADD BH
+                    document.querySelector('[data-location="BH"]').classList.add('highlight');
+                    document.getElementById('reg-AC').classList.add('active');
+                    const carry4 = (AL + BL) > 0xFFFF ? 1 : 0;
+                    const sum3 = AH + BH + carry4;
+                    document.querySelector('#reg-AC .register-value').textContent = `0x${(sum3 & 0xFFFF).toString(16).toUpperCase()}`;
+                    break;
+                    
+                case 7: // STA CH
+                    document.querySelector('[data-location="CH"]').classList.add('highlight');
+                    const carry5 = (AL + BL) > 0xFFFF ? 1 : 0;
+                    const result2 = (AH + BH + carry5) & 0xFFFF;
+                    document.getElementById('val-CH').textContent = `0x${result2.toString(16).toUpperCase()}`;
+                    break;
+                    
+                case 8: // HLT
+                    // Show final result
+                    const finalCarry = (AL + BL) > 0xFFFF ? 1 : 0;
+                    const finalCL = (AL + BL) & 0xFFFF;
+                    const finalCH = (AH + BH + finalCarry) & 0xFFFF;
+                    const finalResult = (finalCH << 16) | finalCL;
+                    document.getElementById('step-explanation').innerHTML = 
+                        `<strong>Complete!</strong> Final result: 0x${finalResult.toString(16).toUpperCase()} (${finalResult})`;
+                    break;
+            }
+        }
+
+        function startAnimation() {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                highlightInstruction(currentStep);
+            } else {
+                resetAnimation();
+            }
+        }
+
+        function resetAnimation() {
+            currentStep = -1;
+            document.querySelectorAll('.instruction-row').forEach(row => {
+                row.classList.remove('active');
+            });
+            document.querySelectorAll('.memory-location').forEach(loc => {
+                loc.classList.remove('highlight');
+            });
+            document.querySelectorAll('.register').forEach(reg => {
+                reg.classList.remove('active');
+            });
+            document.getElementById('progress').style.width = '0%';
+            document.querySelector('#reg-AC .register-value').textContent = '0x0000';
+            document.querySelector('#reg-E .register-value').textContent = '0';
+            document.getElementById('step-explanation').innerHTML = 
+                '<strong>Ready to start:</strong> Click "Step Through" to begin execution. The program will add two 32-bit numbers by processing low and high words separately.';
+            
+            // Reset memory values
+            if (currentExample >= 0) {
+                loadExample(currentExample);
+            }
+            
+            if (isPlaying) {
+                toggleAutoPlay();
+            }
+        }
+
+        function toggleAutoPlay() {
+            isPlaying = !isPlaying;
+            const btn = event.target;
+            
+            if (isPlaying) {
+                btn.textContent = '⏸️ Pause';
+                autoPlayInterval = setInterval(() => {
+                    if (currentStep < totalSteps - 1) {
+                        startAnimation();
+                    } else {
+                        toggleAutoPlay();
+                    }
+                }, 2000);
+            } else {
+                btn.textContent = '⏯️ Auto Play';
+                clearInterval(autoPlayInterval);
+            }
+        }
+
+        function randomExample() {
+            const randomA = Math.floor(Math.random() * 0xFFFFFFFF);
+            const randomB = Math.floor(Math.random() * 0xFFFFFFFF);
+            
+            updateMemoryValues(randomA, randomB);
+            updateBinaryDisplay(randomA, randomB);
+            resetAnimation();
+            
+            // Update calculator inputs if on that tab
+            document.getElementById('input-a').value = '0x' + randomA.toString(16).toUpperCase();
+            document.getElementById('input-b').value = '0x' + randomB.toString(16).toUpperCase();
+            calculate();
+        }
+
+        function calculate() {
+            const inputA = document.getElementById('input-a').value;
+            const inputB = document.getElementById('input-b').value;
+            
+            try {
+                let A, B;
+                
+                // Parse inputs (support both hex and decimal)
+                if (inputA.startsWith('0x') || inputA.startsWith('0X')) {
+                    A = parseInt(inputA, 16);
+                } else {
+                    A = parseInt(inputA) || 0;
+                }
+                
+                if (inputB.startsWith('0x') || inputB.startsWith('0X')) {
+                    B = parseInt(inputB, 16);
+                } else {
+                    B = parseInt(inputB) || 0;
+                }
+                
+                // Ensure 32-bit values
+                A = A & 0xFFFFFFFF;
+                B = B & 0xFFFFFFFF;
+                
+                const AL = A & 0xFFFF;
+                const AH = (A >> 16) & 0xFFFF;
+                const BL = B & 0xFFFF;
+                const BH = (B >> 16) & 0xFFFF;
+                
+                // Calculate result
+                const lowSum = AL + BL;
+                const CL = lowSum & 0xFFFF;
+                const carry = lowSum > 0xFFFF ? 1 : 0;
+                const highSum = AH + BH + carry;
+                const CH = highSum & 0xFFFF;
+                
+                const result = ((CH << 16) | CL) >>> 0; // Unsigned 32-bit
+                
+                // Update display
+                document.getElementById('calc-AL').textContent = `0x${AL.toString(16).toUpperCase().padStart(4, '0')}`;
+                document.getElementById('calc-AH').textContent = `0x${AH.toString(16).toUpperCase().padStart(4, '0')}`;
+                document.getElementById('calc-BL').textContent = `0x${BL.toString(16).toUpperCase().padStart(4, '0')}`;
+                document.getElementById('calc-BH').textContent = `0x${BH.toString(16).toUpperCase().padStart(4, '0')}`;
+                document.getElementById('calc-CL').textContent = `0x${CL.toString(16).toUpperCase().padStart(4, '0')}`;
+                document.getElementById('calc-CH').textContent = `0x${CH.toString(16).toUpperCase().padStart(4, '0')}`;
+                
+                document.getElementById('result').value = `0x${result.toString(16).toUpperCase()} (${result})`;
+                
+                // Update live execution display
+                updateLiveExecution(AL, AH, BL, BH, CL, CH, carry);
+                
+            } catch (error) {
+                document.getElementById('result').value = 'Invalid input';
+            }
+        }
+
+        function updateLiveExecution(AL, AH, BL, BH, CL, CH, carry) {
+            const liveDiv = document.getElementById('live-execution');
+            liveDiv.innerHTML = `
+<div style="color: #74b9ff;">; Double-precision addition simulation</div>
+<div>LDA AL     ; AC ← 0x${AL.toString(16).toUpperCase().padStart(4, '0')} (${AL})</div>
+<div>ADD BL     ; AC ← 0x${CL.toString(16).toUpperCase().padStart(4, '0')} (${AL} + ${BL} = ${AL + BL}), E ← ${carry}</div>
+<div>STA CL     ; CL ← 0x${CL.toString(16).toUpperCase().padStart(4, '0')}</div>
+<div>CLA        ; AC ← 0x0000</div>
+<div>CIL        ; AC ← 0x${carry.toString(16).padStart(4, '0')} (carry from E)</div>
+<div>ADD AH     ; AC ← 0x${(AH + carry).toString(16).toUpperCase().padStart(4, '0')} (${AH} + ${carry} = ${AH + carry})</div>
+<div>ADD BH     ; AC ← 0x${CH.toString(16).toUpperCase().padStart(4, '0')} (${AH + carry} + ${BH} = ${AH + BH + carry})</div>
+<div>STA CH     ; CH ← 0x${CH.toString(16).toUpperCase().padStart(4, '0')}</div>
+<div>HLT        ; Result: 0x${CH.toString(16).toUpperCase().padStart(4, '0')}${CL.toString(16).toUpperCase().padStart(4, '0')}</div>
+            `;
+        }
+
+        // Add click handlers to instruction rows
+        document.querySelectorAll('.instruction-row').forEach((row, index) => {
+            row.addEventListener('click', () => {
+                currentStep = index;
+                highlightInstruction(currentStep);
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    startAnimation();
+                    break;
+                case 'r':
+                case 'R':
+                    resetAnimation();
+                    break;
+                case 'p':
+                case 'P':
+                    toggleAutoPlay();
+                    break;
+                case 'ArrowRight':
+                    startAnimation();
+                    break;
+                case 'ArrowLeft':
+                    if (currentStep > 0) {
+                        currentStep -= 2;
+                        startAnimation();
+                    }
+                    break;
+            }
+        });
+
+        // Initialize with first example
+        loadExample(0);
+        
+        // Set default calculator values
+        document.getElementById('input-a').value = '0x56781234';
+        document.getElementById('input-b').value = '0xEF01ABCD';
+        calculate();
+    </script>
+</body>
+</html>

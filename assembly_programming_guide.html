@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Language Programming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1rem 0;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding-top: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.3s forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            margin-top: -50px;
+            border-radius: 30px 30px 0 0;
+            position: relative;
+            z-index: 10;
+            padding: 4rem 0;
+        }
+
+        .section {
+            margin: 4rem 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .instruction-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8efff 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .instruction-name {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .binary-display {
+            background: #1a1a1a;
+            color: #00ff41;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .binary-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+	 .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #2c3e50;
+            margin-top: 40px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: floatUpDown 6s ease-in-out infinite;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .instruction-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Floating Elements -->
+    <div class="floating-elements" id="floatingElements"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="logo">Assembly Lang</div>
+                <ul class="nav-links">
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#machine-lang">Machine Language</a></li>
+                    <li><a href="#operations">Operations</a></li>
+                    <li><a href="#programming">Programming</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Assembly Language Programming</h1>
+                <p>Master the fundamentals of low-level programming with interactive examples</p>
+                <a href="#introduction" class="cta-button">Start Learning</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Introduction Section -->
+            <section id="introduction" class="section">
+                <h2 class="section-title">Introduction to Assembly Language</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">What is Assembly Language?</h3>
+                    <p>Assembly language offers a <span class="highlight">user-friendly alternative</span> to machine language by using familiar symbolic representations for instructions and memory locations. While computers understand only binary code, assembly language bridges the gap between human-readable code and machine instructions.</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Program Structure</h3>
+                    <p>An assembly language program consists of lines of code, each containing three fields:</p>
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">Label Field</div>
+                            <p>Optional symbolic address (1-3 alphanumeric characters)</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">Instruction Field</div>
+                            <p>Machine instruction or pseudoinstruction</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">Comment Field</div>
+                            <p>Optional explanatory remarks</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Pseudoinstructions</h3>
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">ORG N</div>
+                            <p>Sets the origin of the program to memory location N</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">END</div>
+                            <p>Marks the end of the symbolic program</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">DEC N</div>
+                            <p>Converts decimal number N to binary</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">HEX N</div>
+                            <p>Converts hexadecimal number N to binary</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Machine Language Section -->
+            <section id="machine-lang" class="section">
+                <h2 class="section-title">Machine Language</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">16-Bit Instruction Format</h3>
+                    <p>Each machine instruction in the basic computer is <span class="highlight">16 bits long</span>, divided into:</p>
+                    
+                    <div class="binary-display">
+                        <div>Bit 15 | Bits 14-12 | Bits 11-0</div>
+                        <div>  I   |   Opcode   |  Address  </div>
+                        <div>  1   |    3 bits  |  12 bits  </div>
+                    </div>
+                    
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">I (Bit 15)</div>
+                            <p>Addressing mode: 0=Direct, 1=Indirect</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">Opcode (3 bits)</div>
+                            <p>Specifies the operation (ADD, LDA, etc.)</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">Address (12 bits)</div>
+                            <p>Memory address or operand data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h4>Interactive Example: LDA Instruction</h4>
+                    <p>Load AC from address 005: <code>2005</code> (hexadecimal)</p>
+                    <button class="demo-button" onclick="demonstrateInstruction()">Show Binary Breakdown</button>
+                    <div id="instructionDemo" style="margin-top: 1rem;"></div>
+                </div>
+            </section>
+
+            <!-- Operations Section -->
+            <section id="operations" class="section">
+                <h2 class="section-title">Arithmetic and Logic Operations</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">Arithmetic Operations</h3>
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">ADD</div>
+                            <p>Adds memory content to AC, carry goes to E flip-flop</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">LDA</div>
+                            <p>Loads memory word into AC</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">STA</div>
+                            <p>Stores AC content into memory</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">INC</div>
+                            <p>Increments AC by one</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">CLA</div>
+                            <p>Clears AC to zero</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">CMA</div>
+                            <p>Complements AC (1's complement)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Logic Operations</h3>
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">AND</div>
+                            <p>Bit-wise logical AND with memory and AC</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">CME</div>
+                            <p>Complements the E flip-flop</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">CIR</div>
+                            <p>Circular shift right (AC and E)</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">CIL</div>
+                            <p>Circular shift left (AC and E)</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Programming Section -->
+            <section id="programming" class="section">
+                <h2 class="section-title">Programming Constructs</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">Looping Constructs</h3>
+                    <p>Program loops execute instruction sequences multiple times using conditional branch and skip instructions:</p>
+                    
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">ISZ</div>
+                            <p>Increment and Skip if Zero - crucial for loop control</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">SPA</div>
+                            <p>Skip if AC positive</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">SNA</div>
+                            <p>Skip if AC negative</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">SZA</div>
+                            <p>Skip if AC zero</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Subroutines</h3>
+                    <p>Reusable code blocks for specific tasks:</p>
+                    
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">BSA</div>
+                            <p>Branch and Save Return Address - calls subroutine</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">BUN</div>
+                            <p>Branch Unconditionally - returns from subroutine</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">I/O Programming</h3>
+                    <p>Managing communication with external devices:</p>
+                    
+                    <div class="instruction-grid">
+                        <div class="instruction-card">
+                            <div class="instruction-name">INP</div>
+                            <p>Input character from INPR to AC</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">OUT</div>
+                            <p>Output character from AC to OUTR</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">SKI</div>
+                            <p>Skip if Input Flag is ON</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">SKO</div>
+                            <p>Skip if Output Flag is ON</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">ION</div>
+                            <p>Turn Interrupt ON</p>
+                        </div>
+                        <div class="instruction-card">
+                            <div class="instruction-name">IOF</div>
+                            <p>Turn Interrupt OFF</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h4>Interactive I/O Demo</h4>
+                    <p>Experience how interrupt-driven I/O works</p>
+                    <button class="demo-button" onclick="simulateIO()">Simulate I/O Operation</button>
+                    <div id="ioDemo" style="margin-top: 1rem;"></div>
+                </div>
+            </section>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="machine_language_webpage.html" class="btn btn-primary">Start Learning Machine Language</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Progress Bar
+        function updateProgressBar() {
+            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        }
+
+        // Header scroll effect
+        function updateHeader() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        }
+
+        // Intersection Observer for sections
+        function setupIntersectionObserver() {
+            const sections = document.querySelectorAll('.section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            sections.forEach(section => observer.observe(section));
+        }
+
+        // Create floating elements
+        function createFloatingElements() {
+            const container = document.getElementById('floatingElements');
+            for (let i = 0; i < 20; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.top = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(element);
+            }
+        }
+
+        // Interactive demos
+        function demonstrateInstruction() {
+            const demo = document.getElementById('instructionDemo');
+            demo.innerHTML = `
+                <div class="binary-display">
+                    <div>Hexadecimal: 2005</div>
+                    <div>Binary: 0010 0000 0000 0101</div>
+                    <div>I=0 (Direct), Opcode=010 (LDA), Address=000000000101 (5)</div>
+                </div>
+            `;
+        }
+
+        function simulateIO() {
+            const demo = document.getElementById('ioDemo');
+            demo.innerHTML = `
+                <div class="binary-display">
+                    <div>1. Device sends interrupt signal</div>
+                    <div>2. CPU saves PC to memory location 0</div>
+                    <div>3. CPU jumps to I/O service routine at location 1</div>
+                    <div>4. Service routine handles I/O operation</div>
+                    <div>5. CPU returns to interrupted program</div>
+                </div>
+            `;
+        }
+
+        // Smooth scrolling for navigation links
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            setupIntersectionObserver();
+            createFloatingElements();
+            setupSmoothScrolling();
+            
+            window.addEventListener('scroll', function() {
+                updateProgressBar();
+                updateHeader();
+            });
+        });
+    </script>
+</body>
+</html>

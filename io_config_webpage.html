@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Configuration System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .diagram-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .component {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 120px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .component:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .registers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .register-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .register-box:hover {
+            transform: scale(1.05);
+        }
+
+        .instruction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .instruction-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .instruction-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .instruction-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .flag-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .flag-fgi {
+            background: #4ade80;
+            color: white;
+        }
+
+        .flag-fgo {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+.equation {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  .sub-equation {
+    margin-left: 20px;
+    font-size: 1.1em;
+  }
+  .variable {
+    font-style: italic;
+    font-weight: bold; /* Bold to highlight variables/terms */
+  }
+  .subscript {
+    vertical-align: sub;
+    font-size: smaller;
+  }
+  .comment {
+    font-size: 0.9em;
+    font-weight: normal;
+    font-style: italic;
+  }
+        .interactive-demo {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+        }
+
+        .demo-output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            min-height: 60px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .diagram {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Input-Output Configuration</h1>
+            <p class="subtitle">Serial Communication System Architecture</p>
+        </header>
+
+        <div class="diagram-container">
+            <h2 style="color: #667eea; text-align: center; margin-bottom: 20px;">System Architecture</h2>
+            <center><img src = "io_conf.png" alt="Bus Transfer" width="600px"></center>
+
+            <div class="registers">
+                <div class="register-box">
+                    <strong>FGI Flag</strong>
+                    <div style="margin-top: 8px; font-size: 0.9em;">Input Status Flag</div>
+                </div>
+                <div class="register-box">
+                    <strong>FGO Flag</strong>
+                    <div style="margin-top: 8px; font-size: 0.9em;">Output Status Flag</div>
+                </div>
+                <div class="register-box">
+                    <strong>AC Register</strong>
+                    <div style="margin-top: 8px; font-size: 0.9em;">Accumulator</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><div class="icon">📥</div> Input Register (INPR)</h2>
+                <p><strong>Size:</strong> 8 bits</p>
+                <p style="margin-top: 10px;"><strong>Function:</strong> Holds alphanumeric input information from keyboard using ASCII code.</p>
+                <div class="info-box" style="margin-top: 15px; font-size: 0.9em;">
+                    <strong>FGI Flag Behavior:</strong>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>Set to 1 when new information available</li>
+                        <li>Cleared to 0 after information is transferred</li>
+                        <li>Synchronizes timing between input device and computer</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><div class="icon">📤</div> Output Register (OUTR)</h2>
+                <p><strong>Size:</strong> 8 bits</p>
+                <p style="margin-top: 10px;"><strong>Function:</strong> Stores serial information to be transmitted to printer.</p>
+                <div class="info-box" style="margin-top: 15px; font-size: 0.9em;">
+                    <strong>FGO Flag Behavior:</strong>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>Set to 1 when output device is ready</li>
+                        <li>Cleared to 0 when information is transferred</li>
+                        <li>Indicates when new character can be sent</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><div class="icon">⚡</div> Operation Flow</h2>
+                <p><strong>Input Process:</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Key struck → 8-bit code shifted into INPR</li>
+                    <li>FGI flag set to 1</li>
+                    <li>Computer checks FGI</li>
+                    <li>If FGI = 1, transfer INPR to AC</li>
+                    <li>Clear FGI to 0</li>
+                </ol>
+                <p style="margin-top: 15px;"><strong>Output Process:</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Computer checks FGO</li>
+                    <li>If FGO = 1, transfer AC to OUTR</li>
+                    <li>Clear FGO to 0</li>
+                    <li>Printer prints character</li>
+                    <li>Set FGO to 1 when complete</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="diagram-container">
+            <h2 style="color: #667eea; margin-bottom: 20px;">I/O Instructions (Opcode: 1111)</h2>
+            <p>Input and output instructions use operation code <strong>1111</strong> and are controlled by bits IR(6-11). 
+	    <p class="equation">
+  <span class="variable">D</span><span class="subscript">7</span><span class="variable">IT</span><span class="subscript">3</span> = <span class="variable">p</span>
+  <span class="comment">(common to all input-output instructions)</span>
+</p>
+
+<p class="sub-equation">
+  <span class="variable">IR</span>(<span class="variable">i</span>) = <span class="variable">B</span><span class="subscript">i</span>
+  <span class="comment">[bit in IR(6–11) that specifies the instruction]</span>
+</p>
+		
+            <table class="instruction-table">
+                <thead>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Symbol</th>
+                        <th>Hex Code</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+		    <tr>
+                        <td> </td>
+                        <td>p :</td>
+                        <td>SC←0 </td>
+                        <td>Clear SC</td>
+                    </tr>
+                    <tr>
+                        <td><strong>INP</strong></td>
+                        <td>pB₁₁ :</td>
+                        <td>AC(0-7)←INPR, FGI←0</td>
+                        <td>Input character to AC</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OUT</strong></td>
+                        <td>pB₁₀ :</td>
+                        <td>OUTR←AC(0-7), FGO←0</td>
+                        <td>Output character from AC</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SKI</strong></td>
+                        <td>pB₉:</td>
+                        <td>If (FGI = 1) then (PC←PC + 1)</td>
+                        <td>Skip on input flag</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SKO</strong></td>
+                        <td>pB₈:</td>
+                        <td>If (FGO = 1) then (PC←PC + 1)</td>
+                        <td>Skip on output flag</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ION</strong></td>
+                        <td>pB₇:</td>
+                        <td>IEN←1</td>
+                        <td>Interrupt enable on</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IOF</strong></td>
+                        <td>pB₆:</td>
+                        <td>IEN←0</td>
+                        <td>Interrupt enable off</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <strong>Note:</strong> The INP instruction transfers input information from INPR into the eight low-order bits of AC. The OUT instruction transfers the eight least significant bits of AC into OUTR. Instructions can be executed in any order or combination by setting bit 6 through 11.
+            </div>
+        </div>
+
+        <div class="diagram-container">
+            <h2 style="color: #667eea; margin-bottom: 20px;">Interactive Demo</h2>
+            <div class="interactive-demo">
+                <p style="margin-bottom: 15px;">Simulate the I/O operation flow:</p>
+                <button class="demo-button" onclick="simulateInput()">Simulate INPUT Operation</button>
+                <button class="demo-button" onclick="simulateOutput()">Simulate OUTPUT Operation</button>
+                <button class="demo-button" onclick="resetDemo()">Reset</button>
+                <div class="demo-output" id="demoOutput">Ready for simulation...</div>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="interrupt_program_guide.html" class="btn btn-primary">
+        Start Interrupt Program
+    </a>
+</div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        let step = 0;
+        
+        function simulateInput() {
+            const output = document.getElementById('demoOutput');
+            const steps = [
+                '1. Key pressed on keyboard: "A" (ASCII: 65)',
+                '2. 8-bit code shifted into INPR: 01000001',
+                '3. FGI flag set to 1 (input available)',
+                '4. Computer checks FGI: TRUE',
+                '5. Transfer INPR → AC(0-7)',
+                '6. FGI cleared to 0',
+                '✓ INPUT operation complete!'
+            ];
+            
+            let currentStep = 0;
+            output.innerHTML = '';
+            
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    output.innerHTML += steps[currentStep] + '<br>';
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+        
+        function simulateOutput() {
+            const output = document.getElementById('demoOutput');
+            const steps = [
+                '1. Computer checks FGO flag',
+                '2. FGO = 1 (printer ready)',
+                '3. Transfer AC(0-7) → OUTR: 01000001',
+                '4. FGO cleared to 0',
+                '5. Printer receives character: "A"',
+                '6. Printer prints character',
+                '7. FGO set to 1 (ready for next character)',
+                '✓ OUTPUT operation complete!'
+            ];
+            
+            let currentStep = 0;
+            output.innerHTML = '';
+            
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    output.innerHTML += steps[currentStep] + '<br>';
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+        
+        function resetDemo() {
+            document.getElementById('demoOutput').innerHTML = 'Ready for simulation...';
+        }
+    </script>
+</body>
+</html>

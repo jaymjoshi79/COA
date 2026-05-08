@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlapped Register Windows</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .visual-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .register-window {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            min-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .register-window:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .register {
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .formula {
+            background: #e7f3ff;
+            padding: 20px;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .comparison-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .interactive-calculator {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+	
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#555;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #28a745;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .key-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-points li {
+            padding: 12px 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .key-points li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .key-points li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Overlapped Register Windows</h1>
+            <p class="subtitle">Efficient Parameter Passing in RISC Processors</p>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>What Are Overlapped Register Windows?</h2>
+                <p>Overlapped register windows are a characteristic feature of some RISC processors designed to optimize procedure calls by eliminating the time-consuming operations of saving and restoring register values. When a procedure is called, a new window of registers from the register file is allocated, with some registers overlapping between adjacent procedures for efficient parameter passing.</p>
+                
+                <div class="highlight">
+                    <strong>Key Benefit:</strong> Parameters and results can be passed between procedures without the actual movement of data, using only shared overlapping registers.
+                </div>
+            </div>
+	    <div class="section">
+		<h2>Example of Overlapped Register Window</h2>
+		<center> <img src="reg_window.png" alt="Circuit Diagram of Status bit" width="500px"></center>
+	    </div>
+            <div class="section">
+                <h2>Interactive Exploration</h2>
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('overview')">Overview</button>
+                    <button class="tab" onclick="showTab('structure')">Register Structure</button>
+                    <button class="tab" onclick="showTab('example')">Example</button>
+                    <button class="tab" onclick="showTab('calculator')">Calculator</button>
+                </div>
+
+                <div id="overview" class="tab-content active">
+                    <h3>How It Works</h3>
+                    <p>Each procedure call results in the allocation of a new register window by incrementing a pointer. The return statement decrements the pointer and causes the activation of the previous window.</p>
+                    
+                    <div class="comparison-grid">
+                        <div class="comparison-card">
+                            <h3>Global Registers</h3>
+                            <p>Shared by all procedures. Hold parameters common to all procedures.</p>
+                        </div>
+                        <div class="comparison-card">
+                            <h3>Local Registers</h3>
+                            <p>Used for local variables within a procedure. Not shared with other procedures.</p>
+                        </div>
+                        <div class="comparison-card">
+                            <h3>Common Registers</h3>
+                            <p>Overlapping registers shared between adjacent procedures for parameter passing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="structure" class="tab-content">
+                    <h3>Register Organization</h3>
+                    <p>In a typical implementation with 74 total registers:</p>
+                    <ul class="key-points">
+                        <li><strong>10 Global Registers (R0-R9):</strong> Available to all procedures</li>
+                        <li><strong>64 Windowed Registers:</strong> Divided into 4 overlapping windows</li>
+                        <li><strong>10 Local Registers per window:</strong> For local variable storage</li>
+                        <li><strong>6 Common Registers:</strong> Shared between adjacent windows (6 low + 6 high overlap)</li>
+                    </ul>
+                    
+                    <div class="visual-demo">
+                        <h4>Example: Procedure A Window</h4>
+                        <p><strong>Total: 32 registers available</strong></p>
+                        <div class="register-window">
+                            <strong>Global (10)</strong>
+                            <div class="register">R0 - R9</div>
+                        </div>
+                        <div class="register-window">
+                            <strong>Low Overlap (6)</strong>
+                            <div class="register">R10 - R15</div>
+                            <small>Common with D & A</small>
+                        </div>
+                        <div class="register-window">
+                            <strong>Local (10)</strong>
+                            <div class="register">R16 - R25</div>
+                        </div>
+                        <div class="register-window">
+                            <strong>High Overlap (6)</strong>
+                            <div class="register">R26 - R31</div>
+                            <small>Common with A & B</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="example" class="tab-content">
+                    <h3>Example: Procedure A Calls Procedure B</h3>
+                    <p>When procedure A calls procedure B:</p>
+                    <ul class="key-points">
+                        <li>Registers R26-R31 are common to both A and B</li>
+                        <li>Procedure A stores parameters in R26-R31</li>
+                        <li>Procedure B uses local registers R32-R41 for its variables</li>
+                        <li>To call procedure C, B passes parameters through R42-R47</li>
+                        <li>Results are stored back in common registers for return</li>
+                        <li>The register window pointer transfers control back to A</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <strong>Circular Organization:</strong> Registers R10-R15 are common to procedures A and D because the four windows have a circular organization (being adjacent to D).
+                    </div>
+                </div>
+
+                <div id="calculator" class="tab-content">
+                    <h3>Register Window Calculator</h3>
+                    <div class="interactive-calculator">
+                        <div class="input-group">
+                            <label for="globalRegs">Number of Global Registers (G):</label>
+                            <input type="number" id="globalRegs" value="10" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="localRegs">Number of Local Registers per Window (L):</label>
+                            <input type="number" id="localRegs" value="10" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="commonRegs">Number of Common Registers (C):</label>
+                            <input type="number" id="commonRegs" value="6" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="numWindows">Number of Windows (W):</label>
+                            <input type="number" id="numWindows" value="4" min="1">
+                        </div>
+                        <button class="calculate-btn" onclick="calculateRegisters()">Calculate</button>
+                        <div id="calcResult"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Mathematical Formulas</h2>
+                <div class="formula">
+                    <strong>Window Size:</strong> L + 2C + G
+                </div>
+                <div class="formula">
+                    <strong>Register File Size:</strong> (L + C)W + G
+                </div>
+                <p style="margin-top: 15px;">Where:</p>
+                <ul class="key-points">
+                    <li><strong>G</strong> = Number of global registers</li>
+                    <li><strong>L</strong> = Number of local registers in each window</li>
+                    <li><strong>C</strong> = Number of registers common to two windows</li>
+                    <li><strong>W</strong> = Number of windows</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Advantages Over Traditional Methods</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h3>❌ Multiple Register Banks</h3>
+                        <p>Each procedure gets its own bank, but requires many physical register sets.</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h3>❌ Memory Stack</h3>
+                        <p>Stores parameters in memory, requiring memory access every time the stack is accessed.</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h3>✅ Overlapped Windows</h3>
+                        <p>Efficient parameter passing with minimal overhead and no data movement required.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="index.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Next Unit</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function calculateRegisters() {
+            const G = parseInt(document.getElementById('globalRegs').value);
+            const L = parseInt(document.getElementById('localRegs').value);
+            const C = parseInt(document.getElementById('commonRegs').value);
+            const W = parseInt(document.getElementById('numWindows').value);
+            
+            const windowSize = L + (2 * C) + G;
+            const registerFile = (L + C) * W + G;
+            
+            const resultDiv = document.getElementById('calcResult');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = `
+                <div><strong>Window Size:</strong> ${L} + (2 × ${C}) + ${G} = ${windowSize} registers</div>
+                <div style="margin-top: 10px;"><strong>Total Register File Size:</strong> (${L} + ${C}) × ${W} + ${G} = ${registerFile} registers</div>
+            `;
+        }
+
+        // Calculate on page load
+        window.onload = function() {
+            calculateRegisters();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design of Accumulator Logic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .section h2 {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .component-card h3 {
+            color: #667eea;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .interactive-demo {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .register-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+	 .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #2c3e50;
+            margin-top: 40px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .bit-box {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #4299e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .bit-box:hover {
+            background: #4299e1;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .bit-box.active {
+            background: #48bb78;
+            color: white;
+            border-color: #48bb78;
+        }
+
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .operation-demo {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 5px solid #48bb78;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-radius: 12px;
+        }
+
+        .flow-step {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            min-width: 150px;
+            margin: 0.5rem;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin: 0 0.5rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff5cd 0%, #fef5e7 100%);
+            border-left: 4px solid #f6ad55;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            background: #f7fafc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .bit-box {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Design of Accumulator Logic</h1>
+            <p>Interactive Guide to 16-bit Processor Register Design</p>
+        </div>
+
+        <div class="section">
+            <h2>🏗️ Components and Overall Structure</h2>
+            <div class="component-grid">
+                <div class="component-card" onclick="highlightComponent('ac')">
+                    <h3>Accumulator Register (AC)</h3>
+                    <p>16-bit register composed of flip-flops, stores data and connects to common bus</p>
+                    <div class="register-visual" id="ac-visual">
+                        <!-- AC register bits will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="component-card" onclick="highlightComponent('adder')">
+                    <h3>Adder and Logic Circuit</h3>
+                    <p>Combinational circuit executing arithmetic and logic microoperations</p>
+                    <div class="highlight-box">
+                        <strong>Three Input Sets:</strong><br>
+                        • 16 from AC outputs<br>
+                        • 16 from Data Register (DR)<br>
+                        • 8 from Input Register (INPR)
+                    </div>
+                </div>
+                
+                <div class="component-card" onclick="highlightComponent('control')">
+                    <h3>Control Gates</h3>
+                    <p>Generate control signals: Load (LD), Increment (INR), Clear (CLR)</p>
+                    <div class="control-panel">
+                        <button class="control-btn" onclick="simulateOperation('clear')">CLR</button>
+                        <button class="control-btn" onclick="simulateOperation('increment')">INR</button>
+                        <button class="control-btn" onclick="simulateOperation('load')">LD</button>
+                    </div>
+                </div>
+	
+
+            </div>
+	    		<h3> Circuit associated with Accumulator </h3><br>
+		<center><img src="cir_ac.png" alt="Ckts of AC" width="600px"></center>
+        </div>
+
+        <div class="section">
+            <h2>🎛️ Control Signals of AC</h2>
+	    <h3> Micro-operations associated with AC </h3>
+	    <div class="code-block">
+		D₀T₅ : AC ← AC ∧ DR <br>
+		D₁T₅ : AC ← AC + DR <br>
+		D₂T₅ : AC ← DR <br>
+		pB₁₁ : AC (0-7) ← INPR <br>
+                 rB₉ : AC ← <span style="text-decoration: overline;">AC</span><br>
+		rB₇ : AC ← shr AC, AC(15) ← E<br>
+		rB₆ : AC ← shl AC, AC(0) ← E<br>
+		rB₁₁ : AC ← 0 <br>
+		rB₅ : AC ← AC + 1 <br>
+            </div>
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('clr-tab')">CLR Signal</div>
+                <div class="tab" onclick="showTab('inr-tab')">INR Signal</div>
+                <div class="tab" onclick="showTab('ld-tab')">LD Signal</div>
+            </div>
+            
+            <div id="clr-tab" class="tab-content active">
+                <div class="operation-demo">
+                    <h3>CLR (Clear AC)</h3>
+                    <p><strong>Boolean Function:</strong> CLR(AC) = rB₁₁</p>
+                    <p>Active CLR input of AC when rB₉ control signal is active.</p>
+                    <button class="control-btn" onclick="clearAccumulator()">Execute CLR</button>
+                </div>
+            </div>
+            
+            <div id="inr-tab" class="tab-content">
+                <div class="operation-demo">
+                    <h3>INR (Increment AC)</h3>
+                    <p><strong>Boolean Function:</strong> INR(AC) = rB₅</p>
+                    <p>Active INR input of AC when rB₅ is active.</p>
+                    <button class="control-btn" onclick="incrementAccumulator()">Execute INR</button>
+                </div>
+            </div>
+            
+            <div id="ld-tab" class="tab-content">
+                <div class="operation-demo">
+                    <h3>LD (Load AC)</h3>
+                    <p><strong>Boolean Function:</strong> LD(AC) = D₀T₅ + D₁T₅ + D₂T₅ + pB₁₁ + rB₉ + rB₇ + rB₆</p>
+                    <div class="highlight-box">
+                        <strong>Microoperations that activate LD:</strong><br>
+                        • AND operation (AC ← AC ∧ DR)<br>
+                        • ADD operation (AC ← AC + DR)<br>
+                        • Transfer from DR (AC ← DR)<br>
+                        • Transfer from INPR, Complement, Shift operations
+                    </div>
+                    <button class="control-btn" onclick="loadAccumulator()">Execute LD</button>
+                </div>
+            </div>
+	   <h3> Circuit Diagram for Control Signals of AC</h3><br>
+	   <center><img src = "cont_ac.png" alt="Ckts of AC" width="600px"></center>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ Microoperations Simulator</h2>
+            <div class="interactive-demo">
+                <h3>AC Register State</h3>
+                <div class="register-visual" id="main-ac-visual"></div>
+                <p style="text-align: center; margin: 1rem 0;">Current AC Value: <span id="ac-value">0000000000000000</span></p>
+                
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <strong>Input</strong><br>
+                        AC, DR, INPR
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="flow-step">
+                        <strong>Adder & Logic</strong><br>
+                        Processing
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="flow-step">
+                        <strong>Output</strong><br>
+                        New AC Value
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <button class="control-btn" onclick="simulateMicroop('and')">AC ← AC ∧ DR</button>
+                    <button class="control-btn" onclick="simulateMicroop('add')">AC ← AC + DR</button>
+                    <button class="control-btn" onclick="simulateMicroop('transfer')">AC ← DR</button>
+                    <button class="control-btn" onclick="simulateMicroop('complement')">AC ← AC'</button>
+                    <button class="control-btn" onclick="simulateMicroop('shiftright')">Shift Right</button>
+                    <button class="control-btn" onclick="simulateMicroop('shiftleft')">Shift Left</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Adder and Logic Circuit Design</h2>
+            <div class="highlight-box">
+                <h3>16 Identical Stages Design</h3>
+                <p>Each stage corresponds to one bit of the AC register and contains:</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>Full-Adder (FA):</strong> For arithmetic operations</li>
+                    <li><strong>Control Signal Inputs:</strong> D₁T₅(ADD), D₀T₅(AND), D₂T₅(DR), pB₁₁(INPR), rB₉(COM), rB₇(SHR), rB₆(SHL)</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+// Pseudo-code for one stage of Adder and Logic Circuit
+Stage_i {<br>
+    inputs: AC(i), DR(i), INPR(i), C_in, control_signals<br><br>
+    
+    FA_sum = FullAdder(AC(i), DR(i), C_in) & D₁T₅<br>
+    AND_result = AC(i) & DR(i) & D₀T₅<br>
+    DR_result =  DR(i) & D₂T₅<br>
+    INPR_result = INPR(i) & pB₁₁<br>
+    COM_result = ~AC(i) & rB₉ <br>
+    SHR_result = (i == 15) ? E : AC(i+1)  & rB₇  <br>
+    SHL_result = (i == 0) ? E : AC(i-1) & rB₆ <br><br>
+    
+    output = (FA_sum | AND_result | DR(i) | INPR(i) | 
+                                  COM_result | SHR_result | SHL_result) & LD(AC)<br>
+}
+            </div>
+<center><img src = "one_alu.png" alt="Stage of ALU" width="600px"></center>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="index.html" class="btn btn-primary">Start Learning Next Unit</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        let acValue = 0;
+        let drValue = 0b1010101010101010; // Sample DR value
+        
+        function initializeVisuals() {
+            createRegisterVisual('ac-visual', 16);
+            createRegisterVisual('main-ac-visual', 16);
+            updateACDisplay();
+        }
+        
+        function createRegisterVisual(containerId, bits) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = bits - 1; i >= 0; i--) {
+                const bitBox = document.createElement('div');
+                bitBox.className = 'bit-box';
+                bitBox.textContent = '0';
+                bitBox.id = `${containerId}-bit-${i}`;
+                bitBox.onclick = () => toggleBit(containerId, i);
+                container.appendChild(bitBox);
+            }
+        }
+        
+        function toggleBit(containerId, position) {
+            const bit = 1 << position;
+            acValue ^= bit;
+            updateACDisplay();
+        }
+        
+        function updateACDisplay() {
+            const binaryString = acValue.toString(2).padStart(16, '0');
+            document.getElementById('ac-value').textContent = binaryString;
+            
+            // Update all bit displays
+            ['ac-visual', 'main-ac-visual'].forEach(containerId => {
+                for (let i = 0; i < 16; i++) {
+                    const bitElement = document.getElementById(`${containerId}-bit-${i}`);
+                    if (bitElement) {
+                        const bitValue = (acValue >> i) & 1;
+                        bitElement.textContent = bitValue;
+                        bitElement.classList.toggle('active', bitValue === 1);
+                    }
+                }
+            });
+        }
+        
+        function highlightComponent(component) {
+            // Remove existing highlights
+            document.querySelectorAll('.component-card').forEach(card => {
+                card.classList.remove('pulse');
+            });
+            
+            // Add highlight to clicked component
+            event.target.closest('.component-card').classList.add('pulse');
+            
+            setTimeout(() => {
+                event.target.closest('.component-card').classList.remove('pulse');
+            }, 3000);
+        }
+        
+        function simulateOperation(operation) {
+            switch(operation) {
+                case 'clear':
+                    clearAccumulator();
+                    break;
+                case 'increment':
+                    incrementAccumulator();
+                    break;
+                case 'load':
+                    loadAccumulator();
+                    break;
+            }
+        }
+        
+        function clearAccumulator() {
+            acValue = 0;
+            updateACDisplay();
+            showAnimation('CLR operation executed - AC cleared to 0');
+        }
+        
+        function incrementAccumulator() {
+            acValue = (acValue + 1) & 0xFFFF; // Keep within 16 bits
+            updateACDisplay();
+            showAnimation('INR operation executed - AC incremented by 1');
+        }
+        
+        function loadAccumulator() {
+            acValue = drValue;
+            updateACDisplay();
+            showAnimation('LD operation executed - DR loaded into AC');
+        }
+        
+        function simulateMicroop(operation) {
+            const oldValue = acValue;
+            
+            switch(operation) {
+                case 'and':
+                    acValue = acValue & drValue;
+                    showAnimation(`AND operation: ${oldValue.toString(2).padStart(16,'0')} ∧ ${drValue.toString(2).padStart(16,'0')}`);
+                    break;
+                case 'add':
+                    acValue = (acValue + drValue) & 0xFFFF;
+                    showAnimation(`ADD operation: ${oldValue} + ${drValue}`);
+                    break;
+                case 'transfer':
+                    acValue = drValue;
+                    showAnimation(`Transfer operation: AC ← DR`);
+                    break;
+                case 'complement':
+                    acValue = (~acValue) & 0xFFFF;
+                    showAnimation(`Complement operation: AC ← AC'`);
+                    break;
+                case 'shiftright':
+                    acValue = acValue >> 1;
+                    showAnimation(`Shift Right operation executed`);
+                    break;
+                case 'shiftleft':
+                    acValue = (acValue << 1) & 0xFFFF;
+                    showAnimation(`Shift Left operation executed`);
+                    break;
+            }
+            
+            updateACDisplay();
+        }
+        
+        function showAnimation(message) {
+            // Create temporary message overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '50%';
+            overlay.style.left = '50%';
+            overlay.style.transform = 'translate(-50%, -50%)';
+            overlay.style.background = 'rgba(102, 126, 234, 0.9)';
+            overlay.style.color = 'white';
+            overlay.style.padding = '1rem 2rem';
+            overlay.style.borderRadius = '10px';
+            overlay.style.zIndex = '1000';
+            overlay.style.animation = 'fadeIn 0.3s ease';
+            overlay.textContent = message;
+            
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+        
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', initializeVisuals);
+    </script>
+</body>
+</html>

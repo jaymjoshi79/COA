@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addressing Modes in Computer Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .intro-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .intro-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .intro-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .mode-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .direct-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .indirect-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            color: #555;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-icon {
+            font-size: 1em;
+        }
+
+        .description {
+            line-height: 1.8;
+            color: #666;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .example-box {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 2px dashed #667eea;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #764ba2;
+            font-size: 0.95em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .visual-diagram {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+        }
+	.direct-icon {
+            color: #007bff; /* Blue for Direct */
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .indirect-icon {
+            color: #dc3545; /* Red for Indirect */
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .memory-block {
+            display: inline-block;
+            border: 2px solid #667eea;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 10px;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .memory-block:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #764ba2;
+            margin: 0 10px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .key-points {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	.summary-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .key-point {
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .key-point:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .advantages {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .mode-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📍 Addressing Modes in Computer Architecture</h1>
+            <p class="subtitle">Understanding Direct and Indirect Addressing</p>
+        </header>
+
+        <div class="intro-card">
+            <h2>What is Indirect Addressing?</h2>
+            <div class="description">
+                Indirect addressing is a memory addressing method where the instruction specifies an <span class="highlight">address of an address</span>, not the actual operand itself. When the second part of an instruction specifies the address of an operand, the instruction is said to have a <strong>direct address</strong>. However, when it specifies the address of an address in memory where the operand is located, this is called <strong>indirect address</strong>, where the bits in the second part of the instruction refer to the address of a memory word in which the address of the operand can be found.
+            </div>
+        </div>
+
+        <div class="comparison-container">
+            <!-- Direct Addressing -->
+            <div class="mode-card">
+                <h2 class="mode-title">
+                    <span class="icon direct-icon">→</span>
+                    Direct Addressing
+                </h2>
+
+                <div class="section">
+                    <h3><span class="section-icon">📝</span> Description</h3>
+                    <div class="description">
+                        In direct addressing mode, the address part of the instruction contains the <strong>actual address</strong> of the operand in memory. The instruction directly points to the memory location where the data is stored.
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">💡</span> Example</h3>
+                    <div class="example-box">
+                        <div class="example-title">Instruction Format:</div>
+                        <div class="instruction">
+                            <strong>Opcode:</strong> ADD | <strong>Address:</strong> 457
+                        </div>
+                        <div style="margin-top: 15px; color: #555;">
+                            This instruction means: Add the contents of memory address <span class="highlight">457</span> to the accumulator (AC).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">🔄</span> Visual Process</h3>
+                    <div class="visual-diagram">
+                        <div class="memory-block">
+                            <strong>Instruction</strong><br>
+                            Address: 457
+                        </div>
+                        <span class="arrow">→</span>
+                        <div class="memory-block">
+                            <strong>Memory[457]</strong><br>
+                            Operand
+                        </div>
+                        <span class="arrow">+</span>
+                        <div class="memory-block">
+                            <strong>AC</strong>
+                        </div>
+                        <div style="margin-top: 15px; color: #666; font-style: italic;">
+                            One memory reference to fetch the operand
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">✅</span> Key Characteristics</h3>
+                    <div class="key-points">
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Faster execution - only one memory access
+                        </div>
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Simple and straightforward
+                        </div>
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Direct access to operand
+                        </div>
+                        <div class="key-point">
+                            <strong>•</strong> Limited flexibility
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indirect Addressing -->
+            <div class="mode-card">
+                <h2 class="mode-title">
+                    <span class="icon indirect-icon">↝</span>
+                    Indirect Addressing
+                </h2>
+
+                <div class="section">
+                    <h3><span class="section-icon">📝</span> Description</h3>
+                    <div class="description">
+                        In indirect addressing mode, the address field of the instruction gives the <strong>address where the effective address is stored</strong>. The control unit needs <strong>two memory references</strong>: first to read the address of the operand, and second to read the operand itself.
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">💡</span> Example</h3>
+                    <div class="example-box">
+                        <div class="example-title">Instruction Format:</div>
+                        <div class="instruction">
+                            <strong>Opcode:</strong> I ADD | <strong>Address:</strong> 300
+                        </div>
+                        <div style="margin-top: 15px; color: #555;">
+                            The 'I' bit = 1 indicates indirect addressing. Address 300 contains <span class="highlight">1350</span>, which is the actual address of the operand.
+                        </div>
+                        <div style="margin-top: 10px; padding: 12px; background: white; border-radius: 8px;">
+                            <strong>Step 1:</strong> Read Memory[300] → Get address 1350<br>
+                            <strong>Step 2:</strong> Read Memory[1350] → Get the operand
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">🔄</span> Visual Process</h3>
+                    <div class="visual-diagram">
+                        <div class="memory-block">
+                            <strong>Instruction</strong><br>
+                            Address: 300
+                        </div>
+                        <span class="arrow">→</span>
+                        <div class="memory-block">
+                            <strong>Memory[300]</strong><br>
+                            Value: 1350
+                        </div>
+                        <span class="arrow">→</span>
+                        <div class="memory-block">
+                            <strong>Memory[1350]</strong><br>
+                            Operand
+                        </div>
+                        <span class="arrow">+</span>
+                        <div class="memory-block">
+                            <strong>AC</strong>
+                        </div>
+                        <div style="margin-top: 15px; color: #666; font-style: italic;">
+                            Two memory references to fetch the operand
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3><span class="section-icon">✅</span> Key Characteristics</h3>
+                    <div class="key-points">
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Greater flexibility - can use pointers
+                        </div>
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Useful for arrays and data structures
+                        </div>
+                        <div class="key-point advantages">
+                            <strong>✓</strong> Enables dynamic addressing
+                        </div>
+                        <div class="key-point">
+                            <strong>•</strong> Slower - requires two memory accesses
+                        </div>
+                        <div class="key-point">
+                            <strong>•</strong> More complex execution
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	<div class="intro-card">
+            <h2 class="mode-title"> Demostration of <span class="icon direct-icon">→</span> direct and <span class="icon indirect-icon">↝</span>indirect address</h2>
+	    <center><img src="ind_add.png"></center>
+	</div>
+
+
+        <div class="intro-card">
+            <h2>🎯 Key Difference Summary</h2>
+            1.  <b>Direct Addressing (b):</b> The instruction's address field (e.g., 457) directly points to the memory location containing the operand.<br>
+2.  <b>One Memory Access (b):</b> After fetching the instruction, only one additional memory access is needed to retrieve the operand.<br>
+3.  <b>Indirect Addressing (c):</b> The instruction's address field (e.g., 300) points to a memory location that <b>holds the actual address</b> (e.g., 1350) of the operand.<br>
+4.  <b>Two Memory Accesses (c):</b> After fetching the instruction, two additional memory accesses are required: one to get the operand's address and a second to get the operand itself.<br>
+5.  <b>Address Lookup:</b> Direct mode uses the address field as the final operand location, while indirect mode uses it for an intermediate address lookup.
+        </div>
+	
+	<div class="topic-actions">
+    <a href="computer_registers_webpage.html" class="btn btn-primary">
+        Start Learning Computer Registers
+    </a>
+</div>
+
+        <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+</body>
+</html>

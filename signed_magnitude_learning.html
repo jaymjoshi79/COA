@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signed-Magnitude Arithmetic - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .bit-representation {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .bit {
+            width: 50px;
+            height: 50px;
+            background: #f7fafc;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .bit.sign {
+            background: #ffd700;
+            border-color: #ff6b6b;
+        }
+
+        .bit:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .interactive-table {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        tr:hover td {
+            background: #f7fafc;
+        }
+
+        .algorithm-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .algorithm-box h3 {
+            color: white;
+        }
+
+        .steps {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .steps li {
+            counter-increment: step;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            color: #764ba2;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .calculator {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background: #ffd700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .key-point:hover {
+            transform: scale(1.05);
+        }
+
+.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .example-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: white;
+            border: 3px solid #667eea;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            position: relative;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .flow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .flow-step:last-child::after {
+            content: '';
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .content-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Signed-Magnitude Arithmetic</h1>
+            <p class="subtitle">Master Addition and Subtraction with Interactive Learning</p>
+        </header>
+
+        <div class="content-card">
+            <h2>🎯 Introduction</h2>
+            <p>In digital systems, <strong>signed-magnitude representation</strong> is one of the simplest ways to represent positive and negative numbers.</p>
+            
+            <h3>Binary Representation</h3>
+            <div class="bit-representation">
+                <div class="bit sign" title="Sign Bit">S</div>
+                <div class="bit">M₇</div>
+                <div class="bit">M₆</div>
+                <div class="bit">M₅</div>
+                <div class="bit">M₄</div>
+                <div class="bit">M₃</div>
+                <div class="bit">M₂</div>
+                <div class="bit">M₁</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <p><span class="highlight">0</span> → Positive Number</p>
+                <p><span class="highlight">1</span> → Negative Number</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📋 All Possible Cases</h2>
+            <div class="interactive-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Operation</th>
+                            <th>Add Magnitudes</th>
+                            <th colspan="3">Subtract Magnitudes</th>
+                        </tr>
+                        <tr>
+                            <th>Same Signs</th>
+                            <th>A > B</th>
+                            <th>A < B</th>
+                            <th>A = B</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>(+A) + (+B)</td>
+                            <td>+(A + B)</td>
+                            <td>–</td>
+                            <td>–</td>
+                            <td>–</td>
+                        </tr>
+                        <tr>
+                            <td>(+A) + (−B)</td>
+                            <td>–</td>
+                            <td>+(A − B)</td>
+                            <td>−(B − A)</td>
+                            <td>+0</td>
+                        </tr>
+                        <tr>
+                            <td>(−A) + (+B)</td>
+                            <td>–</td>
+                            <td>−(A − B)</td>
+                            <td>+(B − A)</td>
+                            <td>+0</td>
+                        </tr>
+                        <tr>
+                            <td>(−A) + (−B)</td>
+                            <td>−(A + B)</td>
+                            <td>–</td>
+                            <td>–</td>
+                            <td>–</td>
+                        </tr>
+                        <tr>
+                            <td>(+A) − (+B)</td>
+                            <td>–</td>
+                            <td>+(A − B)</td>
+                            <td>−(B − A)</td>
+                            <td>+0</td>
+                        </tr>
+                        <tr>
+                            <td>(+A) − (−B)</td>
+                            <td>+(A + B)</td>
+                            <td>–</td>
+                            <td>–</td>
+                            <td>–</td>
+                        </tr>
+                        <tr>
+                            <td>(−A) − (+B)</td>
+                            <td>−(A + B)</td>
+                            <td>–</td>
+                            <td>–</td>
+                            <td>–</td>
+                        </tr>
+                        <tr>
+                            <td>(−A) − (−B)</td>
+                            <td>–</td>
+                            <td>−(A − B)</td>
+                            <td>+(B − A)</td>
+                            <td>+0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>🔄 Algorithm</h2>
+            <div class="algorithm-box">
+                <h3>General Steps</h3>
+                <ol class="steps">
+                    <li>Check the operation (Addition or Subtraction)</li>
+                    <li>Compare the signs of A and B</li>
+                    <li>If signs are same → Add magnitudes (for addition)</li>
+                    <li>If signs differ → Subtract smaller from larger</li>
+                    <li>Assign result sign based on magnitude comparison</li>
+                    <li>If result = 0 → Always make it +0</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>💡 Key Points</h2>
+            <div class="key-points">
+                <div class="key-point">✅ MSB is the sign bit</div>
+                <div class="key-point">✅ +0 and −0 are equivalent</div>
+                <div class="key-point">✅ Signs determine operation</div>
+                <div class="key-point">✅ Zero is always positive</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>🧮 Interactive Calculator</h2>
+            <div class="calculator">
+                <div class="input-group">
+                    <label>Number A:</label>
+                    <input type="number" id="numA" placeholder="Enter number A">
+                    <select id="signA">
+                        <option value="+">Positive (+)</option>
+                        <option value="-">Negative (−)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Operation:</label>
+                    <select id="operation">
+                        <option value="+">Addition (+)</option>
+                        <option value="-">Subtraction (−)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Number B:</label>
+                    <input type="number" id="numB" placeholder="Enter number B">
+                    <select id="signB">
+                        <option value="+">Positive (+)</option>
+                        <option value="-">Negative (−)</option>
+                    </select>
+                </div>
+                <button onclick="calculate()">Calculate Result</button>
+                <div id="result" class="result"></div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📚 Example Practice</h2>
+            <div class="example-card">
+                <strong>(+7) + (+5)</strong><br>
+                Same signs → Add magnitudes: 7 + 5 = 12<br>
+                Result: <span class="highlight">+12</span>
+            </div>
+            <div class="example-card">
+                <strong>(+9) + (−4)</strong><br>
+                Different signs → Subtract: 9 − 4 = 5, sign of larger (A)<br>
+                Result: <span class="highlight">+5</span>
+            </div>
+            <div class="example-card">
+                <strong>(−9) + (+4)</strong><br>
+                Different signs → Subtract: 9 − 4 = 5, sign of larger (A)<br>
+                Result: <span class="highlight">−5</span>
+            </div>
+            <div class="example-card">
+                <strong>(+6) − (+6)</strong><br>
+                Same signs → Subtract: 6 − 6 = 0<br>
+                Result: <span class="highlight">+0</span>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📊 Algorithm Flowchart</h2>
+            <div class="flowchart">
+                <div class="flow-step">Start: Check Operation</div>
+                <div class="flow-step">Compare Signs of A and B</div>
+                <div class="flow-step">Same Signs? Add Magnitudes<br>Different? Subtract Magnitudes</div>
+                <div class="flow-step">Determine Result Sign</div>
+                <div class="flow-step">If Zero → Make it +0</div>
+                <div class="flow-step">Display Result</div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="signed_magnitude_hardware.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Signed Magnitude Hardware</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            © Dr. Jay M. Joshi
+
+    </div>
+
+    </div>
+
+    <script>
+        function calculate() {
+    // 1. Parse Inputs
+    const numA = Math.abs(parseInt(document.getElementById('numA').value) || 0);
+    const numB = Math.abs(parseInt(document.getElementById('numB').value) || 0);
+    const signA = document.getElementById('signA').value;
+    const signB = document.getElementById('signB').value;
+    const operation = document.getElementById('operation').value;
+
+    let result;
+    let explanation = '';
+
+    // 2. Normalize logic: Convert Subtraction to Addition
+    // If op is '-', we flip the sign of B and treat it as addition.
+    // Example: (+A) - (+B) becomes (+A) + (-B)
+    let effectiveSignB = signB;
+    let effectiveOp = 'Addition'; // For explanation text
+
+    if (operation === '-') {
+        effectiveSignB = signB === '+' ? '-' : '+';
+        effectiveOp = 'Subtraction (treated as Addition with flipped B)';
+    }
+
+    const sameSign = signA === effectiveSignB;
+
+    // 3. Perform Calculation (Universal Logic)
+    if (sameSign) {
+        // Rule: Same signs -> Add magnitudes, keep the sign
+        result = numA + numB;
+        explanation = `${effectiveOp} with same effective signs → Add magnitudes: ${numA} + ${numB} = ${result}`;
+        result = (signA === '+' ? '+' : '-') + result;
+    } else {
+        // Rule: Different signs -> Subtract smaller from larger magnitude
+        if (numA > numB) {
+            result = numA - numB;
+            explanation = `${effectiveOp} with different effective signs (A > B) → Subtract: ${numA} - ${numB} = ${result}`;
+            result = signA + result; // Keep sign of larger number (A)
+        } else if (numA < numB) {
+            result = numB - numA;
+            explanation = `${effectiveOp} with different effective signs (B > A) → Subtract: ${numB} - ${numA} = ${result}`;
+            result = effectiveSignB + result; // Keep sign of larger number (B)
+        } else {
+            result = '+0';
+            explanation = `Magnitudes equal with different signs → Result is +0`;
+        }
+    }
+
+    // 4. Output
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <strong>Result: ${result}</strong><br>
+        <small>${explanation}</small>
+    `;
+    resultDiv.classList.add('show');
+}
+    </script>
+</body>
+</html>

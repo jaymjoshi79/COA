@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Memory: RAM & ROM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .expand-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+
+        .card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .card.expanded .card-content {
+            max-height: 1000px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .operation-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .operation-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            padding: 10px 0 10px 40px;
+            position: relative;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 8px;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border: 1px solid #e0e0e0;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .interactive-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+	.overline {
+    text-decoration: overline;
+}
+        .memory-visual {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .memory-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+	
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	.footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .memory-cell:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .memory-cell.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            animation: glow 1s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        input[type="number"] {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .memory-visual {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Main Memory</h1>
+            <p class="subtitle">Understanding RAM & ROM: The Foundation of Computer Memory</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab(0)">Overview</button>
+            <button class="nav-tab" onclick="switchTab(1)">RAM vs ROM</button>
+            <button class="nav-tab" onclick="switchTab(2)">Chips</button>
+	    <button class="nav-tab" onclick="switchTab(3)">Address Map</button>
+            <button class="nav-tab" onclick="switchTab(4)">CPU Connection</button>
+            <button class="nav-tab" onclick="switchTab(5)">Interactive Demo</button>
+        </div>
+
+        <div class="content">
+            <!-- Overview Tab -->
+            <div class="tab-content active">
+                <h2><span class="icon">📚</span> Memory Unit Overview</h2>
+                <p>The memory unit is a collection of storage cells organized with associated circuits for information transfer. Information is stored in groups of bits called <span class="highlight">words</span>.</p>
+                
+                <div class="card expanded">
+                    <div class="card-header">
+                        <div class="card-title">What is a Memory Word?</div>
+                    </div>
+                    <div class="card-content">
+                        <p>A memory word is an entity of <strong>n bits</strong>. Common configurations include:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>📦 <strong>16 bits</strong> - Two bytes (2 × 8 bits)</li>
+                            <li>📦 <strong>32 bits</strong> - Four bytes (4 × 8 bits)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Types of Main Memory</h3>
+                <p>Main memory utilizes two major types:</p>
+                
+                <div class="card" onclick="toggleCard(this)">
+                    <div class="card-header">
+                        <div class="card-title">🚀 Random-Access Memory (RAM)</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>Key Characteristic:</strong> Access time is the same regardless of physical location - hence "random access"</p>
+                        <p><strong>Operations:</strong> Both Read and Write</p>
+                        <p><strong>Volatility:</strong> Data is lost when power is turned off</p>
+                    </div>
+                </div>
+
+                <div class="card" onclick="toggleCard(this)">
+                    <div class="card-header">
+                        <div class="card-title">💾 Read-Only Memory (ROM)</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>Key Characteristic:</strong> Performs read operations only</p>
+                        <p><strong>Operations:</strong> Read only - no write capability</p>
+                        <p><strong>Permanence:</strong> Information is determined during hardware production and cannot be altered</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAM vs ROM Tab -->
+            <div class="tab-content">
+                <h2><span class="icon">⚖️</span> RAM vs ROM Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>RAM</th>
+                            <th>ROM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Full Form</strong></td>
+                            <td>Random-Access Memory</td>
+                            <td>Read-Only Memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Access Type</strong></td>
+                            <td>Random access to any location</td>
+                            <td>Read-only access</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Write Capability</strong></td>
+                            <td>✅ Yes - Read & Write</td>
+                            <td>❌ No - Read only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Volatility</strong></td>
+                            <td>Volatile (data lost when power off)</td>
+                            <td>Non-volatile (permanent storage)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Access Speed</strong></td>
+                            <td>Uniform - same for all locations</td>
+                            <td>Fast - but read-only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Primary Use</strong></td>
+                            <td>Temporary data storage, active programs</td>
+                            <td>Fixed programs, constant tables, firmware</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Programming</strong></td>
+                            <td>Continuously reprogrammable</td>
+                            <td>Programmed during manufacture or once</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>ROM Types</h3>
+                <div class="card" onclick="toggleCard(this)">
+                    <div class="card-header">
+                        <div class="card-title">Mask ROM</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Programmed by the manufacturer during fabrication. Cannot be changed after production.</p>
+                    </div>
+                </div>
+
+                <div class="card" onclick="toggleCard(this)">
+                    <div class="card-header">
+                        <div class="card-title">PROM (Programmable ROM)</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Uses fusible links that can be "blown" once by the user. Programming is permanent and irreversible.</p>
+                    </div>
+                </div>
+
+                <div class="card" onclick="toggleCard(this)">
+                    <div class="card-header">
+                        <div class="card-title">EPROM/EEPROM (Erasable Programmable ROM)</div>
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    <div class="card-content">
+                        <p>Can be erased and reprogrammed. EPROM uses UV light for erasing; EEPROM uses electrical signals.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations Tab -->
+            <div class="tab-content">
+                <h2><span class="icon">⚙️</span>RAM Chip</h2>
+		<center><img src="RAM_chip.png"  alt="RAM Chip" style="max-width:60%; height: auto;"></center>
+                <div class="operation-box">
+                    <div class="operation-title">📝 Memory Write Operation</div>
+                    <p>When the chip is selected and the Write signal is active, the data from the Data Bus is transferred into the memory location addressed by AD.</p>
+                    
+                    <div class="formula">
+                        CS1 <span style="text-decoration: overline;">CS2</span> <span style="text-decoration: overline;">RD</span> WR: M[AD] ← Data Bus
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #666;">
+                        <em>Transfer content of data bus to memory location specified by AD</em>
+                    </p>
+                </div>
+
+                <div class="operation-box" style="border-left-color: #764ba2;">
+                    <div class="operation-title" style="color: #764ba2;">📖 Memory Read Operation</div>
+                    <p>When the chip is selected and the Read signal is active, the data stored at the memory location addressed by AD is transferred onto the Data Bus.</p>
+                    
+                    <div class="formula">
+                        CS1 <span style="text-decoration: overline;">CS2</span> RD: M[AD] ← Data Bus
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #666;">
+                        <em>Transfer content from memory location specified by AD to data bus</em>
+                    </p>
+                </div>
+
+                <h3>The Inhibit State</h3>
+                <div class="card expanded">
+                    <div class="card-header">
+                        <div class="card-title">High-Impedance State</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="formula">
+                            IF (CS1 = 0) or (<span style="text-decoration: overline;">CS2</span> = 1): Data bus ← Hi-Z
+                        </div>
+                        <p style="margin-top: 15px;">If the selection conditions are not met, the Data Bus is logically disconnected. In RTL, this is often represented as the bus entering a Hi-Z (floating) state.</p>
+                        
+                    </div>
+                </div>
+		<h2><span class="icon">⚙️</span>ROM Chip</h2>
+		<center><img src="ROM_chip.png"  alt="ROM Chip" style="max-width:50%; height: auto;"></center>
+                <div class="operation-box">
+                    <div class="operation-title">📖 Memory Read Operation</div>
+		    <p>When the chip select conditions are met, the content of the ROM (M) at the 9-bit address (AD) is placed onto the data bus.</p>
+			<div class="formula">
+                        CS1 <span style="text-decoration: overline;">CS2</span>: Data Bus ← M[AD]
+                    </div>
+		</div>
+		<h3>The Inhibit State</h3>
+                <div class="card expanded">
+                    
+                    <div class="card-content">
+                        <div class="formula">
+                            IF (CS1 = 0) or (<span style="text-decoration: overline;">CS2</span> = 1): Data bus ← Hi-Z
+                        </div>
+                        <p style="margin-top: 15px;">When the chip is not enabled, the bus is forced into high impedance.</p>
+                        
+                    </div>
+                </div>
+
+            </div>
+	     <!-- Memory Address Map tab -->
+            <div class="tab-content">
+                <h2><span class="icon">🧮</span> Memory Address Map</h2>
+                <p>The address mapping operation for the configuration consisting of 512 bytes each of RAM and ROM is performed as follows:</p>
+		<ol style="margin-left: 20px; margin-top: 10px;">
+			<li><strong>Identify Component Requirements</strong>
+				<ul style="margin-left: 20px; margin-top: 10px;">
+					<li><strong>RAM Capacity:</strong> The system uses four RAM chips (RAM1, RAM2, RAM3 and RAM4), each containing 128 bytes. Each chip requires 7 address lines (lines 1 through 7) because 2<sup>7</sup> = 128.</li>
+					<li> <strong>ROM Capacity:</strong> The system uses one ROM chip containing 512 bytes. This chip requires 9 address lines (lines 1 through 9) because 2<sup>9</sup> = 512.</li>
+				</ul>
+			</li>
+			<li> <strong>Define the Address Bus Structure</strong>
+				<ul style="margin-left: 20px; margin-top: 10px;">
+					<li><strong>Total Bus Lines:</strong> While the system has a 16-line address bus, this mapping example utilizes only the first 10 lines; the remaining 6 are assumed to be zero.</li>
+					<li><strong>Internal Addressing (x):</strong> Small 'x's in the address map designate lines connected directly to the address inputs of each chip to select specific bytes within that chip.</li>
+				</ul>
+			</li>
+			<li> <strong>Establish Chip Selection Logic:</strong> To distinguish between the different physical chips, higher-order bus lines are assigned as selection bits:
+				<ul style="margin-left: 20px; margin-top: 10px;">
+					<li><strong>RAM vs. ROM Selection:</strong> Bus line 10 is used to distinguish between RAM and ROM.
+
+When line 10 is 0, a RAM chip is selected.
+
+When line 10 is 1, the ROM chip is selected.</li>
+					<li><strong>Individual RAM Chip Selection:</strong> Bus lines 8 and 9 are used to distinguish between the four distinct RAM chips.</li>
+				</ul>
+			</li>
+			<li><strong>Map the Address Space:</strong> The resulting hexadecimal address ranges for each component are determined by these bit assignments:<br>
+				 <table class="comparison-table" style="margin-top: 15px;">
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Line 10 (Type)</th>
+                                    <th>Line 9-8 (Chip ID)</th>
+                                    <th>Address Range (in Hex)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>RAM1</strong></td>
+                                    <td>0</td>
+                                    <td>00</td>
+                                    <td>0000 - 007F</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>RAM2</strong></td>
+                                    <td>0</td>
+                                    <td>01</td>
+                                    <td>0080 - 00FF</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>RAM3</strong></td>
+                                    <td>0</td>
+                                    <td>10</td>
+                                    <td>0100 - 017F</td>
+                                </tr>
+				<tr>
+                                    <td><strong>RAM4</strong></td>
+                                    <td>0</td>
+                                    <td>11</td>
+                                    <td>0180 - 01FF</td>
+                                </tr>
+				<tr>
+                                    <td><strong>ROM</strong></td>
+                                    <td>1</td>
+                                    <td>XX</td>
+                                    <td>0200 - 03FF</td>
+                                </tr>
+                            </tbody>
+                        </table>
+			<p>By using this map, the designer ensures that the processor can uniquely communicate with each memory component without address overlap.</p>
+			</li>
+		</ol>
+	    </div>
+
+            <!-- CPU Connection Tab -->
+            <div class="tab-content">
+                <h2><span class="icon">🔗</span> Memory-CPU Connection</h2>
+                <p>Interconnection and Operation of a Integrated RAM/ROM Memory System in a CPU Architecture</p>
+		<center><img src="memory_cpu_operation.png"  alt="MEMORY CPU CONNECTION" style="max-width:50%; height: auto;"></center>
+                <h3>Key Connection</h3>
+                
+                <div class="card expanded">
+                    <div class="card-header">
+                        <div class="card-title">🛣️ Address Bus Connections</div>
+                    </div>
+                    <div class="card-content">
+			<ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Internal Byte Selection:</strong> The low-order lines of the address bus are used to select a specific byte within a chip. For each 128 X 8 RAM, address lines 1 through 7 are connected to the AD7 inputs. For the 512 X 8 ROM, address lines 1 through 9 are connected to the AD9 inputs.</li>
+                        <li><strong>RAM Chip Decoding:</strong> Address lines 8 and 9 are fed into a 2 X 4 decoder. The four outputs of this decoder are connected to the CS1 (Chip Select 1) inputs of the four RAM chips to select one individual chip at a time.</li>
+                        <li><strong>RAM vs. ROM Selection:</strong>  Address line 10 is the primary selector between memory types. It is directly connected to the <span style="text-decoration: overline;">CS2</span> inputs of all RAM chips and connected through an inverter to <span style="text-decoration: overline;">CS2</span> input of the ROM chip.</li>
+			 <li><strong>Memory Mapping:</strong>  This configuration assigns hexadecimal addresses 0000H to 01FFH to the RAM block and addresses 0200H to 03FFH to the ROM.</li>
+			</ul>
+                    </div>
+                </div>
+
+                <div class="card expanded">
+                    <div class="card-header">
+                        <div class="card-title">🔧 Control Signal Connections</div>
+                    </div>
+                    <div class="card-content">
+			<ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Read/Write Operations:</strong> The CPU's RD (Read) and WR (Write) outputs are connected to the corresponding RD and WR inputs on all four RAM chips.</li>
+                        <li><strong>ROM Enable Logic:</strong> For the ROM, the CS1 input is directly connected to the CPU's RD control line. This ensures the ROM is only enabled during a read operation.</p>
+			</ul>
+                    </div>
+                </div>
+
+		<div class="card expanded">
+                    <div class="card-header">
+                        <div class="card-title">🔄 Data Bus Connections</div>
+                    </div>
+                    <div class="card-content">
+			<ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Bidirectional RAM Bus::</strong> The data bus connected to the RAM chips is bidirectional, allowing the transfer of information in both directions (reading from and writing to memory).</li>
+                        <li><strong>Unidirectional ROM Bus:</strong> The data bus for the ROM has only an output capability, as it can only provide data to the CPU.</p>
+			</ul>
+                    </div>
+                </div>
+
+                <h3>Selection Logic</h3>
+                <div class="operation-box">
+                    <div class="operation-title">Connection Summary</div>
+                    <ul class="steps">
+                        <li><strong>RAM Selection:</strong> Occurs when address line 10 is 0.</li>
+                        <li><strong>ROM Selection:</strong> Occurs when address line 10 is 1.</li>
+                        <li><strong>Inhibit State:</strong> If a chip is not enabled by the select inputs or control signals, the memory is inhibited and its data bus remains in a high-impedance state to avoid bus contention.</li>
+                    </ul>
+                </div>
+
+                
+            </div>
+
+            <!-- Interactive Demo Tab -->
+            <div class="tab-content">
+                <h2><span class="icon">🎮</span> Interactive Memory Demo</h2>
+                <p>Click on memory cells to simulate read/write operations!</p>
+
+                <div class="interactive-demo">
+                    <h3>Memory Array (64 words)</h3>
+                    <div class="memory-visual" id="memoryGrid"></div>
+                    
+                    <div class="controls">
+                        <input type="number" id="addressInput" placeholder="Address (0-63)" min="0" max="63">
+                        <input type="number" id="dataInput" placeholder="Data value" min="0" max="255">
+                        <button onclick="writeMemory()">✏️ Write to Memory</button>
+                        <button onclick="readMemory()">📖 Read from Memory</button>
+                        <button onclick="clearMemory()">🗑️ Clear All</button>
+                    </div>
+
+                    <div id="output" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; min-height: 60px;">
+                        <strong>Output:</strong> <span id="outputText">Ready to perform operations...</span>
+                    </div>
+                </div>
+
+                <div class="card expanded" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <div class="card-title">💡 How to Use</div>
+                    </div>
+                    <div class="card-content">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Click any cell</strong> to view its address and current value</li>
+                            <li><strong>Enter an address</strong> (0-63) and data value to write to memory</li>
+                            <li><strong>Click "Write"</strong> to store data at the specified address</li>
+                            <li><strong>Click "Read"</strong> to retrieve data from the specified address</li>
+                            <li><strong>Active cells</strong> glow green when accessed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="associative_memory_page.html" style="text-decoration: none;" class="btn btn-primary">Associative Memory</a>
+                
+        </div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <div class="footer">
+            <p style="margin-top: 0.5rem;"> © Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        // State management
+        const memory = new Array(64).fill(0);
+        let activeCell = null;
+
+        // Initialize memory grid
+        function initMemoryGrid() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell';
+                cell.textContent = i;
+                cell.onclick = () => selectCell(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        // Tab switching
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            
+            contents.forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        // Card toggle
+        function toggleCard(card) {
+            card.classList.toggle('expanded');
+        }
+
+        // Select memory cell
+        function selectCell(address) {
+            const cells = document.querySelectorAll('.memory-cell');
+            
+            if (activeCell !== null) {
+                cells[activeCell].classList.remove('active');
+            }
+            
+            activeCell = address;
+            cells[address].classList.add('active');
+            
+            document.getElementById('addressInput').value = address;
+            document.getElementById('outputText').textContent = 
+                `Selected Address: ${address} | Current Value: ${memory[address]}`;
+        }
+
+        // Write to memory
+        function writeMemory() {
+            const address = parseInt(document.getElementById('addressInput').value);
+            const data = parseInt(document.getElementById('dataInput').value);
+            
+            if (isNaN(address) || address < 0 || address > 63) {
+                document.getElementById('outputText').textContent = 
+                    '❌ Error: Invalid address! Please enter a value between 0-63.';
+                return;
+            }
+            
+            if (isNaN(data)) {
+                document.getElementById('outputText').textContent = 
+                    '❌ Error: Invalid data value!';
+                return;
+            }
+            
+            memory[address] = data;
+            selectCell(address);
+            
+            document.getElementById('outputText').textContent = 
+                `✅ Write Operation: M[${address}] ← ${data} | Memory updated successfully!`;
+            
+            setTimeout(() => {
+                const cells = document.querySelectorAll('.memory-cell');
+                cells[address].classList.remove('active');
+                activeCell = null;
+            }, 2000);
+        }
+
+        // Read from memory
+        function readMemory() {
+            const address = parseInt(document.getElementById('addressInput').value);
+            
+            if (isNaN(address) || address < 0 || address > 63) {
+                document.getElementById('outputText').textContent = 
+                    '❌ Error: Invalid address! Please enter a value between 0-63.';
+                return;
+            }
+            
+            const data = memory[address];
+            selectCell(address);
+            
+            document.getElementById('outputText').textContent = 
+                `✅ Read Operation: DR ← M[${address}] | Value retrieved: ${data}`;
+            
+            setTimeout(() => {
+                const cells = document.querySelectorAll('.memory-cell');
+                cells[address].classList.remove('active');
+                activeCell = null;
+            }, 2000);
+        }
+
+        // Clear memory
+        function clearMemory() {
+            memory.fill(0);
+            const cells = document.querySelectorAll('.memory-cell');
+            cells.forEach(cell => cell.classList.remove('active'));
+            activeCell = null;
+            
+            document.getElementById('addressInput').value = '';
+            document.getElementById('dataInput').value = '';
+            document.getElementById('outputText').textContent = 
+                '🗑️ Memory cleared! All values reset to 0.';
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initMemoryGrid();
+        };
+    </script>
+</body>
+</html>

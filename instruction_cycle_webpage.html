@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Instruction Cycle - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .phase-container {
+            display: grid;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .phase-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.8s ease-out forwards;
+        }
+
+        .phase-card:nth-child(1) { animation-delay: 0.2s; }
+        .phase-card:nth-child(2) { animation-delay: 0.4s; }
+        .phase-card:nth-child(3) { animation-delay: 0.6s; }
+        .phase-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .phase-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .phase-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .timing-signals {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .timing-signal {
+            background: #f8f9fc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .timing-signal:hover {
+            background: #e8f2ff;
+            transform: translateX(5px);
+        }
+
+        .timing-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .timing-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .microoperations {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .microoperations li {
+            margin: 0.5rem 0;
+            padding: 0.3rem 0;
+            color: #555;
+            position: relative;
+        }
+
+        .microoperations li:before {
+            content: "⇒";
+            position: absolute;
+            left: -1rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 3rem 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .cycle-visualization {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .cycle-step {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cycle-step:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .cycle-step.active {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .cycle-step::after {
+            content: "→";
+            position: absolute;
+            right: -30px;
+            font-size: 2rem;
+            color: #667eea;
+        }
+
+        .cycle-step:last-child::after {
+            display: none;
+        }
+
+        .controls {
+            margin: 2rem 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#333;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .instruction-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .instruction-type {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .instruction-type:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .instruction-type h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .key-concepts {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 3rem 0;
+        }
+
+        .key-concepts h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .concept-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .concept-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .status-display {
+            background: #f8f9fc;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .cycle-visualization {
+                flex-direction: column;
+            }
+            
+            .cycle-step::after {
+                content: "↓";
+                right: auto;
+                bottom: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">The Instruction Cycle</h1>
+            <p class="subtitle">Interactive Learning Experience - Computer Architecture Fundamentals</p>
+        </header>
+
+        <div class="interactive-demo">
+            <h2 class="demo-title">Instruction Cycle Visualization</h2>
+            <div class="cycle-visualization">
+                <div class="cycle-step" data-step="0">
+                    <div>FETCH</div>
+                    <small>Get Instruction</small>
+                </div>
+                <div class="cycle-step" data-step="1">
+                    <div>DECODE</div>
+                    <small>Interpret</small>
+                </div>
+                <div class="cycle-step" data-step="2">
+                    <div>ADDRESS</div>
+                    <small>Calculate</small>
+                </div>
+                <div class="cycle-step" data-step="3">
+                    <div>EXECUTE</div>
+                    <small>Perform</small>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startCycle()">Start Cycle</button>
+                <button class="btn" onclick="stopCycle()">Stop</button>
+                <button class="btn" onclick="resetCycle()">Reset</button>
+            </div>
+            <div id="status" class="status-display">
+                Ready to begin instruction cycle demonstration
+            </div>
+        </div>
+
+        <div class="phase-container">
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-number">1</div>
+                    <div class="phase-title">Fetch & Decode Phase</div>
+                </div>
+                <p>The fundamental phase where the computer retrieves and interprets the next instruction from memory.</p>
+                
+                <div class="timing-signals">
+                    <div class="timing-signal" onclick="highlightTiming(this)">
+                        <div class="timing-title">
+                            <div class="timing-icon">T₀</div>
+                            Fetch Address
+                        </div>
+                        <ul class="microoperations">
+                            <li><strong>AR ← PC:</strong> Transfer Program Counter to Address Register</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timing-signal" onclick="highlightTiming(this)">
+                        <div class="timing-title">
+                            <div class="timing-icon">T₁</div>
+                            Fetch Instruction & Increment PC
+                        </div>
+                        <ul class="microoperations">
+                            <li><strong>IR ← M[AR]:</strong> Load instruction from memory to Instruction Register</li>
+                            <li><strong>PC ← PC + 1:</strong> Increment Program Counter for next instruction</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="timing-signal" onclick="highlightTiming(this)">
+                        <div class="timing-title">
+                            <div class="timing-icon">T₂</div>
+                            Decode Instruction & Prepare Address
+                        </div>
+                        <ul class="microoperations">
+                            <li><strong>D<sub>0</sub>-D<sub>7</sub> ← Decode IR(12-14):</strong> Decode operation code</li>
+                            <li><strong>AR ← IR(0-11):</strong> Transfer address part to Address Register</li>
+                            <li><strong>I ← IR(15):</strong> Set addressing mode bit</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+		
+	<div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-title">Implementation of Register Transfer for Fetch phase</div>
+	        </div>
+		<center><img src = "fetch_phase.png"  alt="Fetch Phase" width="500px"></center> 
+	</div>
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-number">2</div>
+                    <div class="phase-title">Instruction Type Determination</div>
+                </div>
+                <p>Based on the decoded instruction, determine the execution path and handle addressing modes.</p>
+                
+                <div class="instruction-types">
+                    <div class="instruction-type" onclick="highlightType(this)">
+                        <h3>Memory-Reference (D<sub>7</sub> = 0)</h3>
+                        <p>Instructions that require operands from memory. Includes AND, ADD, LDA, STA, BUN, BSA, ISZ.</p>
+                        <div class="status-display">
+                            <strong>Direct (I=0):</strong> Execute at T<sub>3</sub><br>
+                            <strong>Indirect (I=1):</strong> Fetch effective address, then execute at T<sub>4</sub>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-type" onclick="highlightType(this)">
+                        <h3>Register-Reference (D<sub>7</sub> = 1, I = 0)</h3>
+                        <p>Operations on processor registers. Examples: CLA, INC, HLT.</p>
+                        <div class="status-display">
+                            Execute immediately at T<sub>3</sub>, then return to T<sub>0</sub>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-type" onclick="highlightType(this)">
+                        <h3>Input-Output (D<sub>7</sub> = 1, I = 1)</h3>
+                        <p>Data transfer between processor and I/O devices. Examples: INP, OUT.</p>
+                        <div class="status-display">
+                            Execute immediately at T<sub>3</sub>, then return to T<sub>0</sub>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-number">3</div>
+                    <div class="phase-title">Effective Address Resolution</div>
+                </div>
+                <p>For indirect addressing, calculate the actual memory address of the operand.</p>
+                
+                <div class="timing-signal">
+                    <div class="timing-title">
+                        <div class="timing-icon">T₃</div>
+                        Indirect Address Handling
+                    </div>
+                    <ul class="microoperations">
+                        <li><strong>AR ← M[AR]:</strong> Fetch effective address from memory</li>
+                        <li>Only executed when I = 1 (indirect addressing)</li>
+                        <li>Makes AR point to the actual operand location</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-number">4</div>
+                    <div class="phase-title">Execute Instruction</div>
+                </div>
+                <p>Perform the actual operation specified by the instruction using the correct operand address.</p>
+                
+                <div class="timing-signals">
+                    <div class="timing-signal">
+                        <div class="timing-title">
+                            <div class="timing-icon">Ex</div>
+                            Instruction Execution
+                        </div>
+                        <ul class="microoperations">
+                            <li>Perform the specific operation (AND, ADD, LOAD, etc.)</li>
+                            <li>Update processor registers as needed</li>
+                            <li>Clear Sequence Counter (SC ← 0)</li>
+                            <li>Return to T<sub>0</sub> for next instruction fetch</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="phase-card">
+                <div class="phase-header">
+                    <div class="phase-title">Flowchart to determine type of instruction</div>
+	        </div>
+		<center><img src = "flow_inst_cyc.png"  alt="Fetch Phase" width="500px"></center> 
+	</div>
+        <div class="key-concepts">
+            <h2>Key Concepts</h2>
+            <div class="concepts-grid">
+                <div class="concept-item">
+                    <h3>Program Counter (PC)</h3>
+                    <p>Holds the address of the next instruction to be executed. Automatically incremented after each fetch.</p>
+                </div>
+                <div class="concept-item">
+                    <h3>Instruction Register (IR)</h3>
+                    <p>Stores the current instruction being executed. Contains opcode and address fields.</p>
+                </div>
+                <div class="concept-item">
+                    <h3>Address Register (AR)</h3>
+                    <p>Holds memory addresses for instruction fetch and operand access.</p>
+                </div>
+                <div class="concept-item">
+                    <h3>Sequence Counter (SC)</h3>
+                    <p>Controls timing signals (T<sub>0</sub>, T<sub>1</sub>, T<sub>2</sub>...) that orchestrate the instruction cycle phases.</p>
+                </div>
+                <div class="concept-item">
+                    <h3>Direct vs Indirect</h3>
+                    <p>Direct addressing uses the address directly; indirect requires an additional memory access to get the actual address.</p>
+                </div>
+                <div class="concept-item">
+                    <h3>Timing Signals</h3>
+                    <p>T<sub>0</sub>, T<sub>1</sub>, T<sub>2</sub>, T<sub>3</sub>, T<sub>4</sub>... control the sequence of microoperations within each instruction cycle.</p>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="memory_ref_instructions.html" class="btn btn-primary">
+        Start Memory Reference Instructions
+    </a>
+</div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        let cycleInterval;
+        let currentStep = 0;
+        const steps = ['FETCH', 'DECODE', 'ADDRESS', 'EXECUTE'];
+        const statusMessages = [
+            'FETCH: Retrieving instruction from memory location pointed by PC',
+            'DECODE: Interpreting opcode and preparing address fields',
+            'ADDRESS: Calculating effective address (if indirect addressing)',
+            'EXECUTE: Performing the instruction operation and updating registers'
+        ];
+
+        function startCycle() {
+            stopCycle();
+            currentStep = 0;
+            updateCycleDisplay();
+            
+            cycleInterval = setInterval(() => {
+                currentStep = (currentStep + 1) % 4;
+                updateCycleDisplay();
+            }, 2000);
+        }
+
+        function stopCycle() {
+            if (cycleInterval) {
+                clearInterval(cycleInterval);
+                cycleInterval = null;
+            }
+        }
+
+        function resetCycle() {
+            stopCycle();
+            currentStep = 0;
+            document.querySelectorAll('.cycle-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('status').textContent = 'Ready to begin instruction cycle demonstration';
+        }
+
+        function updateCycleDisplay() {
+            document.querySelectorAll('.cycle-step').forEach((step, index) => {
+                step.classList.toggle('active', index === currentStep);
+            });
+            
+            document.getElementById('status').textContent = statusMessages[currentStep];
+        }
+
+        function highlightTiming(element) {
+            // Remove previous highlights
+            document.querySelectorAll('.timing-signal').forEach(el => {
+                el.style.background = '#f8f9fc';
+                el.style.transform = 'translateX(0)';
+            });
+            
+            // Highlight clicked element
+            element.style.background = '#e8f2ff';
+            element.style.transform = 'translateX(5px)';
+            
+            // Add pulse animation
+            element.style.animation = 'pulse 1s ease-in-out';
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 1000);
+        }
+
+        function highlightType(element) {
+            // Remove previous highlights
+            document.querySelectorAll('.instruction-type').forEach(el => {
+                el.style.borderColor = 'transparent';
+                el.style.transform = 'translateY(0)';
+            });
+            
+            // Highlight clicked element
+            element.style.borderColor = '#667eea';
+            element.style.transform = 'translateY(-3px)';
+            element.style.boxShadow = '0 15px 35px rgba(102, 126, 234, 0.2)';
+            
+            setTimeout(() => {
+                element.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+            }, 2000);
+        }
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add entrance animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all phase cards
+        document.querySelectorAll('.phase-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

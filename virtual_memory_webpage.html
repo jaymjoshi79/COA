@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Memory - Chapter 12.6</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-weight: 600;
+        }
+
+        .nav-pill:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        .nav-pill.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: white;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 25px 0 15px;
+        }
+	
+	.icon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            color: white;
+            font-weight: bold;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .memory-viz {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .memory-block {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .memory-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .memory-cell {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .arrow {
+            font-size: 3em;
+            color: #667eea;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .page-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .page-entry {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-entry:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+	
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+	    text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Virtual Memory</h1>
+            <p class="subtitle">Memory Organization & Management</p>
+        </header>
+
+        <div class="nav-pills">
+            <div class="nav-pill active" onclick="showSection('overview')">Overview</div>
+            <div class="nav-pill" onclick="showSection('address-space')">Address Space</div>
+            <div class="nav-pill" onclick="showSection('page-mapping')">Page Mapping</div>
+            <div class="nav-pill" onclick="showSection('page-table')">Page Table</div>
+            <div class="nav-pill" onclick="showSection('replacement')">Page Replacement</div>
+            <div class="nav-pill" onclick="showSection('demo')">Interactive Demo</div>
+        </div>
+
+        <div id="overview" class="content-card active">
+            <h2>What is Virtual Memory?</h2>
+            <p>Virtual memory is a crucial memory management technique that provides an "idealized abstraction" of storage resources, separating logical memory from physical memory.</p>
+            
+            <div class="info-box">
+                <h3>📚 Key Concept</h3>
+                <p>Virtual memory allows programs to use more memory than physically available by utilizing specialized hardware to manage memory resources efficiently through a memory hierarchy.</p>
+            </div>
+
+            <h3>Memory Hierarchy</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="icon">⚡</span>
+                    <h4>Cache Memory</h4>
+                    <p>Fastest, smallest</p>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">💾</span>
+                    <h4>Main Memory</h4>
+                    <p>Physical RAM</p>
+                </div>
+                <div class="stat-card">
+                    <span class="icon">🗄️</span>
+                    <h4>Auxiliary Memory</h4>
+                    <p>Disk storage</p>
+                </div>
+            </div>
+
+            <h3>Why Virtual Memory?</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <strong>🔄 Program Isolation</strong>
+                    <p>Each program operates in its own virtual address space, preventing interference</p>
+                </div>
+                <div class="timeline-item">
+                    <strong>📈 Memory Expansion</strong>
+                    <p>Run programs larger than physical memory by swapping pages</p>
+                </div>
+                <div class="timeline-item">
+                    <strong>🛡️ Protection</strong>
+                    <p>Hardware-enforced memory protection between processes</p>
+                </div>
+                <div class="timeline-item">
+                    <strong>🎯 Simplified Programming</strong>
+                    <p>Programmers work with consistent virtual addresses</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="address-space" class="content-card">
+            <h2>Address Space and Memory Space</h2>
+            
+
+            <div class="info-box">
+                <h3>Understanding the Distinction</h3>
+                <p><span class="highlight">Address Space</span>: The range of virtual addresses used by the CPU and visible to programs</p>
+                <p><span class="highlight">Memory Space</span>: The range of physical addresses available in main memory (RAM)</p>
+            </div>
+
+            <h3>Visual Representation</h3>
+            <div class="memory-viz">
+                <div class="memory-block">
+                    <h4>Virtual Address Space</h4>
+                    <div class="memory-cell">0x0000 - Program Code</div>
+                    <div class="memory-cell">0x1000 - Program Data</div>
+                    <div class="memory-cell">0x2000 - Heap</div>
+                    <div class="memory-cell">0x3000 - Stack</div>
+                    <div class="memory-cell">0xFFFF - System</div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="memory-block">
+                    <h4>Physical Memory Space</h4>
+                    <div class="memory-cell">Frame 0</div>
+                    <div class="memory-cell">Frame 1</div>
+                    <div class="memory-cell">Frame 2</div>
+                    <div class="memory-cell">Frame 3</div>
+                    <div class="memory-cell">Frame 4</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Address Translation Example</h3>
+                <p>Virtual address space can be <strong>larger</strong> than physical memory!</p>
+                <button onclick="simulateTranslation()">Simulate Translation</button>
+                <div id="translation-result" style="margin-top: 20px; font-size: 1.2em; font-weight: bold;"></div>
+            </div>
+        </div>
+
+        <div id="page-mapping" class="content-card">
+            <h2>Address Mapping Using Pages</h2>
+            
+
+            <div class="info-box">
+                <h3>What are Pages?</h3>
+                <p>The virtual address space is divided into fixed-size blocks called <span class="highlight">pages</span>. Physical memory is divided into equally-sized blocks called <span class="highlight">frames</span>.</p>
+            </div>
+
+            <h3>Page Structure</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">4KB</div>
+                    <p>Typical Page Size</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <p>Offset Bits (4KB)</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">20</div>
+                    <p>Page Number Bits (32-bit)</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>Page Decomposition</h3>
+                <div class="code-block">Virtual Address (32-bit):
+[Page Number: 20 bits] | [Page Offset: 12 bits]<br>
+        ↓ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                       ↓<br>
+   Page Table              Direct Copy<br>
+   Lookup                  to Physical<br>
+        ↓                        ↓<br>
+[Frame Number: 20 bits] | [Frame Offset: 12 bits]<br>
+Physical Address (32-bit)</div>
+                <button onclick="showPageExample()">Show Example Mapping</button>
+                <div id="page-example" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <div id="page-table" class="content-card">
+            <h2>Associative Memory Page Table</h2>
+            
+
+            <div class="info-box">
+                <h3>Translation Lookaside Buffer (TLB)</h3>
+                <p>An associative memory cache that stores recent page-to-frame translations for fast address lookup.</p>
+            </div>
+
+            <h3>Page Table Structure</h3>
+            <div class="page-table">
+                <div class="page-entry">
+                    <strong>Page 0</strong><br>
+                    Frame: 5<br>
+                    Valid: ✓
+                </div>
+                <div class="page-entry">
+                    <strong>Page 1</strong><br>
+                    Frame: 2<br>
+                    Valid: ✓
+                </div>
+                <div class="page-entry">
+                    <strong>Page 2</strong><br>
+                    Frame: 7<br>
+                    Valid: ✓
+                </div>
+                <div class="page-entry">
+                    <strong>Page 3</strong><br>
+                    Frame: -<br>
+                    Valid: ✗
+                </div>
+                <div class="page-entry">
+                    <strong>Page 4</strong><br>
+                    Frame: 1<br>
+                    Valid: ✓
+                </div>
+                <div class="page-entry">
+                    <strong>Page 5</strong><br>
+                    Frame: 9<br>
+                    Valid: ✓
+                </div>
+            </div>
+
+            <h3>Address Translation Process</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <strong>Step 1:</strong> CPU generates virtual address
+                </div>
+                <div class="timeline-item">
+                    <strong>Step 2:</strong> Extract page number from virtual address
+                </div>
+                <div class="timeline-item">
+                    <strong>Step 3:</strong> Search TLB for page number (parallel search)
+                </div>
+                <div class="timeline-item">
+                    <strong>Step 4:</strong> If TLB hit → use frame number; If TLB miss → access page table
+                </div>
+                <div class="timeline-item">
+                    <strong>Step 5:</strong> Combine frame number with page offset
+                </div>
+                <div class="timeline-item">
+                    <strong>Step 6:</strong> Access physical memory at computed address
+                </div>
+            </div>
+        </div>
+
+        <div id="replacement" class="content-card">
+            <h2>Page Replacement Algorithms</h2>
+            
+
+            <div class="info-box">
+                <h3>Page Fault</h3>
+                <p>When a program references a page not currently in physical memory, a <span class="highlight">page fault</span> occurs. The operating system must load the required page from auxiliary storage.</p>
+            </div>
+
+            <h3>Common Replacement Algorithms</h3>
+            
+            <div class="timeline-item">
+                <h4>🔄 FIFO (First-In-First-Out)</h4>
+                <p>Replace the oldest page in memory. Simple but may remove frequently-used pages.</p>
+                <button onclick="demoFIFO()">Demo FIFO</button>
+            </div>
+
+            <div class="timeline-item">
+                <h4>🎯 LRU (Least Recently Used)</h4>
+                <p>Replace the page that hasn't been used for the longest time. Better performance but requires tracking.</p>
+                <button onclick="demoLRU()">Demo LRU</button>
+            </div>
+
+            <div class="timeline-item">
+                <h4>🎲 Optimal</h4>
+                <p>Replace the page that won't be used for the longest time in the future. Theoretical best, impractical in reality.</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>⚡ Clock (Second Chance)</h4>
+                <p>Circular list with reference bits. Approximates LRU with less overhead.</p>
+            </div>
+
+            <div id="replacement-demo" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;"></div>
+        </div>
+
+        <div id="demo" class="content-card">
+            <h2>Interactive Virtual Memory Simulator</h2>
+            
+            <div class="interactive-demo">
+                <h3>Virtual Memory Access Simulator</h3>
+                <p>Enter a virtual address to see the translation process</p>
+                
+                <div style="margin: 30px 0;">
+                    <input type="text" id="virtualAddr" placeholder="Enter hex address (e.g., 0x1234)" 
+                           style="padding: 15px; font-size: 1.1em; border: 2px solid #667eea; border-radius: 10px; width: 300px;">
+                    <button onclick="translateAddress()">Translate Address</button>
+                </div>
+
+                <div id="simulator-output" style="text-align: left; background: white; padding: 20px; border-radius: 10px; margin-top: 20px;"></div>
+            </div>
+
+            <div class="stats" style="margin-top: 40px;">
+                <div class="stat-card">
+                    <div class="stat-number" id="hit-count">0</div>
+                    <p>TLB Hits</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="miss-count">0</div>
+                    <p>TLB Misses</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="fault-count">0</div>
+                    <p>Page Faults</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="hit-rate">0%</div>
+                    <p>Hit Rate</p>
+                </div>
+            </div>
+
+            <button onclick="resetStats()" style="margin-top: 20px;">Reset Statistics</button>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="index.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Again</a>
+                
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        let tlbHits = 0;
+        let tlbMisses = 0;
+        let pageFaults = 0;
+
+        const pageTable = {
+            0: { frame: 5, valid: true },
+            1: { frame: 2, valid: true },
+            2: { frame: 7, valid: true },
+            3: { frame: -1, valid: false },
+            4: { frame: 1, valid: true },
+            5: { frame: 9, valid: true }
+        };
+
+        function showSection(section) {
+            document.querySelectorAll('.content-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            document.getElementById(section).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function simulateTranslation() {
+            const virtAddr = '0x2A4C';
+            const physAddr = '0x71C';
+            const result = `
+                <div style="background: white; padding: 20px; border-radius: 10px; display: inline-block;">
+                    <p><strong>Virtual Address:</strong> ${virtAddr}</p>
+                    <p style="margin: 10px 0;">↓ Translation via Page Table ↓</p>
+                    <p><strong>Physical Address:</strong> ${physAddr}</p>
+                    <p style="margin-top: 15px; color: #667eea;">✓ Translation successful!</p>
+                </div>
+            `;
+            document.getElementById('translation-result').innerHTML = result;
+        }
+
+        function showPageExample() {
+            const example = `
+                <div style="background: white; padding: 20px; border-radius: 10px; text-align: left;">
+                    <h4>Example: Virtual Address 0x00003A4C (32-bit)</h4>
+                    <p><strong>Binary:</strong> 0000 0000 0000 0000 0011 1010 0100 1100</p>
+                    <p><strong>Page Number:</strong> 0x00003 (bits 31-12) = Page 3</p>
+                    <p><strong>Page Offset:</strong> 0xA4C (bits 11-0) = 2636 bytes</p>
+                    <hr style="margin: 15px 0;">
+                    <p><strong>Page Table Lookup:</strong> Page 3 → Frame 7</p>
+                    <p><strong>Physical Address:</strong> Frame 7 + Offset 0xA4C = 0x07A4C</p>
+                </div>
+            `;
+            document.getElementById('page-example').innerHTML = example;
+        }
+
+        function translateAddress() {
+            const input = document.getElementById('virtualAddr').value;
+            const output = document.getElementById('simulator-output');
+            
+            if (!input) {
+                output.innerHTML = '<p style="color: red;">Please enter an address!</p>';
+                return;
+            }
+
+            const addr = parseInt(input, 16);
+            const pageNum = (addr >> 12) & 0xFFFFF;
+            const offset = addr & 0xFFF;
+
+            let result = `<h4>Translation Process:</h4>`;
+            result += `<p><strong>Virtual Address:</strong> ${input}</p>`;
+            result += `<p><strong>Page Number:</strong> ${pageNum} (0x${pageNum.toString(16)})</p>`;
+            result += `<p><strong>Page Offset:</strong> ${offset} (0x${offset.toString(16)})</p>`;
+            result += `<hr style="margin: 15px 0;">`;
+
+            const tlbHit = Math.random() > 0.3;
+            
+            if (tlbHit) {
+                tlbHits++;
+                result += `<p style="color: green;">✓ <strong>TLB Hit!</strong> Fast translation</p>`;
+            } else {
+                tlbMisses++;
+                result += `<p style="color: orange;">⚠ <strong>TLB Miss</strong> - Accessing page table...</p>`;
+            }
+
+            if (pageTable[pageNum] && pageTable[pageNum].valid) {
+                const frame = pageTable[pageNum].frame;
+                const physAddr = (frame << 12) | offset;
+                result += `<p><strong>Frame Number:</strong> ${frame}</p>`;
+                result += `<p><strong>Physical Address:</strong> 0x${physAddr.toString(16).toUpperCase()}</p>`;
+                result += `<p style="color: green; margin-top: 10px;">✓ Translation successful!</p>`;
+            } else {
+                pageFaults++;
+                result += `<p style="color: red;"><strong>❌ Page Fault!</strong></p>`;
+                result += `<p>Page ${pageNum} not in memory. Loading from disk...</p>`;
+            }
+
+            output.innerHTML = result;
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('hit-count').textContent = tlbHits;
+            document.getElementById('miss-count').textContent = tlbMisses;
+            document.getElementById('fault-count').textContent = pageFaults;
+            
+            const total = tlbHits + tlbMisses;
+            const hitRate = total > 0 ? ((tlbHits / total) * 100).toFixed(1) : 0;
+            document.getElementById('hit-rate').textContent = hitRate + '%';
+        }
+
+        function resetStats() {
+            tlbHits = 0;
+            tlbMisses = 0;
+            pageFaults = 0;
+            updateStats();
+            document.getElementById('simulator-output').innerHTML = '';
+        }
+
+        function demoFIFO() {
+            const demo = `
+                <h4>FIFO Demonstration</h4>
+                <p><strong>Reference String:</strong> 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</p>
+                <p><strong>Memory Frames:</strong> 3</p>
+                <div style="margin-top: 15px; font-family: monospace;">
+                    Step 1: [1] - - → Page Fault<br>
+                    Step 2: [1][2] - → Page Fault<br>
+                    Step 3: [1][2][3] → Page Fault<br>
+                    Step 4: [4][2][3] → Page Fault (replaced 1)<br>
+                    Step 5: [4][2][3] → Hit<br>
+                    Step 6: [4][2][3] → Hit<br>
+                    Step 7: [4][5][3] → Page Fault (replaced 2)<br>
+                    ...<br>
+                    <strong>Total Page Faults: 10</strong>
+                </div>
+            `;
+            document.getElementById('replacement-demo').innerHTML = demo;
+        }
+
+        function demoLRU() {
+            const demo = `
+                <h4>LRU Demonstration</h4>
+                <p><strong>Reference String:</strong> 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</p>
+                <p><strong>Memory Frames:</strong> 3</p>
+                <div style="margin-top: 15px; font-family: monospace;">
+                    Step 1: [1] - - → Page Fault<br>
+                    Step 2: [1][2] - → Page Fault<br>
+                    Step 3: [1][2][3] → Page Fault<br>
+                    Step 4: [1][2][4] → Page Fault (replaced 3, LRU)<br>
+                    Step 5: [1][2][4] → Hit<br>
+                    Step 6: [1][2][4] → Hit<br>
+                    Step 7: [5][2][4] → Page Fault (replaced 1, LRU)<br>
+                    ...<br>
+                    <strong>Total Page Faults: 8</strong> (Better than FIFO!)
+                </div>
+            `;
+            document.getElementById('replacement-demo').innerHTML = demo;
+        }
+    </script>
+</body>
+</html>

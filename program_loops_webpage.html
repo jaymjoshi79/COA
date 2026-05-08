@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Loops - Interactive Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8f4f8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2980b9;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkmark {
+            color: #27ae60;
+            font-size: 1.5rem;
+        }
+
+        .code-container {
+            background: #1e1e2e;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-header {
+            background: #2d2d44;
+            padding: 1rem;
+            border-radius: 10px 10px 0 0;
+            margin: -2rem -2rem 1rem -2rem;
+            color: #a6a6c7;
+            font-weight: 600;
+        }
+
+        .code {
+            font-family: 'Monaco', 'Consolas', monospace;
+            color: #f8f8f2;
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .line-number {
+            color: #6c7293;
+            margin-right: 1rem;
+            user-select: none;
+            min-width: 30px;
+            display: inline-block;
+        }
+
+        .instruction {
+            color: #89b4fa;
+        }
+
+        .label {
+            color: #f9e2af;
+        }
+
+        .comment {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .highlight {
+            background: rgba(250, 189, 47, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { background: rgba(250, 189, 47, 0.3); }
+            to { background: rgba(250, 189, 47, 0.5); }
+        }
+
+        .simulator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .memory-view, .registers {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .memory-cell {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            margin: 0.3rem 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.active {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+            transform: scale(1.02);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            margin: 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            background: #ecfccb;
+            border: 2px solid #bef264;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+            color: #365314;
+        }
+
+        .flow-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+            min-width: 200px;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .flow-box:nth-child(1) { animation-delay: 0.1s; }
+        .flow-box:nth-child(2) { animation-delay: 0.2s; }
+        .flow-box:nth-child(3) { animation-delay: 0.3s; }
+        .flow-box:nth-child(4) { animation-delay: 0.4s; }
+        .flow-box:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #3b82f6;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .visualization-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .visualization-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .visualization-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .visualization-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+	 .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #2c3e50;
+            margin-top: 40px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .key-point:hover {
+            transform: scale(1.05);
+        }
+
+        .key-point h3 {
+            color: #8b4513;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .simulator {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Program Loops</h1>
+            <p>Interactive Tutorial: Understanding Assembly Language Loops with a Real Example</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>What Is a Program Loop?</h2>
+            <p>A <strong>program loop</strong> is a set of instructions that repeat multiple times until a specific condition is met. In assembly language, loops help perform repetitive tasks like processing multiple data items without writing each instruction manually.</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Example: Adding 100 Numbers</h2>
+            <p>Our goal is to <strong>add 100 numbers stored in memory</strong> and store the result in a predefined location. Let's see how this works step by step!</p>
+            
+            <div class="code-container">
+                <div class="code-header">Assembly Code - Complete Program</div>
+                <div class="code">
+<span class="line-number">1</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 100</span>        <span class="comment">; Program starts at memory location HEX 100</span><br>
+<span class="line-number">2</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA ADS</span>        <span class="comment">; Load the first address of operands into accumulator</span><br>
+<span class="line-number">3</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA PTR</span>        <span class="comment">; Store this address into pointer variable (PTR)</span><br>
+<span class="line-number">4</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA NBR</span>        <span class="comment">; Load constant (-100) into accumulator</span><br>
+<span class="line-number">5</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA CTR</span>        <span class="comment">; Store it in counter (CTR), tracks remaining operands</span><br>
+<span class="line-number">6</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLA</span>            <span class="comment">; Clear accumulator to start summing from 0</span><br>
+<span class="line-number">7</span><span class="label">LOP,</span> <span class="instruction">ADD PTR I</span>   <span class="comment">; Add operand pointed by PTR to accumulator</span><br>
+<span class="line-number">8</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISZ PTR</span>        <span class="comment">; Increment pointer (PTR)</span><br>
+<span class="line-number">9</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISZ CTR</span>        <span class="comment">; Increment counter (CTR)</span><br>
+<span class="line-number">10</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN LOP</span>       <span class="comment">; If CTR is not zero, loop back to LOP</span><br>
+<span class="line-number">11</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA SUM</span>       <span class="comment">; Store final sum into memory location SUM</span><br>
+<span class="line-number">12</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HLT</span>           <span class="comment">; Halt the program after sum is calculated</span><br>
+<span class="line-number">13</span><span class="label">ADS,</span> <span class="instruction">HEX 150</span>    <span class="comment">; Define first address of operands</span><br>
+<span class="line-number">14</span><span class="label">PTR,</span> <span class="instruction">HEX 0</span>      <span class="comment">; Memory location for pointer</span><br>
+<span class="line-number">15</span><span class="label">NBR,</span> <span class="instruction">DEC -100</span>   <span class="comment">; Constant to initialize counter</span><br>
+<span class="line-number">16</span><span class="label">CTR,</span> <span class="instruction">HEX 0</span>      <span class="comment">; Memory location for counter</span><br>
+<span class="line-number">17</span><span class="label">SUM,</span> <span class="instruction">HEX 0</span>      <span class="comment">; Memory location to store sum</span><br>
+<span class="line-number">18</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 150</span>       <span class="comment">; Starting location of operands at HEX 150</span><br>
+<span class="line-number">19-118</span><span class="instruction">&nbsp;&nbsp;&nbsp;DEC 75 ... DEC 23</span> <span class="comment">; Data values of 100 operands to be summed</span><br>
+<span class="line-number">119</span><span class="instruction">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END</span>          <span class="comment">; End of symbolic program</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Interactive Loop Simulator</h2>
+            <p>Watch how the loop executes step by step. Click the buttons to control the simulation:</p>
+            
+            <div class="controls">
+                <button class="btn" id="startBtn">Start Simulation</button>
+                <button class="btn" id="stepBtn" disabled>Step Forward</button>
+                <button class="btn" id="resetBtn">Reset</button>
+                <button class="btn" id="autoBtn">Auto Run</button>
+            </div>
+
+            <div class="status" id="status">Ready to start simulation</div>
+
+            <div class="simulator">
+                <div class="registers">
+                    <h3>Registers & Variables</h3>
+                    <div class="memory-cell">
+                        <span>Accumulator (AC):</span>
+                        <span id="accumulator">0</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Program Counter (PC):</span>
+                        <span id="pc">100</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Pointer (PTR):</span>
+                        <span id="ptr">0</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Counter (CTR):</span>
+                        <span id="ctr">0</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Sum (SUM):</span>
+                        <span id="sum">0</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Loop Iteration:</span>
+                        <span id="iteration">0</span>
+                    </div>
+                </div>
+
+                <div class="memory-view">
+                    <h3>Current Operation</h3>
+                    <div class="memory-cell active" id="currentOp">
+                        <span>Instruction:</span>
+                        <span>Ready to start</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Current Data:</span>
+                        <span id="currentData">N/A</span>
+                    </div>
+                    <div class="memory-cell">
+                        <span>Next Address:</span>
+                        <span id="nextAddr">150</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Step-by-Step Loop Flow</h2>
+            
+            <div class="flow-chart">
+                <div class="flow-box">1. Initialize: PTR = 150, CTR = -100, AC = 0</div>
+                <div class="arrow">↓</div>
+                <div class="flow-box">2. ADD PTR I: Add value at address PTR to AC</div>
+                <div class="arrow">↓</div>
+                <div class="flow-box">3. ISZ PTR: Increment pointer to next address</div>
+                <div class="arrow">↓</div>
+                <div class="flow-box">4. ISZ CTR: Increment counter towards zero</div>
+                <div class="arrow">↓</div>
+                <div class="flow-box">5. BUN LOP: If CTR ≠ 0, jump back to step 2</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Loop Execution Visualization</h2>
+            
+            <table class="visualization-table">
+                <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <th>PTR (Address)</th>
+                        <th>Operand Value</th>
+                        <th>CTR Value</th>
+                        <th>Accumulator (AC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>150</td>
+                        <td>75</td>
+                        <td>-99</td>
+                        <td>75</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>151</td>
+                        <td>63</td>
+                        <td>-98</td>
+                        <td>138</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>152</td>
+                        <td>45</td>
+                        <td>-97</td>
+                        <td>183</td>
+                    </tr>
+                    <tr>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                    </tr>
+                    <tr>
+                        <td>100</td>
+                        <td>1B3</td>
+                        <td>23</td>
+                        <td>0</td>
+                        <td>Sum of 100 numbers</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Why Are Loops Important?</h2>
+            
+            <div class="key-points">
+                <div class="key-point">
+                    <h3>🎯 Efficiency</h3>
+                    <p>Without loops, you'd need 100 separate ADD instructions. The loop makes the program compact and efficient.</p>
+                </div>
+                
+                <div class="key-point">
+                    <h3>📊 Scalability</h3>
+                    <p>Easy to modify for different numbers of operands by changing just the counter value.</p>
+                </div>
+                
+                <div class="key-point">
+                    <h3>🔧 Maintainability</h3>
+                    <p>Reduces code duplication and makes programs easier to debug and maintain.</p>
+                </div>
+                
+                <div class="key-point">
+                    <h3>💡 Flexibility</h3>
+                    <p>The combination of pointer and counter allows easy iteration over data arrays.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="checkmark">✅</span>Remarks</h2>
+            <p>Program loops are fundamental in assembly programming for repetitive tasks. This example demonstrates how a simple loop structure with a pointer and counter can efficiently process large amounts of data, making programs both compact and maintainable.</p>
+        </div>
+<div class="topic-actions" style="text-align: center;">
+                    <a href="assembly_multiplication_guide.html" class="btn btn-primary">Start Learning Multiplication Program</a>
+                </div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+
+    </div>
+
+    <script>
+        let simulationState = {
+            pc: 100,
+            accumulator: 0,
+            ptr: 0,
+            ctr: 0,
+            sum: 0,
+            iteration: 0,
+            step: 0,
+            isRunning: false,
+            data: Array.from({length: 100}, (_, i) => Math.floor(Math.random() * 100) + 1)
+        };
+
+        const instructions = [
+            { step: 0, instruction: "ORG 100", description: "Program starts at memory 100" },
+            { step: 1, instruction: "LDA ADS", description: "Load first address (150) into AC" },
+            { step: 2, instruction: "STA PTR", description: "Store address in PTR" },
+            { step: 3, instruction: "LDA NBR", description: "Load -100 into AC" },
+            { step: 4, instruction: "STA CTR", description: "Store -100 in CTR" },
+            { step: 5, instruction: "CLA", description: "Clear accumulator to 0" },
+            { step: 6, instruction: "ADD PTR I", description: "Add value at PTR address to AC" },
+            { step: 7, instruction: "ISZ PTR", description: "Increment pointer" },
+            { step: 8, instruction: "ISZ CTR", description: "Increment counter" },
+            { step: 9, instruction: "BUN LOP", description: "Branch if CTR ≠ 0" },
+            { step: 10, instruction: "STA SUM", description: "Store final sum" },
+            { step: 11, instruction: "HLT", description: "Halt program" }
+        ];
+
+        function updateDisplay() {
+            document.getElementById('pc').textContent = simulationState.pc;
+            document.getElementById('accumulator').textContent = simulationState.accumulator;
+            document.getElementById('ptr').textContent = simulationState.ptr;
+            document.getElementById('ctr').textContent = simulationState.ctr;
+            document.getElementById('sum').textContent = simulationState.sum;
+            document.getElementById('iteration').textContent = simulationState.iteration;
+            
+            if (simulationState.step < instructions.length) {
+                document.getElementById('currentOp').innerHTML = 
+                    `<span>Instruction:</span><span>${instructions[simulationState.step].instruction}</span>`;
+            }
+            
+            if (simulationState.ptr >= 150 && simulationState.ptr < 250) {
+                const dataIndex = simulationState.ptr - 150;
+                document.getElementById('currentData').textContent = simulationState.data[dataIndex] || 'N/A';
+            }
+            
+            document.getElementById('nextAddr').textContent = simulationState.ptr + 1;
+        }
+
+        function executeStep() {
+            switch (simulationState.step) {
+                case 0: // ORG 100
+                    simulationState.pc = 100;
+                    break;
+                case 1: // LDA ADS
+                    simulationState.accumulator = 150;
+                    break;
+                case 2: // STA PTR
+                    simulationState.ptr = 150;
+                    break;
+                case 3: // LDA NBR
+                    simulationState.accumulator = -100;
+                    break;
+                case 4: // STA CTR
+                    simulationState.ctr = -100;
+                    break;
+                case 5: // CLA
+                    simulationState.accumulator = 0;
+                    break;
+                case 6: // ADD PTR I (loop starts here)
+                    if (simulationState.iteration < 100) {
+                        const dataIndex = simulationState.ptr - 150;
+                        const value = simulationState.data[dataIndex];
+                        simulationState.accumulator += value;
+                        simulationState.iteration++;
+                    }
+                    break;
+                case 7: // ISZ PTR
+                    simulationState.ptr++;
+                    break;
+                case 8: // ISZ CTR
+                    simulationState.ctr++;
+                    break;
+                case 9: // BUN LOP
+                    if (simulationState.ctr !== 0 && simulationState.iteration < 100) {
+                        simulationState.step = 6; // Jump back to ADD PTR I
+                        simulationState.pc = 107;
+                        updateDisplay();
+                        return;
+                    }
+                    break;
+                case 10: // STA SUM
+                    simulationState.sum = simulationState.accumulator;
+                    break;
+                case 11: // HLT
+                    document.getElementById('status').textContent = `Program completed! Sum of 100 numbers: ${simulationState.sum}`;
+                    document.getElementById('stepBtn').disabled = true;
+                    document.getElementById('autoBtn').disabled = true;
+                    return;
+            }
+            
+            simulationState.step++;
+            simulationState.pc++;
+            updateDisplay();
+            
+            if (simulationState.step >= instructions.length) {
+                document.getElementById('status').textContent = `Program completed! Sum of 100 numbers: ${simulationState.sum}`;
+                document.getElementById('stepBtn').disabled = true;
+                document.getElementById('autoBtn').disabled = true;
+            } else {
+                document.getElementById('status').textContent = `Step ${simulationState.step}: ${instructions[simulationState.step].description}`;
+            }
+        }
+
+        function resetSimulation() {
+            simulationState = {
+                pc: 100,
+                accumulator: 0,
+                ptr: 0,
+                ctr: 0,
+                sum: 0,
+                iteration: 0,
+                step: 0,
+                isRunning: false,
+                data: Array.from({length: 100}, (_, i) => Math.floor(Math.random() * 100) + 1)
+            };
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('autoBtn').disabled = false;
+            document.getElementById('status').textContent = 'Ready to start simulation';
+            document.getElementById('currentOp').innerHTML = '<span>Instruction:</span><span>Ready to start</span>';
+            document.getElementById('currentData').textContent = 'N/A';
+            
+            updateDisplay();
+        }
+
+        let autoInterval;
+        
+        document.getElementById('startBtn').addEventListener('click', function() {
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('status').textContent = 'Simulation started. Use Step Forward to proceed.';
+        });
+
+        document.getElementById('stepBtn').addEventListener('click', function() {
+            if (simulationState.step < instructions.length) {
+                executeStep();
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            clearInterval(autoInterval);
+            resetSimulation();
+        });
+
+        document.getElementById('autoBtn').addEventListener('click', function() {
+            if (!simulationState.isRunning) {
+                simulationState.isRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stepBtn').disabled = true;
+                document.getElementById('autoBtn').textContent = 'Stop Auto';
+                
+                autoInterval = setInterval(() => {
+                    if (simulationState.step < instructions.length) {
+                        executeStep();
+                    } else {
+                        clearInterval(autoInterval);
+                        simulationState.isRunning = false;
+                        document.getElementById('autoBtn').textContent = 'Auto Run';
+                        document.getElementById('autoBtn').disabled = true;
+                    }
+                }, 1000);
+            } else {
+                clearInterval(autoInterval);
+                simulationState.isRunning = false;
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('autoBtn').textContent = 'Auto Run';
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>

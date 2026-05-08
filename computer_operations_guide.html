@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Operations: Logic & Shift Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Assembly Code';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .binary-display {
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .step-animation {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .step {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            transition: all 0.5s ease;
+        }
+
+        .step.active {
+            background: #d4edda;
+            border-left-color: #28a745;
+            transform: scale(1.02);
+        }
+
+        .logic-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .logic-table th, .logic-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logic-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logic-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .visual-shift {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .bit-box {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #764ba2;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tab-container {
+            margin: 20px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 0 10px 10px 10px;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .visual-shift {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Logic and Shift Operations Guide</h1>
+            <p>Interactive exploration of Logic and Shift Operations</p>
+        </div>
+
+        <div class="section">
+            <h2>🧠 Logic Operations</h2>
+            <p>The basic computer has three machine instructions for logic operations: AND, CMA (Complement), and CLA (Clear). All 16 logic operations can be implemented using software with AND and complement operations.</p>
+            
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab active" onclick="openTab(event, 'logic-demo')">Interactive Demo</button>
+                    <button class="tab" onclick="openTab(event, 'logic-table-tab')">Truth Tables</button>
+                    <button class="tab" onclick="openTab(event, 'or-implementation')">OR Implementation</button>
+                </div>
+
+                <div id="logic-demo" class="tab-content active">
+                    <div class="interactive-demo">
+                        <h3>Logic Operation Calculator</h3>
+                        <div class="input-group">
+                            <label>Operand A:</label>
+                            <input type="text" id="operandA" placeholder="Enter binary (e.g., 1010)" maxlength="8">
+                        </div>
+                        <div class="input-group">
+                            <label>Operand B:</label>
+                            <input type="text" id="operandB" placeholder="Enter binary (e.g., 1100)" maxlength="8">
+                        </div>
+                        <div class="input-group">
+                            <label>Operation:</label>
+                            <select id="operation">
+                                <option value="AND">AND</option>
+                                <option value="OR">OR (using AND + CMA)</option>
+                                <option value="XOR">XOR</option>
+                                <option value="NAND">NAND</option>
+                                <option value="NOR">NOR</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="performLogicOperation()">Calculate</button>
+                        <div id="logicResult" class="result" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div id="logic-table-tab" class="tab-content">
+                    <table class="logic-table">
+                        <thead>
+                            <tr>
+                                <th>A</th>
+                                <th>B</th>
+                                <th>AND</th>
+                                <th>OR</th>
+                                <th>XOR</th>
+                                <th>NAND</th>
+                                <th>NOR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+                            <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+                            <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+                            <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="or-implementation" class="tab-content">
+                    <h3>OR Operation Implementation using AND and CMA</h3>
+                    <p>Since OR is not available as a machine instruction, we use DeMorgan's theorem: A + B = (A' ∧ B')'</p>
+                    <div class="code-block">
+LDA A      ; Load first operand A<br>
+CMA        ; Complement to get Ā<br>
+STA TMP    ; Store in a temporary location<br>
+LDA B      ; Load second operand B<br>
+CMA        ; Complement to get <span style="text-decoration: overline;">B</span><br>
+AND TMP    ; AND with Ā to get Ā ∧ <span style="text-decoration: overline;">B</span><br>
+CMA        ; Complement again to get A ∨ B
+                    </div>
+                    <div class="step-animation" id="orSteps">
+                        <div class="step">Step 1: Load A and complement it (Ā)</div>
+                        <div class="step">Step 2: Store Ā temporarily</div>
+                        <div class="step">Step 3: Load B and complement it (B̄)</div>
+                        <div class="step">Step 4: AND with stored Ā to get (Ā ∧ B̄)</div>
+                        <div class="step">Step 5: Complement result to get A ∨ B</div>
+                    </div>
+                    <button class="btn" onclick="animateOrImplementation()">Animate Steps</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Shift Operations</h2>
+            <p>Shift operations move bits left or right within a register. There are three types: circular shifts, logical shifts, and arithmetic shifts.</p>
+            
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab active" onclick="openTab(event, 'shift-demo')">Interactive Demo</button>
+                    <button class="tab" onclick="openTab(event, 'logical-shifts')">Logical Shifts</button>
+                    <button class="tab" onclick="openTab(event, 'arithmetic-shifts')">Arithmetic Shifts</button>
+                </div>
+
+                <div id="shift-demo" class="tab-content active">
+                    <div class="interactive-demo">
+                        <h3>Shift Operation Visualizer</h3>
+                        <div class="input-group">
+                            <label>Input Value:</label>
+                            <input type="text" id="shiftInput" placeholder="Enter binary (e.g., 11010110)" maxlength="8">
+                        </div>
+                        <div class="input-group">
+                            <label>Shift Type:</label>
+                            <select id="shiftType">
+                                <option value="logical-left">Logical Left</option>
+                                <option value="logical-right">Logical Right</option>
+                                <option value="arithmetic-left">Arithmetic Left</option>
+                                <option value="arithmetic-right">Arithmetic Right</option>
+                                <option value="circular-left">Circular Left</option>
+                                <option value="circular-right">Circular Right</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Positions:</label>
+                            <input type="number" id="shiftPositions" min="1" max="7" value="1">
+                        </div>
+                        <button class="btn" onclick="performShiftOperation()">Perform Shift</button>
+                        <div id="shiftResult" class="result" style="display: none;"></div>
+                        <div id="visualShift" class="visual-shift" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div id="logical-shifts" class="tab-content">
+                    <h3>Logical Shift Operations</h3>
+                    <p>Logical shifts add zeros to the extreme positions.</p>
+                    <div class="code-block">
+; Logical Shift Right<br>
+CLE    ; Clear E register<br>
+CIR    ; Circulate right (AC and E)<br><br>
+
+; Logical Shift Left  <br>
+CLE    ; Clear E register<br>
+CIL    ; Circulate left (AC and E)
+                    </div>
+                    <div class="binary-display">
+                        <div>Original: 1101 0110</div>
+                        <div>Right →:  0110 1011</div>
+                        <div>Left ←:   1010 1100</div>
+                    </div>
+                </div>
+
+                <div id="arithmetic-shifts" class="tab-content">
+                    <h3>Arithmetic Shift Operations</h3>
+                    <p>Arithmetic shifts preserve the sign bit for signed number representation.</p>
+                    <div class="code-block">
+; Arithmetic Right Shift<br>
+CLE         ; Clear E to 0<br>
+SPA         ; Skip if AC is positive; E remains 0<br>
+CME         ; AC is negative; set E to 1<br>
+CIR         ; Circulate E with AC right<br><br>
+
+; Arithmetic Left Shift (with overflow detection)<br>
+CLE         ; Clear E prior to operation<br>
+CIL         ; Circulate left E with AC<br>
+; Check for overflow by comparing sign bits
+                    </div>
+                    <div class="interactive-demo">
+                        <h4>Arithmetic Shift Example</h4>
+                        <button class="btn" onclick="demonstrateArithmeticShift()">Show Example</button>
+                        <div id="arithmeticDemo" style="display: none; margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📚 Key Concepts Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div class="interactive-demo">
+                    <h3>Logic Operations</h3>
+                    <ul style="list-style-type: none; padding: 0;">
+                        <li>✓ Only AND, CMA, CLA are basic instructions</li>
+                        <li>✓ All 16 logic operations implementable in software</li>
+                        <li>✓ OR uses DeMorgan's theorem: A+B = <span style="text-decoration: overline;">(Ā∧B̄)</span></li>
+                        <li>✓ Complement operation is fundamental</li>
+                    </ul>
+                </div>
+                <div class="interactive-demo">
+                    <h3>Shift Operations</h3>
+                    <ul style="list-style-type: none; padding: 0;">
+                        <li>✓ Circular: CIR, CIL instructions</li>
+                        <li>✓ Logical: Zeros fill extreme positions</li>
+                        <li>✓ Arithmetic: Sign bit preservation</li>
+                        <li>✓ Overflow detection for arithmetic shifts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="subroutines_demo.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Subroutines</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function performLogicOperation() {
+            const a = document.getElementById('operandA').value.padStart(8, '0');
+            const b = document.getElementById('operandB').value.padStart(8, '0');
+            const operation = document.getElementById('operation').value;
+            const resultDiv = document.getElementById('logicResult');
+
+            if (!/^[01]+$/.test(a) || !/^[01]+$/.test(b)) {
+                resultDiv.innerHTML = '<strong>Error:</strong> Please enter valid binary numbers (0s and 1s only)';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            let result = '';
+            let explanation = '';
+
+            for (let i = 0; i < Math.max(a.length, b.length); i++) {
+                const bitA = parseInt(a[i] || '0');
+                const bitB = parseInt(b[i] || '0');
+                let bitResult;
+
+                switch (operation) {
+                    case 'AND':
+                        bitResult = bitA & bitB;
+                        break;
+                    case 'OR':
+                        bitResult = bitA | bitB;
+                        explanation = 'Implemented using: (Ā ∧ B̄)\'';
+                        break;
+                    case 'XOR':
+                        bitResult = bitA ^ bitB;
+                        break;
+                    case 'NAND':
+                        bitResult = !(bitA & bitB) ? 1 : 0;
+                        break;
+                    case 'NOR':
+                        bitResult = !(bitA | bitB) ? 1 : 0;
+                        break;
+                }
+                result += bitResult;
+            }
+
+            resultDiv.innerHTML = `
+                <strong>Input A:</strong> ${a}<br>
+                <strong>Input B:</strong> ${b}<br>
+                <strong>Operation:</strong> ${operation}<br>
+                <strong>Result:</strong> ${result}<br>
+                ${explanation ? '<strong>Note:</strong> ' + explanation : ''}
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        function performShiftOperation() {
+            const input = document.getElementById('shiftInput').value.padStart(8, '0');
+            const shiftType = document.getElementById('shiftType').value;
+            const positions = parseInt(document.getElementById('shiftPositions').value);
+            const resultDiv = document.getElementById('shiftResult');
+            const visualDiv = document.getElementById('visualShift');
+
+            if (!/^[01]+$/.test(input)) {
+                resultDiv.innerHTML = '<strong>Error:</strong> Please enter valid binary numbers (0s and 1s only)';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            let result = input;
+            let explanation = '';
+
+            for (let i = 0; i < positions; i++) {
+                switch (shiftType) {
+                    case 'logical-left':
+                        result = result.substring(1) + '0';
+                        explanation = 'Zeros added on the right';
+                        break;
+                    case 'logical-right':
+                        result = '0' + result.substring(0, result.length - 1);
+                        explanation = 'Zeros added on the left';
+                        break;
+                    case 'arithmetic-left':
+                        result = result.substring(1) + '0';
+                        explanation = 'Same as logical left';
+                        break;
+                    case 'arithmetic-right':
+                        const signBit = result[0];
+                        result = signBit + result.substring(0, result.length - 1);
+                        explanation = 'Sign bit preserved';
+                        break;
+                    case 'circular-left':
+                        result = result.substring(1) + result[0];
+                        explanation = 'Bits wrap around';
+                        break;
+                    case 'circular-right':
+                        result = result[result.length - 1] + result.substring(0, result.length - 1);
+                        explanation = 'Bits wrap around';
+                        break;
+                }
+            }
+
+            // Create visual representation
+            visualDiv.innerHTML = '';
+            const originalBits = input.split('');
+            const resultBits = result.split('');
+            
+            originalBits.forEach(bit => {
+                const bitBox = document.createElement('div');
+                bitBox.className = 'bit-box';
+                bitBox.textContent = bit;
+                bitBox.style.background = bit === '1' ? '#28a745' : '#6c757d';
+                visualDiv.appendChild(bitBox);
+            });
+
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.innerHTML = '→';
+            visualDiv.appendChild(arrow);
+
+            resultBits.forEach(bit => {
+                const bitBox = document.createElement('div');
+                bitBox.className = 'bit-box';
+                bitBox.textContent = bit;
+                bitBox.style.background = bit === '1' ? '#007bff' : '#6c757d';
+                visualDiv.appendChild(bitBox);
+            });
+
+            resultDiv.innerHTML = `
+                <strong>Original:</strong> ${input}<br>
+                <strong>Operation:</strong> ${shiftType.replace('-', ' ').toUpperCase()} by ${positions} position(s)<br>
+                <strong>Result:</strong> ${result}<br>
+                <strong>Explanation:</strong> ${explanation}
+            `;
+            resultDiv.style.display = 'block';
+            visualDiv.style.display = 'flex';
+        }
+
+        function animateOrImplementation() {
+            const steps = document.querySelectorAll('#orSteps .step');
+            steps.forEach(step => step.classList.remove('active'));
+            
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    steps[currentStep].classList.add('active');
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        steps.forEach(step => step.classList.remove('active'));
+                    }, 2000);
+                }
+            }, 800);
+        }
+
+        function demonstrateArithmeticShift() {
+            const demoDiv = document.getElementById('arithmeticDemo');
+            demoDiv.innerHTML = `
+                <div class="binary-display">
+                    <div><strong>Positive Number:</strong> 01101000 (+104)</div>
+                    <div><strong>Right Shift:</strong> 00110100 (+52)</div>
+                    <div style="margin-top: 15px;"><strong>Negative Number:</strong> 11101000 (-24 in 2's complement)</div>
+                    <div><strong>Right Shift:</strong> 11110100 (-12 in 2's complement)</div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                        Notice how the sign bit (leftmost) is preserved in arithmetic right shift
+                    </div>
+                </div>
+            `;
+            demoDiv.style.display = 'block';
+        }
+
+        // Initialize with some example values
+        document.getElementById('operandA').value = '1010';
+        document.getElementById('operandB').value = '1100';
+        document.getElementById('shiftInput').value = '11010110';
+    </script>
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Language I/O Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .instruction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .instruction:last-child {
+            border-bottom: none;
+        }
+
+        .inst-code {
+            font-weight: bold;
+            color: #d73a49;
+            min-width: 80px;
+        }
+
+        .inst-desc {
+            color: #28a745;
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .example-section {
+            background: #e8f4fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4facfe;
+        }
+
+        .example-title {
+            font-weight: 600;
+            color: #2c5282;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .flowchart {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px dashed #4facfe;
+            text-align: center;
+        }
+
+        .flow-step {
+            display: inline-block;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 5px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .flow-step:hover {
+            transform: scale(1.05);
+        }
+
+        .arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 0 10px;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .output-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            min-height: 50px;
+        }
+
+        .flag-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .flag-0 {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .flag-1 {
+            background: #51cf66;
+            color: white;
+        }
+
+        .memory-visual {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .memory-cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s ease;
+        }
+		 .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #2c3e50;
+            margin-top: 2px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .memory-cell.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background: #4facfe;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .instruction {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .inst-desc {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assembly Language I/O Operations</h1>
+            <p>Master character input and output with interactive examples</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('input')">Character Input</button>
+                <button class="tab" onclick="switchTab('output')">Character Output</button>
+                <button class="tab" onclick="switchTab('demo')">Interactive Demo</button>
+            </div>
+
+            <div id="input" class="tab-content active">
+                <div class="section">
+                    <div class="section-title">
+                        <div class="icon">IN</div>
+                        Character Input Operations
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="instruction">
+                            <span class="inst-code">CIF, SKI</span>
+                            <span class="inst-desc">Check input flag</span>
+                            
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN CIF</span>
+                            <span class="inst-desc">Branch back to check again</span>
+			    <span class="flag-indicator flag-0">Flag=0: No input ready</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INP</span>
+                            <span class="inst-desc">Input character to AC</span>
+                            <span class="flag-indicator flag-1">Flag=1: Character available</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUT</span>
+                            <span class="inst-desc">Print character (optional)</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA CHR</span>
+                            <span class="inst-desc">Store character in memory</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HLT</span>
+                            <span class="inst-desc">Halt program</span>
+                        </div>
+			<div class="instruction">
+                            <span class="inst-code">CHR, - </span>
+                            <span class="inst-desc">Store character here</span>
+                        </div>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">🔄 Input Process Flow</div>
+                        <div class="flowchart">
+                            <div class="flow-step">Check Flag (CIF)</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Flag=0? Wait</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Flag=1? Read (INP)</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Store Character</div>
+                        </div>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">💡 Complete Input Example</div>
+                        <div class="code-block">
+CIF,&nbsp;&nbsp;&nbsp;&nbsp;SKI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Check if input is ready<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN LOOP&nbsp;&nbsp;&nbsp;&nbsp;// Branch back if no input<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Read character into AC<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA CHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Store in memory location CHR<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HLT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Stop program<br>
+CHR,&nbsp;&nbsp;&nbsp;&nbsp;HEX 0000&nbsp;&nbsp;&nbsp;&nbsp;// Memory location for character
+                        </div>
+                    </div>
+
+                    <div class="memory-visual">
+                        <div class="memory-cell">AC</div>
+                        <div class="memory-cell">CHR</div>
+                        <div class="memory-cell">I/O</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="output" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <div class="icon">OUT</div>
+                        Character Output Operations
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp&nbsp;&nbsp;LDA CHR</span>
+                            <span class="inst-desc">Load character from memory to AC</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">COF, SKO</span>
+                            <span class="inst-desc">Check output flag</span>
+                            
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp&nbsp;&nbsp;BUN COF</span>
+                            <span class="inst-desc">Branch back to check again</span>
+			    <span class="flag-indicator flag-0">Flag=0: Output busy</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp&nbsp;&nbsp;OUT</span>
+                            <span class="inst-desc">Output character from AC</span>
+                            <span class="flag-indicator flag-1">Flag=1: Ready to output</span>
+                        </div>
+                        <div class="instruction">
+                            <span class="inst-code">&nbsp;&nbsp;&nbsp&nbsp;&nbsp;HLT</span>
+                            <span class="inst-desc">Halt program</span>
+                        </div>
+			<div class="instruction">
+                            <span class="inst-code">CHR, HEX 0057</span>
+                            <span class="inst-desc">'W' character</span>
+                        </div>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">🔄 Output Process Flow</div>
+                        <div class="flowchart">
+                            <div class="flow-step">Load Character (LDA)</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Check Flag (COF)</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Flag=1? Output (OUT)</div>
+                            <span class="arrow">→</span>
+                            <div class="flow-step">Character Displayed</div>
+                        </div>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">💡 Complete Output Example</div>
+                        <div class="code-block">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDA CHR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Load character 'W' into AC<br>
+LOOP,&nbsp;&nbsp;&nbsp;&nbsp;COF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Check if output is ready<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SKO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Skip if output flag = 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUN LOOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Branch back if output busy<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Send character to output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HLT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Stop program<br>
+CHR,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HEX 0057&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ASCII code for 'W' (87 decimal)
+                        </div>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">📊 ASCII Reference</div>
+                        <div class="memory-visual">
+                            <div class="memory-cell">'A'<br>41</div>
+                            <div class="memory-cell">'W'<br>57</div>
+                            <div class="memory-cell">'0'<br>30</div>
+                            <div class="memory-cell">'9'<br>39</div>
+                        </div>
+                        <p style="text-align: center; color: #666; margin-top: 10px;">
+                            ASCII values shown in hexadecimal
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="demo" class="tab-content">
+                <div class="interactive-demo">
+                    <h2 style="margin-bottom: 20px;">🎮 Interactive I/O Simulation</h2>
+                    <p>Experience how assembly I/O operations work!</p>
+                    
+                    <div style="margin: 20px 0;">
+                        <button class="demo-button" onclick="simulateInput()">Simulate Input</button>
+                        <button class="demo-button" onclick="simulateOutput()">Simulate Output</button>
+                        <button class="demo-button" onclick="clearDemo()">Clear</button>
+                    </div>
+                    
+                    <div class="output-display" id="demoOutput">
+                        Click a button to see the simulation...
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <div class="icon">?</div>
+                        Key Concepts Explained
+                    </div>
+                    
+                    <div class="example-section">
+                        <div class="example-title">🚩 What are Flags?</div>
+                        <p><strong>Input Flag:</strong> Indicates when a character is ready to be read from input device.</p>
+                        <p><strong>Output Flag:</strong> Indicates when the output device is ready to accept a new character.</p>
+                        <p><strong>Polling:</strong> The process of repeatedly checking flags until they indicate readiness.</p>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">⚡ Why Use Skip Instructions?</div>
+                        <p><strong>SKI (Skip on Input):</strong> Efficiently checks if input is ready without complex branching.</p>
+                        <p><strong>SKO (Skip on Output):</strong> Efficiently checks if output is ready without complex branching.</p>
+                        <p><strong>Efficiency:</strong> Skip instructions make polling loops more compact and faster.</p>
+                    </div>
+
+                    <div class="example-section">
+                        <div class="example-title">🔄 Program Flow</div>
+                        <p><strong>Polling Loop:</strong> Program waits in a loop until I/O device is ready.</p>
+                        <p><strong>Synchronization:</strong> Ensures data integrity between CPU and I/O devices.</p>
+                    </div>
+                </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="assembly_docs.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Character Input & Buffer Management</a>
+                </div>
+            </div>
+		
+        </div>
+	
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function simulateInput() {
+            const output = document.getElementById('demoOutput');
+            const steps = [
+                "1. CIF - Checking input flag... Flag = 0 (no input)",
+                "2. SKI - Input flag is 0, don't skip",
+                "3. BUN CIF - Branch back to check again",
+                "4. CIF - Checking input flag... Flag = 1 (input ready!)",
+                "5. SKI - Input flag is 1, skip next instruction",
+                "6. INP - Reading character 'A' into AC",
+                "7. STA CHR - Storing 'A' at memory location CHR",
+                "8. HLT - Program halted successfully",
+                "✅ Result: Character 'A' (ASCII 65) stored in memory"
+            ];
+            
+            output.innerHTML = '';
+            let i = 0;
+            
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    output.innerHTML += steps[i] + '<br>';
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+
+        function simulateOutput() {
+            const output = document.getElementById('demoOutput');
+            const steps = [
+                "1. LDA CHR - Loading character 'W' from memory to AC",
+                "2. COF - Checking output flag... Flag = 0 (output busy)",
+                "3. SKO - Output flag is 0, don't skip",
+                "4. BUN COF - Branch back to check again",
+                "5. COF - Checking output flag... Flag = 1 (output ready!)",
+                "6. SKO - Output flag is 1, skip next instruction",
+                "7. OUT - Sending 'W' to output device",
+                "8. HLT - Program halted successfully",
+                "✅ Result: Character 'W' displayed on screen!"
+            ];
+            
+            output.innerHTML = '';
+            let i = 0;
+            
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    output.innerHTML += steps[i] + '<br>';
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+
+        function clearDemo() {
+            document.getElementById('demoOutput').innerHTML = 'Click a button to see the simulation...';
+        }
+
+        // Add hover effects to memory cells
+        document.addEventListener('DOMContentLoaded', function() {
+            const memoryCells = document.querySelectorAll('.memory-cell');
+            memoryCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    this.classList.add('active');
+                });
+                cell.addEventListener('mouseleave', function() {
+                    this.classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

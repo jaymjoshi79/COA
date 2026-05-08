@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Multiplication - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .register-diagram {
+            background: #f8f9ff;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .register-row {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .register-box {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .register-box:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .register-label {
+            font-weight: bold;
+            color: #764ba2;
+            min-width: 80px;
+        }
+
+	.flowchart {
+    background: #f8f9ff;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 0;
+}
+
+.flow-step {
+    background: white;
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 60px 0;   /* important: space for connector */
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.flow-step:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: translateX(10px);
+}
+
+/* vertical connector line */
+.flow-step::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -50px;
+    width: 2px;
+    height: 40px;
+    background: #667eea;
+    transform: translateX(-50%);
+}
+
+/* arrow head */
+.flow-step::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -50px;
+    transform: translateX(-50%);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid #667eea;
+}
+
+/* remove arrow from last box */
+.flow-step:last-child::before,
+.flow-step:last-child::after {
+    content: none;
+}
+        .algorithm-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .algorithm-step {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .algorithm-step:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(10px);
+        }
+
+        .interactive-demo {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+				.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+
+	
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .register-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Decimal Multiplication</h1>
+            <p class="subtitle">Understanding BCD Arithmetic Operations</p>
+        </header>
+
+        <div class="card">
+            <h2><span class="icon">📖</span>Introduction</h2>
+            <p>The multiplication of fixed-point decimal numbers is similar to binary multiplication, except for how partial products are formed. A decimal multiplier has digits ranging from <span class="highlight">0 to 9</span>, whereas in binary, the multiplicand only has values <span class="highlight">0 and 1</span>.</p>
+            <p style="margin-top: 15px;">In the binary case, the multiplicand is simply added to the partial product if the multiplier bit is 1. In decimal multiplication, each digit multiplier is multiplied by the multiplicand and the result is added to the partial product. This operation can be accomplished by adding the multiplicand to the partial product <span class="highlight">n times</span>, where n equals the value of the multiplier digit.</p>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">📊</span>Register Organization</h2>
+            <p>The register organization for binary multiplication is shown below. The multiplier requires 16 bits for storing four bits of each number. There are three registers:</p>
+            
+            <div class="register-diagram">
+                <center><img src="reg_dec_mul.png" alt="BCD Multiplication Register" style="max-width: 60%; height: auto;"></center>
+            </div>
+            
+            <div class="container">
+		
+
+<ul>
+    <li>
+        <strong>Registers A, B, and Q:</strong>  
+        Each register stores a <strong>4-digit (16-bit) decimal number</strong>.
+    </li>
+
+    <li>
+        <strong>Sign Flip-Flops:</strong>  
+        Each register has a corresponding sign bit:A<sub>s</sub>, B<sub>s</sub> and Q<sub>s</sub>
+        
+    </li>
+
+    <li>
+        <strong>Extension Digits (A<sub>e</sub> and B<sub>e</sub>):</strong>  
+        These are <strong>4-bit extensions (one decimal digit)</strong> to registers A and B.
+        <ul>
+            <li>
+                &nbsp;&nbsp;&nbsp;<strong>A<sub>e</sub> (Overflow Digit):</strong>  
+                Holds the temporary carry/overflow during addition and can range from <strong>0 to 9</strong>.
+            </li>
+            <li>
+                &nbsp;&nbsp;&nbsp;<strong>B<sub>e</sub>:</strong>  
+                Used primarily during <strong>division for 9’s complement operations</strong>.
+            </li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>Flip-Flop E:</strong>  
+        Stores the <strong>end-carry</strong> generated during arithmetic operations (not C or V).
+    </li>
+
+    <li>
+        <strong>Digit Q<sub>L</sub>:</strong>  
+        Refers to the <strong>least significant digit of the multiplier</strong> stored in register Q.
+    </li>
+</ul>
+	    </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">⚙️</span>Multiplication Algorithm</h2>
+            
+            <div class="algorithm-box">
+                <h3 style="margin-bottom: 15px;">Step-by-Step Process</h3>
+                
+                <div class="algorithm-step">
+                    <strong>Step 1:</strong> Initialize - Transfer multiplicand to B, multiplier to Q. Counter SC is set to number of digits in multiplier
+                </div>
+                
+                <div class="algorithm-step">
+                    <strong>Step 2:</strong> Check low-order digit of multiplier Q<sub>L</sub>. If Q<sub>L</sub> = 0, no addition is needed
+                </div>
+                
+                <div class="algorithm-step">
+                    <strong>Step 3:</strong> Add multiplicand in B to partial product in A (Q<sub>L</sub> times). Decrement Q<sub>L</sub> after each addition
+                </div>
+                
+                <div class="algorithm-step">
+                    <strong>Step 4:</strong> Any temporary overflow digit will reside in A<sub>e</sub> and can be range in value from 0 to 9.
+                </div>
+                
+                <div class="algorithm-step">
+                    <strong>Step 5:</strong> Shift right - Partial product and multiplier shifted once to the right. Zeros transferred to A<sub>e</sub>, and rightmost digit moves into Q<sub>L</sub>
+                </div>
+                
+                <div class="algorithm-step">
+                    <strong>Step 6:</strong> Decrement the sequence counter (SC). Repeat k times to form double-length product in AQ register
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🔄</span>Operation Flow</h2>
+            <div class="flowchart">
+            <center><img src = "flow_bcd_mult.png" alt="BCD Multiplication Flowchart" style="max-width: 50%; height: auto;"></center> 
+	    </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🧮</span>Interactive Demonstration</h2>
+            
+            <div class="interactive-demo">
+                <p>Try multiplying two decimal numbers (single digit for simplicity):</p>
+                
+                <div class="input-group">
+                    <input type="number" id="multiplicand" placeholder="Multiplicand" min="0" max="9" value="5">
+                    <span style="font-size: 24px;">×</span>
+                    <input type="number" id="multiplier" placeholder="Multiplier" min="0" max="9" value="3">
+                    <button onclick="calculate()">Calculate</button>
+                </div>
+                
+                <div id="result" class="result" style="display: none;">
+                    <strong>Result:</strong> <span id="resultValue"></span>
+                </div>
+                
+                <div id="steps" style="margin-top: 20px; display: none;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Calculation Steps:</h3>
+                    <div id="stepsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">💡</span>Key Takeaways</h2>
+            <div style="background: #f8f9ff; padding: 20px; border-radius: 10px;">
+                <p>✓ Decimal multiplication uses BCD arithmetic with digits 0-9</p>
+                <p style="margin-top: 10px;">✓ The multiplicand is added to the partial product n times (where n = multiplier digit value)</p>
+                <p style="margin-top: 10px;">✓ A 17-bit memory organization handles the operation efficiently</p>
+                <p style="margin-top: 10px;">✓ The algorithm involves initialization, checking, addition, shifting, and repetition</p>
+                <p style="margin-top: 10px;">✓ Overflow handling ensures accurate multi-digit results</p>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="decimal_division_page.html" style="text-decoration: none;" class="btn btn-primary">Decimal Division</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        function calculate() {
+            const multiplicand = parseInt(document.getElementById('multiplicand').value) || 0;
+            const multiplier = parseInt(document.getElementById('multiplier').value) || 0;
+            const result = multiplicand * multiplier;
+            
+            document.getElementById('resultValue').textContent = `${multiplicand} × ${multiplier} = ${result}`;
+            document.getElementById('result').style.display = 'block';
+            
+            // Show steps
+            const stepsList = document.getElementById('stepsList');
+            stepsList.innerHTML = '';
+            
+            let steps = [
+                `Initialize: Set partial product A = 0, Load ${multiplicand} into B, Load ${multiplier} into Q`,
+                `Multiplier digit Q = ${multiplier}`,
+            ];
+            
+            if (multiplier > 0) {
+                let sum = 0;
+                for (let i = 1; i <= multiplier; i++) {
+                    sum += multiplicand;
+                    steps.push(`Addition ${i}: Add ${multiplicand} to partial product → ${sum}`);
+                }
+                steps.push(`Final Result: ${result}`);
+            } else {
+                steps.push('Q₁ = 0, so no addition needed');
+                steps.push(`Final Result: ${result}`);
+            }
+            
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'algorithm-step';
+                stepDiv.style.background = 'rgba(102, 126, 234, 0.1)';
+                stepDiv.style.color = '#333';
+                stepDiv.style.marginTop = '10px';
+                stepDiv.textContent = step;
+                stepsList.appendChild(stepDiv);
+            });
+            
+            document.getElementById('steps').style.display = 'block';
+        }
+        
+        // Allow Enter key to trigger calculation
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') calculate();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design of Basic Computer - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+	.content {
+            padding: 30px;
+        }
+	.instruction-group {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .instruction-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .instruction-body {
+            padding: 15px 20px;
+            background: #fafafa;
+        }
+
+        .micro-op {
+            padding: 8px 0;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .micro-op:last-child {
+            border-bottom: none;
+        }
+
+        .timing {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 80px;
+            margin-right: 15px;
+        }
+
+        .operation {
+            flex: 1;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+	  .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .component-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left-color: #764ba2;
+        }
+
+        .component-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .component-list {
+            list-style: none;
+        }
+
+        .component-list li {
+            padding: 0.3rem 0;
+            color: #6c757d;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .component-list li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 0.8rem;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .register-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .register-box {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .register-box:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .register-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .control-demo {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .boolean-expr {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boolean-expr::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .highlight-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 2s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 200px;
+            margin: 1rem 0;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+	
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .flip-card-back {
+            background: white;
+            color: #2c3e50;
+            transform: rotateY(180deg);
+            border: 2px solid #667eea;
+        }
+	  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Design of Basic Computer</h1>
+            <p>An Interactive Journey Through Computer Hardware Implementation</p>
+        </header>
+
+        <main class="main-content">
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+                <button class="nav-tab" onclick="showTab('components')">Hardware Components</button>
+                <button class="nav-tab" onclick="showTab('control')">Control Unit</button>
+		<button class="nav-tab" onclick="showTab('bus-control')">Bus Control</button>
+                <button class="nav-tab" onclick="showTab('demo')">Interactive Demo</button>
+            </nav>
+
+            <div id="overview" class="tab-content active">
+                <h2 class="section-title">Computer Design Overview</h2>
+                <p>The design of a basic computer involves translating operational specifications into actual logic circuits. This process transforms register transfer statements into hardware implementations.</p>
+                
+                <div class="highlight-box">
+                    <h3>🎯 Key Design Objectives</h3>
+                    <p>Transform register transfer statements into functional hardware circuits that can execute computer instructions efficiently.</p>
+                </div>
+		<div class="content">
+            <!-- Fetch -->
+            <div class="instruction-group">
+                <div class="instruction-header">Fetch</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">R'T₀:</span>
+                        <span class="operation">AR ← PC</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">R'T₁:</span>
+                        <span class="operation">IR ← M[AR], PC ← PC + 1</span>
+                    </div>
+                    
+                </div>
+            </div>
+	
+	    <!-- Decode -->
+            <div class="instruction-group">
+                <div class="instruction-header">Decode</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">R'T₂:</span>
+                        <span class="operation">D₀, ..., D₇ ← Decode IR(12-14), AR ← IR(0-11), I ← IR(15)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indirect -->
+            <div class="instruction-group">
+                <div class="instruction-header">Indirect</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₇'IT₃:</span>
+                        <span class="operation">AR ← M[AR]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interrupt -->
+            <div class="instruction-group">
+                <div class="instruction-header">Interrupt</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">T₀'T₁'T₂' (IEN)(FGI + FGO):</span>
+                        <span class="operation">R ← 1</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">RT₀:</span>
+                        <span class="operation">AR ← 0, TR ← PC</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">RT₁:</span>
+                        <span class="operation">M[AR] ← TR, PC ← 0</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">RT₂:</span>
+                        <span class="operation">PC ← PC + 1, IEN ← 0, R ← 0, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory-reference Instructions -->
+            <h2 class="section-title">Memory-reference Instructions</h2>
+
+            <div class="instruction-group">
+                <div class="instruction-header">AND</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₀T₄:</span>
+                        <span class="operation">DR ← M[AR]</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₀T₅:</span>
+                        <span class="operation">AC ← AC ∧ DR, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">ADD</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₁T₄:</span>
+                        <span class="operation">DR ← M[AR]</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₁T₅:</span>
+                        <span class="operation">AC ← AC + DR, E ← Cₒᵤₜ, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">LDA</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₂T₄:</span>
+                        <span class="operation">DR ← M[AR]</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₂T₅:</span>
+                        <span class="operation">AC ← DR, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">STA</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₃T₄:</span>
+                        <span class="operation">M[AR] ← AC, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">BUN</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₄T₄:</span>
+                        <span class="operation">PC ← AR, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">BSA</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₅T₄:</span>
+                        <span class="operation">M[AR] ← PC, AR ← AR + 1</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₅T₅:</span>
+                        <span class="operation">PC ← AR, SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">ISZ</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">D₆T₄:</span>
+                        <span class="operation">DR ← M[AR]</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₆T₅:</span>
+                        <span class="operation">DR ← DR + 1</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">D₆T₆:</span>
+                        <span class="operation">M[AR] ← DR, If (DR = 0) then (PC ← PC + 1), SC ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register-reference Instructions -->
+            <h2 class="section-title">Register-reference Instructions</h2>
+
+            <div class="note">
+                <strong>D₇I'T₃ = r</strong> (common to all register-reference instructions)<br>
+                <strong>IR(i) = Bᵢ</strong> (i = 0, 1, 2, ..., 11)<br>
+     		r:  SC ← 0
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">Register Operations</div>
+                <div class="instruction-body">
+		    
+                    <div class="micro-op">
+                        <span class="timing">CLA - rB₁₁:</span>
+                        <span class="operation">AC ← 0</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">CLE - rB₁₀:</span>
+                        <span class="operation">E ← 0</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">CMA - rB₉:</span>
+                        <span class="operation">AC ← <span style="text-decoration: overline;">AC</span></span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">CME - rB₈:</span>
+                        <span class="operation">E ← <span style="text-decoration: overline;">E</span></span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">CIR - rB₇:</span>
+                        <span class="operation">AC ← shr AC, AC(15) ← E, E ← AC(0)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">CIL - rB₆:</span>
+                        <span class="operation">AC ← shl AC, AC(0) ← E, E ← AC(15)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">INC - rB₅:</span>
+                        <span class="operation">AC ← AC + 1</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SPA - rB₄:</span>
+                        <span class="operation">If (AC(15) = 0) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SNA - rB₃:</span>
+                        <span class="operation">If (AC(15) = 1) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SZA - rB₂:</span>
+                        <span class="operation">If (AC = 0) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SZE - rB₁:</span>
+                        <span class="operation">If (E = 0) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">HLT - rB₀:</span>
+                        <span class="operation">S ← 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input-output Instructions -->
+            <h2 class="section-title">Input-output Instructions</h2>
+
+            <div class="note">
+                <strong>D₇I'T₃ = p</strong> (common to all input-output instructions)<br>
+                <strong>IR(i) = Bᵢ</strong> (i = 6, 7, 8, 9, 10, 11)<br>
+		p:  SC ← 0
+            </div>
+
+            <div class="instruction-group">
+                <div class="instruction-header">I/O Operations</div>
+                <div class="instruction-body">
+                    <div class="micro-op">
+                        <span class="timing">INP - pB₁₁:</span>
+                        <span class="operation">AC(0-7) ← INPR, FGI ← 0</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">OUT - pB₁₀:</span>
+                        <span class="operation">OUTR ← AC(0-7), FGO ← 0</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SKI - pB₉:</span>
+                        <span class="operation">If (FGI = 1) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">SKO - pB₈:</span>
+                        <span class="operation">If (FGO = 1) then (PC ← PC + 1)</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">ION - pB₇:</span>
+                        <span class="operation">IEN ← 1</span>
+                    </div>
+                    <div class="micro-op">
+                        <span class="timing">IOF - pB₆:</span>
+                        <span class="operation">IEN ← 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3>Memory Specifications</h3>
+                            <p>Click to see details</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3>Memory Unit</h3>
+                            <p><strong>4096 words</strong></p>
+                            <p><strong>16 bits per word</strong></p>
+                            <p>Total capacity: 64KB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overview-progress"></div>
+                </div>
+            </div>
+
+            <div id="components" class="tab-content">
+                <h2 class="section-title">Hardware Components</h2>
+                
+                <div class="component-grid">
+                    <div class="component-card pulse">
+                        <h3>🗃️ Registers (9 total)</h3>
+                        <ul class="component-list">
+                            <li><strong>AR</strong> - Address Register</li>
+                            <li><strong>PC</strong> - Program Counter</li>
+                            <li><strong>DR</strong> - Data Register</li>
+                            <li><strong>AC</strong> - Accumulator</li>
+                            <li><strong>IR</strong> - Instruction Register</li>
+                            <li><strong>TR</strong> - Temporary Register</li>
+                            <li><strong>INPR</strong> - Input Register</li>
+                            <li><strong>OUTR</strong> - Output Register</li>
+                            <li><strong>SC</strong> - Sequence Counter</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card">
+                        <h3>🔄 Flip-Flops (7 total)</h3>
+                        <ul class="component-list">
+                            <li><strong>I</strong> - Indirect address bit</li>
+                            <li><strong>S</strong> - Start/Stop</li>
+                            <li><strong>E</strong> - Extended accumulator</li>
+                            <li><strong>R</strong> - Interrupt Request</li>
+                            <li><strong>IEN</strong> - Interrupt Enable</li>
+                            <li><strong>FGI</strong> - Input Flag</li>
+                            <li><strong>FGO</strong> - Output Flag</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card">
+                        <h3>🔍 Decoders</h3>
+                        <ul class="component-list">
+                            <li><strong>3 x 8</strong> Operation decoder (opcodes)</li>
+                            <li><strong>4 x 16</strong> Timing decoder (T0-T15)</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card">
+                        <h3>🚌 Common Bus System</h3>
+                        <ul class="component-list">
+                            <li><strong>16-bit</strong> common bus</li>
+                            <li>Facilitates data transfer</li>
+                            <li>Controlled by S2, S1, S0 inputs</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3 class="demo-title">Flow Chart for Computer Operation</h3>
+                    <div class="register-demo">
+                        <img src="flow_comp_opr.png">
+                    </div>
+                </div>
+            </div>
+
+            <div id="control" class="tab-content">
+                <h2 class="section-title">Control Unit Design</h2>
+                
+                <p>The control unit generates all necessary control signals for computer operation through decoders and logic gates.</p>
+
+                <div class="control-demo">
+                    <h3>🎛️ Control Functions</h3>
+                    <p><strong>The control unit manages:</strong></p>
+                    <ul class="component-list">
+                        <li>Register control inputs (LD, INR, CLR)</li>
+                        <li>Memory read/write operations</li>
+                        <li>Flip-flop state changes</li>
+                        <li>Common bus register selection</li>
+                        <li>Arithmetic and logic operations</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📊 Address Register (AR) Control Example</h3>
+                    <p><strong>Clear Operation:</strong></p>
+                    <div class="boolean-expr">CLR(AR) = RT<sub>0</sub></div>
+                    <p><strong>Load Operation:</strong></p>
+                    <div class="boolean-expr">LD(AR) = R'T<sub>0</sub> + R'T<sub>2</sub> + D'<sub>7</sub>IT<sub>3</sub></div>
+                    <p><strong>Increment Operation:</strong></p>
+                    <div class="boolean-expr">INR(AR) = D<sub>4</sub>T<sub>4</sub></div>
+		    <center><img src ="control_ar.png" alt="Flowchart of Interrupt" width="1000px"></center>
+                </div>
+		
+                <div class="interactive-demo">
+                    <h3 class="demo-title">Control Signal Flow</h3>
+                    <p>Control signals are derived from register transfer statements and implemented as Boolean logic circuits.</p>
+                    
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <h3>IEN Control</h3>
+                                <p>Interrupt Enable Logic</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h3>IEN Operations</h3>
+                                <p><strong>pB<sub>7</sub>:</strong> IEN ← 1</p>
+                                <p><strong>pB<sub>6</sub>:</strong> IEN ← 0</p>
+                                <p><strong>RT<sub>2</sub>:</strong> IEN ← 0</p>
+                            </div>
+			    
+                        </div>
+			
+                    </div>
+		    <center><img src ="control_ien.png" alt="Flowchart of Interrupt" width="1000px"></center>
+                </div>
+            </div>
+
+	    <div id="bus-control" class="tab-content">
+    <h2 class="section-title">🚌 Bus Control Logic</h2>
+    
+    <p>The 16-bit common bus is controlled by select inputs S<sub>2</sub>, S<sub>1</sub>, S<sub>0</sub> of a multiplexer, determining which register's output is placed onto the bus. The control signals are derived from the register transfer statements.</p>
+
+    <div class="component-grid">
+        <div class="component-card">
+            <h3>Register Selection (S<sub>2</sub>, S<sub>1</sub>, S<sub>0</sub>)</h3>
+            <ul class="component-list">
+                <li><strong>001:</strong> Output of AR</li>
+                <li><strong>010:</strong> Output of PC</li>
+                <li><strong>011:</strong> Output of DR</li>
+                <li><strong>100:</strong> Output of AC</li>
+                <li><strong>101:</strong> Output of IR</li>
+		<li><strong>110:</strong> Output of TR</li>
+                <li><strong>111:</strong> Memory M[AR]</li>
+            </ul>
+        </div>
+        
+        <div class="component-card">
+            <h3>Bus Selection Inputs (S<sub>2</sub>, S<sub>1</sub>, S<sub>0</sub>)</h3>
+            <ul class="component-list">
+                <li><strong>S<sub>0</sub> = x<sub>1</sub> + x<sub>3</sub> + x<sub>5</sub> + x<sub>7</sub></strong></li>
+                <li><strong>S<sub>1</sub> = x<sub>2</sub> + x<sub>3</sub> + x<sub>6</sub> + x<sub>7</sub></strong></li>
+                <li><strong>S<sub>2</sub> = x<sub>4</sub> + x<sub>5</sub> + x<sub>6</sub> + x<sub>7</sub></strong></li>
+            </ul>
+            <p>Each binary value listed in the table corresponds to a Boolean variable <strong>x<sub>i</sub></strong>, which activates the specific gate required to select the appropriate register or memory for the bus. When <strong>x<sub>1</sub> = 1</strong> to S₂S₁S₀  = 001 selects the AR register.</p>
+        </div>
+    </div>
+		<div class="interactive-demo">
+                    <h3 class="demo-title">Encoder for Bus Selection Circuit</h3>
+                    <div class="register-demo">
+                         <table>
+    <tr>
+      <th colspan="7">Inputs</th>
+      <th colspan="3">Outputs</th>
+      <th>Register Selected</th>
+    </tr>
+    <tr>
+      <th>x<sub>1</sub></th><th>x<sub>2</sub></th><th>x<sub>3</sub></th><th>x<sub>4</sub></th><th>x<sub>5</sub></th><th>x<sub>6</sub></th><th>x<sub>7</sub></th>
+      <th>S<sub>2</sub></th><th>S<sub>1</sub></th><th>S<sub>0</sub></th>
+      <th></th>
+    </tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>None</td></tr>
+    <tr><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>AR</td></tr>
+    <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>PC</td></tr>
+    <tr><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>DR</td></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>AC</td></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>IR</td></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>TR</td></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>Memory</td></tr>
+  </table>
+
+                    </div>
+                </div>
+
+    <div class="highlight-box">
+        <h3>📊 Boolean Derivation Example</h3>
+        <p>To determine the logic for each encoder input, it is necessary to find the control functions that place the corresponding register on the bus. For example, for <strong>x<sub>1</sub></strong>:
+</p>
+        <div class="boolean-expr">
+	D<sub>4</sub>T<sub>4</sub>: PC ← AR<br>
+	D<sub>5</sub>T<sub>5</sub>: PC ← AR<br>
+	x<sub>1</sub> = D<sub>4</sub>T<sub>4</sub> + D<sub>5</sub>T<sub>5</sub>
+	</div>
+         <p>
+    For <strong>x<sub>7</sub></strong>, which represents memory selection:
+  </p>
+<div class="boolean-expr">
+	x<sub>7</sub> = R'T<sub>1</sub> + D<sub>7</sub>'IT<sub>3</sub> + (D<sub>0</sub> + D<sub>1</sub> + D<sub>2</sub> + D<sub>6</sub>)T<sub>4</sub>
+	</div>
+    </div>
+
+    <div class="control-demo">
+        <h3>Encoder for Bus Selection Inputs</h3>
+        <center><img src="Designer.png" alt="Flowchart of Interrupt" width="600px"></center>
+    </div>
+</div>
+
+
+            <div id="demo" class="tab-content">
+                <h2 class="section-title">Interactive Learning Demo</h2>
+                
+                <div class="interactive-demo">
+                    <h3 class="demo-title">🚀 Computer Cycle Simulation</h3>
+                    <p>Click the button below to simulate a basic computer cycle:</p>
+                    
+                    <button onclick="startSimulation()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-size: 1.1rem; cursor: pointer; margin: 1rem 0; transition: all 0.3s ease;">
+                        Start Simulation
+                    </button>
+                    
+                    <div id="simulation-steps" style="margin-top: 2rem;"></div>
+                </div>
+
+                <div class="control-demo">
+                    <h3>💡 Key Learning Points</h3>
+                    <div class="component-grid">
+                        <div class="component-card">
+                            <h4>Hardware Translation</h4>
+                            <p>Register transfer statements become actual logic circuits</p>
+                        </div>
+                        <div class="component-card">
+                            <h4>Control Logic</h4>
+                            <p>Boolean expressions control register operations</p>
+                        </div>
+                        <div class="component-card">
+                            <h4>Systematic Design</h4>
+                            <p>Every microoperation has hardware implementation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎓 Design Methodology Summary</h3>
+                    <p>The systematic approach ensures that every microoperation and control sequence defined for the basic computer has a corresponding hardware implementation, bridging the gap between theoretical computer architecture and practical digital circuit design.</p>
+                </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="accumulator_logic_webpage.html" class="btn btn-primary">Start Learning Design of Accumulator Logic</a>
+                </div>
+	
+
+            </div>
+	   <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div> 
+        </main>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            // NOTE: This uses event.target, which assumes the function is called directly from the onclick event.
+            // When calling from an external script or function, 'event' may not be defined.
+            // A more robust approach is to pass 'this' from the onclick, but for this context, 
+            // we'll assume standard direct onclick call and manually find the button based on tabName.
+            document.querySelector(`.nav-tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            // Trigger progress bar animation for overview
+            if (tabName === 'overview') {
+                setTimeout(() => {
+                    document.getElementById('overview-progress').style.width = '100%';
+                }, 300);
+            }
+        }
+
+        function highlightRegister(element) {
+            // Remove previous highlights
+            document.querySelectorAll('.register-box').forEach(box => {
+                box.style.background = 'white';
+                box.style.transform = 'scale(1)';
+            });
+            
+            // Highlight clicked register
+            element.style.background = 'linear-gradient(135deg, #667eea20, #764ba220)';
+            element.style.transform = 'scale(1.1)';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                element.style.background = 'white';
+                element.style.transform = 'scale(1)';
+            }, 2000);
+        }
+
+        function startSimulation() {
+            const stepsDiv = document.getElementById('simulation-steps');
+            const steps = [
+                '🔄 T<sub>0</sub>: AR ← PC (Fetch address)',
+                '📖 T<sub>1</sub>: IR ← M[AR] (Read instruction)',
+                '📍 T<sub>2</sub>: AR ← IR(0-11), I ← IR(15), D<sub>0</sub> - D<sub>7</sub> ← Decode IR(12-14) (Decode address)',
+                '⚡ T<sub>3</sub>: Execute instruction (Register or I/O Instructions) or Calculate the address (Memory Instruction)',
+                '➡️ T<sub>4</sub>: Execture Memory instruction'
+            ];
+            
+            stepsDiv.innerHTML = '<h4>Simulation Steps:</h4>';
+            
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.innerHTML = step;
+                    stepDiv.style.padding = '0.5rem';
+                    stepDiv.style.margin = '0.5rem 0';
+                    stepDiv.style.background = 'rgba(102, 126, 234, 0.1)';
+                    stepDiv.style.borderRadius = '8px';
+                    stepDiv.style.borderLeft = '4px solid #667eea';
+                    stepDiv.style.animation = 'fadeInUp 0.5s ease-out';
+                    stepsDiv.appendChild(stepDiv);
+                }, index * 800);
+            });
+        }
+
+        // Initialize progress bar
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('overview-progress').style.width = '100%';
+            }, 1000);
+        });
+
+        // Add smooth scrolling for better user experience
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.component-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>

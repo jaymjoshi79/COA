@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary & Number Systems - Interactive Learning Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90" opacity="0.1">01</text></svg>') repeat;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            background: #f8fafc;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #4299e1;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #4299e1;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-left: 5px solid #4299e1;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 15px 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .converter {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .converter h4 {
+            color: #4299e1;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"], select {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 153, 225, 0.3);
+        }
+
+        .result {
+            background: #f0fff4;
+            border: 2px solid #68d391;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2f855a;
+        }
+
+        .binary-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            background: #1a202c;
+            color: #68d391;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef5e7 0%, #fed7aa 100%);
+            border-left: 5px solid #f6ad55;
+            padding: 1rem;
+            border-radius: 0 10px 10px 0;
+            margin: 1rem 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Binary';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #68d391;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 200px;
+            perspective: 1000px;
+            margin: 1rem 0;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .section h2 { font-size: 2rem; }
+            .nav-links { justify-content: flex-start; }
+            main { padding: 1rem; }
+            .input-group { flex-direction: column; }
+        }
+
+        footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Binary & Number Systems</h1>
+            <p class="subtitle">Interactive Learning Guide to Computer Architecture Fundamentals</p>
+        </header>
+
+        <nav>
+            <div class="nav-links">
+                <a href="#introduction" class="nav-link">Introduction</a>
+                <a href="#number-systems" class="nav-link">Number Systems</a>
+                <a href="#conversions" class="nav-link">Conversions</a>
+                <a href="#complements" class="nav-link">Complements</a>
+                <a href="#fixed-point" class="nav-link">Fixed-Point</a>
+                <a href="#floating-point" class="nav-link">Floating-Point</a>
+                <a href="#codes" class="nav-link">Binary Codes</a>
+            </div>
+        </nav>
+
+        <main>
+            <section id="introduction" class="section">
+                <h2><span class="section-icon">01</span>Digital Computers & Binary</h2>
+                <div class="card">
+                    <h3>Why Binary?</h3>
+                    <p>Digital computers achieve greater reliability by employing only two states, similar to human logic with binary choices like true/false or yes/no.</p>
+                    
+                    <div class="binary-display pulse">
+                        0 1 0 1 1 0 0 1
+                    </div>
+                    
+                    <div class="highlight">
+                        <strong>Key Concept:</strong> A single binary digit (0 or 1) is called a <strong>bit</strong>. Information is stored in groups of bits.
+                    </div>
+                </div>
+            </section>
+
+            <section id="number-systems" class="section">
+                <h2><span class="section-icon">2</span>Number Systems</h2>
+                <div class="grid">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div>
+                                    <h3>Decimal (Base 10)</h3>
+                                    <p>Digits: 0-9</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div>Example: 724.5 = 7×10² + 2×10¹ + 4×10⁰ + 5×10⁻¹</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div>
+                                    <h3>Binary (Base 2)</h3>
+                                    <p>Digits: 0, 1</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div>Example: 101101₂ = 1×2⁵ + 0×2⁴ + 1×2³ + 1×2² + 0×2¹ + 1×2⁰ = 45₁₀</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div>
+                                    <h3>Octal (Base 8)</h3>
+                                    <p>Digits: 0-7</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div>Example: 736.4₈ = 7×8² + 3×8¹ + 6×8⁰ + 4×8⁻¹ = 478.5₁₀</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div>
+                                    <h3>Hexadecimal (Base 16)</h3>
+                                    <p>Digits: 0-9, A-F</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div>Example: F3₁₆ = F×16¹ + 3×16⁰ = 15×16 + 3 = 243₁₀</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conversions" class="section">
+                <h2><span class="section-icon">⇄</span>Number Base Conversions</h2>
+                <div class="converter">
+                    <h4>Interactive Number Converter</h4>
+                    <div class="input-group">
+                        <input type="text" id="numberInput" placeholder="Enter number...">
+                        <select id="fromBase">
+                            <option value="10">Decimal</option>
+                            <option value="2">Binary</option>
+                            <option value="8">Octal</option>
+                            <option value="16">Hexadecimal</option>
+                        </select>
+                        <select id="toBase">
+                            <option value="2">Binary</option>
+                            <option value="10">Decimal</option>
+                            <option value="8">Octal</option>
+                            <option value="16">Hexadecimal</option>
+                        </select>
+                        <button onclick="convertNumber()">Convert</button>
+                    </div>
+                    <div id="conversionResult" class="result" style="display: none;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Conversion Methods</h3>
+                    <div class="example-box">
+                        <strong>Decimal to Binary:</strong><br>
+                        Integer part: Divide by 2, read remainders bottom to top<br>
+                        Fraction part: Multiply by 2, read integer parts top to bottom<br>
+                        Example: 41.6875₁₀ = 101001.1011₂
+                    </div>
+                    
+                    <div class="example-box">
+                        <strong>Binary to Octal:</strong> Group bits in sets of 3<br>
+                        <strong>Binary to Hex:</strong> Group bits in sets of 4<br>
+                        Example: 1010111100010111₂ = 5361.354₈ = AF1.76₁₆
+                    </div>
+                </div>
+            </section>
+
+            <section id="complements" class="section">
+                <h2><span class="section-icon">~</span>Complements</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>1's Complement</h3>
+                        <p>Change all 0s to 1s and all 1s to 0s</p>
+                        <div class="code-block">
+Original: 1011001
+1's Comp: 0100110
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>2's Complement</h3>
+                        <p>1's complement + 1</p>
+                        <div class="code-block">
+1's Comp: 0100110
+2's Comp: 0100111
+                        </div>
+                    </div>
+                </div>
+
+                <div class="converter">
+                    <h4>Complement Calculator</h4>
+                    <div class="input-group">
+                        <input type="text" id="binaryInput" placeholder="Enter binary number...">
+                        <button onclick="calculateComplements()">Calculate Complements</button>
+                    </div>
+                    <div id="complementResult" class="result" style="display: none;"></div>
+                </div>
+            </section>
+
+            <section id="fixed-point" class="section">
+                <h2><span class="section-icon">•</span>Fixed-Point Representation</h2>
+                <div class="card">
+                    <h3>Signed Number Representations</h3>
+                    <div class="grid">
+                        <div class="highlight">
+                            <strong>Signed-Magnitude:</strong><br>
+                            Sign bit (0=+, 1=-) + magnitude
+			    
+                        </div>
+                        <div class="highlight">
+                            <strong>1's Complement:</strong><br>
+                            Positive: as signed-magnitude<br>
+                            Negative: 1's complement of positive
+                        </div>
+                        <div class="highlight">
+                            <strong>2's Complement:</strong><br>
+                            Positive: as signed-magnitude<br>
+                            Negative: 2's complement of positive
+                        </div>
+                    </div>
+		    <div class="converter">
+    <h4>Interactive Signed Number Representation</h4>
+    <div class="input-group">
+        <input type="text" id="signedDecimalInput" placeholder="Enter integer (-127 to +127)" min="-127" max="127">
+        <button onclick="showSignedRepresentations()">Show Representations</button>
+    </div>
+    <div id="signedRepresentationResult" class="result" style="display: none;"></div>
+</div>
+                </div>
+		
+
+                <div class="card">
+                    <h3>Binary-Coded Decimal (BCD)</h3>
+                    <p>Each decimal digit represented by 4 bits</p>
+                    <div class="example-box">
+                        Decimal: 3984
+                        BCD: 0011 1001 1000 0100
+                    </div>
+                </div>
+            </section>
+
+            <section id="floating-point" class="section">
+                <h2><span class="section-icon">∞</span>Floating-Point Representation</h2>
+                <div class="card">
+                    <h3>Scientific Notation for Binary</h3>
+                    <p>Separates number into mantissa and exponent for wider range</p>
+                    <div class="example-box">
+                        Binary: +1001.11<br>
+                        Floating-point: +0.100111 × 2⁴ <br><br>
+                        
+                        Components:<br>
+                        • Mantissa: 0.100111<br>
+                        • Exponent: 4 (100) <br>
+                    </div>
+                    
+                    <div class="highlight">
+                        <strong>Normalization:</strong> The most significant digit of the mantissa is non-zero (1 for binary)
+                    </div>
+                </div>
+            </section>
+
+            <section id="codes" class="section">
+                <h2><span class="section-icon">⚡</span>Other Binary Codes</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Gray Code</h3>
+                        <p>Only one bit changes between successive numbers</p>
+                        <div class="code-block">
+Dec | Gray<br>
+ 0  | 0000<br>
+ 1  | 0001<br>  
+ 2  | 0011<br>
+ 3  | 0010<br>
+ 4  | 0110<br>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>ASCII Code</h3>
+                        <p>7-bit code for 128 characters</p>
+                        <div class="code-block">
+'A' = 1000001 (65₁₀)<br>
+'a' = 1100001 (97₁₀)<br>
+'0' = 0110000 (48₁₀)<br>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Error Detection</h3>
+                        <p>Parity bit ensures error detection</p>
+                        <div class="example-box">
+                            Even Parity:<br> Total 1s = even number<br>
+                            Message: 1011001<br>
+                            Parity bit: 1 (makes total even)<br>
+                            Transmitted: 10110011<br>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+	 <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            © Dr. Jay M. Joshi
+        </footer>
+	
+    </div>
+
+    <script>
+        // Smooth scrolling navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Intersection Observer for section animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Update active nav link
+                    const targetId = entry.target.id;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + targetId) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Number converter function
+        function convertNumber() {
+            const input = document.getElementById('numberInput').value.trim();
+            const fromBase = parseInt(document.getElementById('fromBase').value);
+            const toBase = parseInt(document.getElementById('toBase').value);
+            const resultDiv = document.getElementById('conversionResult');
+
+            if (!input) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            try {
+                // Convert to decimal first
+                let decimalValue;
+                if (fromBase === 10) {
+                    decimalValue = parseFloat(input);
+                } else {
+                    decimalValue = parseInt(input, fromBase);
+                }
+
+                if (isNaN(decimalValue)) {
+                    throw new Error('Invalid input');
+                }
+
+                // Convert to target base
+                let result;
+                if (toBase === 10) {
+                    result = decimalValue.toString();
+                } else {
+                    result = Math.floor(decimalValue).toString(toBase).toUpperCase();
+                }
+
+                resultDiv.innerHTML = `
+                    <strong>Result:</strong> ${input} (base ${fromBase}) = ${result} (base ${toBase})
+                `;
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> Please enter a valid number for base ${fromBase}`;
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fed7d7';
+                resultDiv.style.borderColor = '#f56565';
+                resultDiv.style.color = '#c53030';
+            }
+        }
+	function showSignedRepresentations() {
+    const input = parseInt(document.getElementById('signedDecimalInput').value.trim());
+    const resultDiv = document.getElementById('signedRepresentationResult');
+
+    if (isNaN(input) || input < -127 || input > 127) {
+        resultDiv.innerHTML = `<strong>Error:</strong> Please enter a valid integer between -127 and +127`;
+        resultDiv.style.display = 'block';
+        resultDiv.style.background = '#fed7d7';
+        resultDiv.style.borderColor = '#f56565';
+        resultDiv.style.color = '#c53030';
+        return;
+    }
+
+    const absBinary = Math.abs(input).toString(2).padStart(7, '0'); // 7 bits for magnitude
+
+    // Signed-Magnitude Representation
+    const signBit = input >= 0 ? '0' : '1';
+    const signedMagnitude = signBit + absBinary;
+
+    // 1's Complement Representation
+    const onesComp = input >= 0
+        ? absBinary // For positive numbers, 1's complement same as magnitude
+        : absBinary.split('').map(bit => bit === '0' ? '1' : '0').join('');
+    const onesCompWithSign = input >= 0 ? '0' + absBinary : '1' + onesComp;
+
+    // 2's Complement Representation
+    let twosComp = '';
+    let carry = 1;
+
+    // Start from 1's complement bits (without sign bit)
+    let baseBits = input >= 0 ? absBinary : onesComp;
+    for (let i = baseBits.length - 1; i >= 0; i--) {
+        const sum = parseInt(baseBits[i]) + carry;
+        twosComp = (sum % 2) + twosComp;
+        carry = Math.floor(sum / 2);
+    }
+    const twosCompWithSign = input >= 0 ? '0' + absBinary : '1' + twosComp;
+
+    resultDiv.innerHTML = `
+        <strong>Input Number:</strong> ${input} <br><br>
+        <strong>Signed-Magnitude (8 bits):</strong> ${signedMagnitude} <br>
+        <strong>1's Complement (8 bits):</strong> ${onesCompWithSign} <br>
+        <strong>2's Complement (8 bits):</strong> ${twosCompWithSign}
+    `;
+
+    resultDiv.style.display = 'block';
+    resultDiv.style.background = '#f0fff4';
+    resultDiv.style.borderColor = '#68d391';
+    resultDiv.style.color = '#2f855a';
+}
+
+        // Complement calculator
+        function calculateComplements() {
+            const input = document.getElementById('binaryInput').value.trim();
+            const resultDiv = document.getElementById('complementResult');
+
+            if (!input || !/^[01]+$/.test(input)) {
+                resultDiv.innerHTML = '<strong>Error:</strong> Please enter a valid binary number (0s and 1s only)';
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fed7d7';
+                resultDiv.style.borderColor = '#f56565';
+                resultDiv.style.color = '#c53030';
+                return;
+            }
+
+            // Calculate 1's complement
+            const onesComp = input.split('').map(bit => bit === '0' ? '1' : '0').join('');
+            
+            // Calculate 2's complement
+            let twosComp = '';
+            let carry = 1;
+            for (let i = onesComp.length - 1; i >= 0; i--) {
+                const sum = parseInt(onesComp[i]) + carry;
+                twosComp = (sum % 2) + twosComp;
+                carry = Math.floor(sum / 2);
+            }
+
+            resultDiv.innerHTML = `
+                <strong>Original:</strong> ${input}<br>
+                <strong>1's Complement:</strong> ${onesComp}<br>
+                <strong>2's Complement:</strong> ${twosComp}
+            `;
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#f0fff4';
+            resultDiv.style.borderColor = '#68d391';
+            resultDiv.style.color = '#2f855a';
+        }
+
+        // Enter key support for converters
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') convertNumber();
+        });
+
+        document.getElementById('binaryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateComplements();
+        });
+    </script>
+</body>
+</html>

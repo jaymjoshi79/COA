@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Arithmetic Operations - Section 10.7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .operation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .operation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .operation-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+            margin: 0 auto 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .operation-card:hover .operation-icon {
+            transform: rotate(360deg);
+        }
+
+        .operation-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .page-info {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .operation-description {
+            color: #666;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .key-points {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .key-points h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .key-points ul {
+            list-style-position: inside;
+            color: #555;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+            padding-left: 10px;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s ease;
+        }
+
+        .demo-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .calculator {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .calc-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: right;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .calc-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .calc-input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .calc-btn:hover {
+            transform: scale(1.05);
+            background: #f0f0f0;
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .info-box h3 {
+            color: #d63031;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+	  .sym .op { color: var(--accent); font-weight: 500; }
+  .sym .bar { text-decoration: overline; }
+        .info-box p {
+            color: #2d3436;
+            line-height: 1.8;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bcd-example {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .bcd-example h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .binary-display {
+            font-family: 'Courier New', monospace;
+            background: #263238;
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .operations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Decimal Arithmetic Operations</h1>
+            <p class="subtitle">BCD Arithmetic Implementation</p>
+        </header>
+
+        <div class="info-box">
+            <h3>📚 About This Page</h3>
+            <p>This page explores how computers perform arithmetic operations directly on decimal numbers using Binary-Coded Decimal (BCD) representation. Unlike standard binary arithmetic, BCD operations require special handling since carries occur at 9 (not 15), making the algorithms fundamentally different from pure binary computation.</p>
+        </div>
+
+        <div class="operations-grid">
+            <div class="operation-card">
+                <div class="operation-icon">+−</div>
+                <h2 class="operation-title">Addition & Subtraction</h2>
+                
+                <p class="operation-description">
+                    Decimal addition and subtraction require special correction algorithms. When adding BCD digits, if the sum exceeds 9, a correction of +6 must be added to generate the proper carry to the next digit position.
+                </p>
+                <div class="key-points">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Carries occur at decimal 9 (not binary 15)</li>
+                        <li>Correction factor (+6) for BCD overflow</li>
+                        <li>Digit-by-digit processing required</li>
+                        <li>Special handling for negative numbers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="operation-card">
+                <div class="operation-icon">×</div>
+                <h2 class="operation-title">Multiplication</h2>
+                
+                <p class="operation-description">
+                    Decimal multiplication employs repeated additions and shifts, similar to binary multiplication but adapted for BCD operands. Each digit multiplication must respect decimal boundaries.
+                </p>
+                <div class="key-points">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Repeated addition with shifting</li>
+                        <li>BCD digit-wise multiplication</li>
+                        <li>Partial product accumulation</li>
+                        <li>Decimal point alignment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="operation-card">
+                <div class="operation-icon">÷</div>
+                <h2 class="operation-title">Division</h2>
+                
+                <p class="operation-description">
+                    Decimal division utilizes repeated subtractions and shifts, adapted for BCD arithmetic constraints. The algorithm must maintain decimal precision throughout the quotient generation process.
+                </p>
+                <div class="key-points">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Repeated subtraction method</li>
+                        <li>BCD quotient generation</li>
+                        <li>Remainder handling in decimal</li>
+                        <li>Precision considerations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">🧮 Interactive BCD Calculator</h2>
+            <div class="calculator">
+                <div class="calc-display" id="display">0</div>
+                <div class="calc-controls">
+                    <input type="text" class="calc-input" id="num1" placeholder="First Number" value="8">
+                    <input type="text" class="calc-input" id="num2" placeholder="Second Number" value="7">
+                </div>
+                <div class="calc-buttons">
+                    <button class="calc-btn" onclick="calculate('+')">+</button>
+                    <button class="calc-btn" onclick="calculate('-')">−</button>
+                    <button class="calc-btn" onclick="calculate('*')">×</button>
+                    <button class="calc-btn" onclick="calculate('/')">÷</button>
+                </div>
+            </div>
+            
+            <div class="bcd-example" id="bcdExample" style="display:none; margin-top: 30px;">
+                <h4>BCD Representation:</h4>
+                <div class="binary-display" id="bcdDisplay"></div>
+                <p style="margin-top: 15px; color: #555;">Each decimal digit is encoded in 4 bits (0000-1001)</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">💡BCD Register Microoperations</h2>
+            <div class="bcd-example">
+                <table>
+      <thead>
+        <tr>
+          <th>Symbolic Designation</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sym"><span class="op">A</span> ← <span class="op">A</span> + <span class="op">B</span></span></td>
+          <td class="desc">Add decimal numbers and transfer sum into <strong>A</strong></td>
+        </tr>
+        <tr>
+          <td><span class="sym"><span class="bar op">B</span></span></td>
+          <td class="desc">9's complement of <strong>B</strong></td>
+        </tr>
+        <tr>
+          <td><span class="sym"><span class="op">A</span> ← <span class="op">A</span> + <span class="bar op">B</span> + 1</span></td>
+          <td class="desc">Content of <strong>A</strong> plus 10's complement of <strong>B</strong> </td>
+        </tr>
+        <tr>
+          <td><span class="sym"><span class="op">Q<sub>L</sub></span> ← <span class="op">Q<sub>L</sub></span> + 1</span></td>
+          <td class="desc">Increment BCD number in <strong>Q<sub>L</sub></strong></td>
+        </tr>
+        <tr>
+          <td><span class="sym">dshr <span class="op">A</span></span></td>
+          <td class="desc">Decimal shift-right register <strong>A</strong></td>
+        </tr>
+        <tr>
+          <td><span class="sym">dshl <span class="op">A</span></span></td>
+          <td class="desc">Decimal shift-left register <strong>A</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="decimal_addition_page.html" style="text-decoration: none;" class="btn btn-primary">Decimal Addition Methods</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function calculate(operation) {
+            const num1 = parseFloat(document.getElementById('num1').value) || 0;
+            const num2 = parseFloat(document.getElementById('num2').value) || 0;
+            let result;
+
+            switch(operation) {
+                case '+':
+                    result = num1 + num2;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    break;
+                case '/':
+                    result = num2 !== 0 ? num1 / num2 : 'Error';
+                    break;
+            }
+
+            document.getElementById('display').textContent = 
+                typeof result === 'number' ? result.toFixed(2) : result;
+
+            showBCDRepresentation(num1, num2, result, operation);
+        }
+
+        function showBCDRepresentation(num1, num2, result, op) {
+            const bcdExample = document.getElementById('bcdExample');
+            const bcdDisplay = document.getElementById('bcdDisplay');
+            
+            const toBCD = (num) => {
+                const absNum = Math.abs(Math.floor(num));
+                return absNum.toString().split('').map(d => 
+                    parseInt(d).toString(2).padStart(4, '0')
+                ).join(' ');
+            };
+
+            if (typeof result === 'number' && !isNaN(result)) {
+                const bcd1 = toBCD(num1);
+                const bcd2 = toBCD(num2);
+                const bcdResult = toBCD(result);
+
+                bcdDisplay.innerHTML = `
+Decimal:  ${num1} ${op} ${num2} = ${result.toFixed(2)}
+
+<br><br>BCD Input 1:  ${bcd1}
+<br>BCD Input 2:  ${bcd2}
+<br>BCD Result:   ${bcdResult}
+
+<br><br>Note: This is a simplified representation.
+<br>Real BCD arithmetic includes carry correction!
+                `;
+                bcdExample.style.display = 'block';
+            }
+        }
+
+        // Initialize with a calculation
+        calculate('+');
+    </script>
+</body>
+</html>

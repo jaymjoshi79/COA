@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interprocessor Arbitration - Section 13.3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.6em;
+            flex: 1;
+        }
+
+        .toggle-icon {
+            color: #667eea;
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+
+        .section-content.active {
+            max-height: 2000px;
+            padding-top: 20px;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .visual-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px dashed #667eea;
+        }
+
+        .processor-box {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            margin: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .processor-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .processor-box.active {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .bus-line {
+            height: 4px;
+            background: #667eea;
+            margin: 20px 0;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bus-signal {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: #11998e;
+            border-radius: 2px;
+            animation: busSignal 2s linear infinite;
+        }
+
+        @keyframes busSignal {
+            0% { left: -20px; }
+            100% { left: 100%; }
+        }
+
+        .key-points {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .key-points ul {
+            margin-left: 20px;
+        }
+
+        .key-points li {
+            margin: 8px 0;
+        }
+
+        .interactive-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .interactive-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-text {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.8;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .demo-status {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e7f3ff;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Interprocessor Arbitration</h1>
+            <p class="subtitle">Section 13.3 | Multiprocessor Systems</p>
+        </header>
+
+        <div class="intro-text">
+            <strong class="highlight">Interprocessor Arbitration</strong> manages access to shared resources in multiprocessor systems. When multiple processors compete for the system bus, arbitration logic ensures orderly, fair, and efficient access—preventing conflicts and maintaining system stability.
+        </div>
+
+        <!-- System Bus Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(0)">
+                <div class="section-number">1</div>
+                <h2>System Bus Architecture</h2>
+                <span class="toggle-icon" id="icon-0">▼</span>
+            </div>
+            <div class="section-content" id="content-0">
+                <p>The <strong>System Bus</strong> is the shared communication highway connecting all processors and memory modules in a multiprocessor system. Since only one processor can use the bus at any given time, arbitration mechanisms are essential.</p>
+                
+                <div class="visual-demo">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">System Bus Visualization</h3>
+                    <div class="processor-box">P1</div>
+                    <div class="processor-box">P2</div>
+                    <div class="processor-box">P3</div>
+                    <div class="processor-box">P4</div>
+                    <div class="bus-line">
+                        <div class="bus-signal"></div>
+                    </div>
+                    <p style="margin-top: 15px; color: #666;">Shared System Bus (Watch the signal flow)</p>
+                </div>
+
+                <div class="key-points">
+                    <strong>Key Characteristics:</strong>
+                    <ul>
+                        <li>Time-shared common bus architecture</li>
+                        <li>Single communication line for all processors</li>
+                        <li>Includes request and grant control signals</li>
+                        <li>Prevents simultaneous access conflicts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serial Arbitration Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(1)">
+                <div class="section-number">2</div>
+                <h2>Serial Arbitration (Daisy Chain)</h2>
+                <span class="toggle-icon" id="icon-1">▼</span>
+            </div>
+            <div class="section-content" id="content-1">
+                <p>In <strong>Serial Arbitration</strong>, bus grant signals propagate sequentially through a priority chain. The first requesting processor to receive the grant captures it, blocking further propagation.</p>
+
+                <div class="concept-box">
+                    <div class="concept-title">How It Works:</div>
+                    Processors are connected in a priority chain (daisy chain). When the bus is requested, the grant signal travels down the chain. The first requesting processor blocks the signal, gaining bus control.
+                </div>
+
+                <div class="visual-demo">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">Interactive Serial Arbitration Demo</h3>
+                    <div id="serial-demo">
+                        <div class="processor-box" onclick="requestBus(0)" id="p0">P1<br>(High)</div>
+                        <span style="font-size: 2em; color: #667eea;">→</span>
+                        <div class="processor-box" onclick="requestBus(1)" id="p1">P2</div>
+                        <span style="font-size: 2em; color: #667eea;">→</span>
+                        <div class="processor-box" onclick="requestBus(2)" id="p2">P3</div>
+                        <span style="font-size: 2em; color: #667eea;">→</span>
+                        <div class="processor-box" onclick="requestBus(3)" id="p3">P4<br>(Low)</div>
+                    </div>
+                    <button class="interactive-btn" onclick="resetDemo()">Reset Demo</button>
+                    <div class="demo-status" id="serial-status">Click any processor to request bus access</div>
+                </div>
+
+                <div class="key-points">
+                    <strong>Advantages & Disadvantages:</strong>
+                    <ul>
+                        <li>✅ Simple hardware implementation</li>
+                        <li>✅ Low cost (minimal control lines)</li>
+                        <li>❌ Slower due to signal propagation delay</li>
+                        <li>❌ Fixed priority favors earlier processors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parallel Arbitration Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(2)">
+                <div class="section-number">3</div>
+                <h2>Parallel Arbitration Logic</h2>
+                <span class="toggle-icon" id="icon-2">▼</span>
+            </div>
+            <div class="section-content" id="content-2">
+                <p><strong>Parallel Arbitration</strong> uses a central arbiter with combinational logic to resolve conflicts instantly. All processors send requests simultaneously to the arbiter, which grants access to the highest-priority requester.</p>
+
+                <div class="concept-box">
+                    <div class="concept-title">Architecture:</div>
+                    A central arbitration module receives all requests simultaneously. Using encoders, comparators, and decoders, it determines the highest-priority requester and issues a grant signal immediately—much faster than serial methods.
+                </div>
+
+                <div class="visual-demo">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">Parallel Arbitration Structure</h3>
+                    <div style="display: flex; justify-content: space-around; align-items: center;">
+                        <div>
+                            <div class="processor-box">P1</div>
+                            <div class="processor-box">P2</div>
+                            <div class="processor-box">P3</div>
+                            <div class="processor-box">P4</div>
+                        </div>
+                        <div style="font-size: 3em; color: #667eea;">⇨</div>
+                        <div style="background: linear-gradient(135deg, #11998e, #38ef7d); padding: 30px; border-radius: 15px; color: white; font-weight: bold;">
+                            CENTRAL<br>ARBITER<br>MODULE
+                        </div>
+                        <div style="font-size: 3em; color: #667eea;">⇨</div>
+                        <div class="processor-box active">Winner</div>
+                    </div>
+                    <p style="margin-top: 20px; color: #666;">All requests evaluated simultaneously by central logic</p>
+                </div>
+
+                <div class="key-points">
+                    <strong>Advantages & Disadvantages:</strong>
+                    <ul>
+                        <li>✅ Very fast arbitration (no propagation delay)</li>
+                        <li>✅ Immediate conflict resolution</li>
+                        <li>❌ More complex hardware (encoders/decoders)</li>
+                        <li>❌ Requires more control lines</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Arbitration Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(3)">
+                <div class="section-number">4</div>
+                <h2>Dynamic Arbitration Algorithms</h2>
+                <span class="toggle-icon" id="icon-3">▼</span>
+            </div>
+            <div class="section-content" id="content-3">
+                <p><strong>Dynamic Arbitration</strong> goes beyond fixed priorities, adjusting priorities based on system state to ensure fairness and optimize performance.</p>
+
+                <div class="concept-box">
+                    <div class="concept-title">Priority Adjustment Strategies:</div>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Time-Based:</strong> Processors waiting longer receive higher priority</li>
+                        <li><strong>Round-Robin:</strong> Priority rotates cyclically to prevent starvation</li>
+                        <li><strong>Need-Based:</strong> Critical transactions get temporary priority boost</li>
+                    </ul>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Algorithm Type</th>
+                            <th>Priority Basis</th>
+                            <th>Best Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Time-Since-Access</strong></td>
+                            <td>Waiting time</td>
+                            <td>Fair resource distribution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Round-Robin</strong></td>
+                            <td>Cyclic rotation</td>
+                            <td>Equal processor importance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Need-Based</strong></td>
+                            <td>Transaction type</td>
+                            <td>Real-time or I/O-heavy systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="key-points">
+                    <strong>Implementation Requirements:</strong>
+                    <ul>
+                        <li>Sophisticated control hardware</li>
+                        <li>Counters to track access history</li>
+                        <li>Logic to modify priorities dynamically</li>
+                        <li>Prevents bus monopolization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(4)">
+                <div class="section-number">📊</div>
+                <h2>Method Comparison</h2>
+                <span class="toggle-icon" id="icon-4">▼</span>
+            </div>
+            <div class="section-content" id="content-4">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Serial Arbitration</th>
+                            <th>Parallel Arbitration</th>
+                            <th>Dynamic Arbitration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Slow (propagation delay)</td>
+                            <td>Fast (instant)</td>
+                            <td>Medium (computation overhead)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hardware Complexity</strong></td>
+                            <td>Simple</td>
+                            <td>Moderate</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fairness</strong></td>
+                            <td>Poor (fixed priority)</td>
+                            <td>Poor (fixed priority)</td>
+                            <td>Excellent (adaptive)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cost</strong></td>
+                            <td>Low</td>
+                            <td>Medium</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Small, low-cost systems</td>
+                            <td>High-performance systems</td>
+                            <td>Fair, balanced workloads</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        let busGranted = false;
+
+        function requestBus(processorId) {
+            if (busGranted) {
+                resetDemo();
+                return;
+            }
+
+            const statusEl = document.getElementById('serial-status');
+            const processor = document.getElementById(`p${processorId}`);
+            
+            processor.classList.add('active');
+            busGranted = true;
+            statusEl.textContent = `Bus granted to Processor ${processorId + 1}! (Highest priority requester in chain)`;
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+
+            if (processorId < 3) {
+                statusEl.textContent += ` - Lower priority processors blocked.`;
+            }
+        }
+
+        function resetDemo() {
+            busGranted = false;
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`p${i}`).classList.remove('active');
+            }
+            document.getElementById('serial-status').textContent = 'Click any processor to request bus access';
+            document.getElementById('serial-status').style.background = '#e7f3ff';
+            document.getElementById('serial-status').style.color = '#667eea';
+        }
+
+        // Auto-expand first section
+        window.onload = function() {
+            toggleSection(0);
+        };
+    </script>
+</body>
+</html>

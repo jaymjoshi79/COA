@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Reference Instructions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .intro-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .intro-section h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .intro-section p {
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .code-highlight {
+            background: #2d3748;
+            color: #68d391;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .instruction-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .instruction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .instruction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .instruction-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .instruction-symbol {
+            font-family: 'Courier New', monospace;
+            background: #764ba2;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .instruction-desc {
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .operation {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            color: #2d3748;
+            border-left: 3px solid #667eea;
+        }
+
+        .tab-container {
+            margin: 30px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #fdcb6e;
+        }
+
+        .info-box strong {
+            color: #d63031;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .logical { background: #a29bfe; color: white; }
+        .shift { background: #fd79a8; color: white; }
+        .control { background: #00b894; color: white; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .instruction-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Register Reference Instructions</h1>
+        
+        <div class="intro-section">
+            <h2>Overview</h2>
+            <p>Register-reference instructions are recognized by the control when <span class="code-highlight">D₇ = 1</span> and <span class="code-highlight">I = 0</span>. These instructions use bits 0 through 11 of the instruction code to specify one of 12 instructions.</p>
+            <p style="margin-top: 15px;">The 12 bits are available in <span class="code-highlight">IR(0-11)</span> and are transferred to <span class="code-highlight">AR</span> during timing <span class="code-highlight">T₂</span>.</p>
+        </div>
+
+        <div class="info-box">
+            <strong>Key Concept:</strong> The control functions and microoperations are executed with the clock transition associated with timing signal <span class="code-highlight">T₃</span>. The Boolean relation <span class="code-highlight">D₇I'T₃</span> is used for convenience, where <span class="code-highlight">r</span> designates the symbol for a register-reference instruction. The 12 bits contained in <span class="code-highlight">IR(0-11)</span> are denoted by the symbols <span class="code-highlight">B₀</span> through <span class="code-highlight">B₁₁</span>.
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('all')">All Instructions</button>
+                <button class="tab" onclick="showTab('logical')">Logical Operations</button>
+                <button class="tab" onclick="showTab('shift')">Shift Operations</button>
+                <button class="tab" onclick="showTab('control')">Control Operations</button>
+            </div>
+
+            <div id="all" class="tab-content active">
+                <div class="instruction-grid" id="allGrid"></div>
+            </div>
+
+            <div id="logical" class="tab-content">
+                <div class="instruction-grid" id="logicalGrid"></div>
+            </div>
+
+            <div id="shift" class="tab-content">
+                <div class="instruction-grid" id="shiftGrid"></div>
+            </div>
+
+            <div id="control" class="tab-content">
+                <div class="instruction-grid" id="controlGrid"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); padding: 25px; border-radius: 15px;">
+            <h3 style="color: #764ba2; margin-bottom: 15px;">📝 Important Notes</h3>
+            <ul style="line-height: 2; margin-left: 20px; color: #2d3748;">
+                <li>The AC is <strong>positive</strong> when the sign bit is 0</li>
+                <li>AC(15) = 1 if negative, AC(15) = 0 if positive</li>
+                <li>The HLT instruction clears a start-stop flip-flop S and stops the sequence counter from continuing</li>
+                <li>All register operations are performed during timing signal T₃</li>
+            </ul>
+        </div>
+    </div>
+	 <div class="topic-actions">
+    <a href="io_config_webpage.html" class="btn btn-primary">
+        Start Input Output Configuration
+    </a>
+</div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+
+    <script>
+        const instructions = [
+            {
+                name: "CLA",
+                symbol: "rB₁₁",
+                operation: "AC ← 0",
+                description: "Clear AC ⇒ Clears all bits in the Accumulator",
+                category: "logical"
+            },
+            {
+                name: "CLE",
+                symbol: "rB₁₀",
+                operation: "E ← 0",
+                description: "Clear E ⇒ Clears the E flip-flop",
+                category: "logical"
+            },
+            {
+                name: "CMA",
+                symbol: "rB₉",
+                operation: "AC ← AC'",
+                description: "Complement AC ⇒ Takes the 1's complement of the Accumulator",
+                category: "logical"
+            },
+            {
+                name: "CME",
+                symbol: "rB₈",
+                operation: "E ← E'",
+                description: "Complement E ⇒ Complements the E flip-flop",
+                category: "logical"
+            },
+            {
+                name: "CIR",
+                symbol: "rB₇",
+                operation: "AC ← shr AC, AC(15)←E, E←AC(0)",
+                description: "Circulate right ⇒ Shifts AC right with E as the most significant bit",
+                category: "shift"
+            },
+            {
+                name: "CIL",
+                symbol: "rB₆",
+                operation: "AC ← shl AC, AC(0)←E, E←AC(15)",
+                description: "Circulate left ⇒ Shifts AC left with E as the least significant bit",
+                category: "shift"
+            },
+            {
+                name: "INC",
+                symbol: "rB₅",
+                operation: "AC ← AC + 1",
+                description: "Increment AC ⇒ Adds 1 to the Accumulator",
+                category: "logical"
+            },
+            {
+                name: "SPA",
+                symbol: "rB₄",
+                operation: "If (AC(15) = 0) then<br> (PC ← PC + 1)",
+                description: "Skip if positive AC ⇒ Increments PC if AC is positive",
+                category: "control"
+            },
+            {
+                name: "SNA",
+                symbol: "rB₃",
+                operation: "If (AC(15) = 1) then<br> (PC ← PC + 1)",
+                description: "Skip if negative AC ⇒ Increments PC if AC is negative",
+                category: "control"
+            },
+            {
+                name: "SZA",
+                symbol: "rB₂",
+                operation: "If (AC = 0) then<br> (PC ← PC + 1)",
+                description: "Skip if zero AC ⇒ Increments PC if AC is zero",
+                category: "control"
+            },
+            {
+                name: "SZE",
+                symbol: "rB₁",
+                operation: "If (E = 0) then<br> (PC ← PC + 1)",
+                description: "Skip if zero E ⇒ Increments PC if E is zero",
+                category: "control"
+            },
+            {
+                name: "HLT",
+                symbol: "rB₀",
+                operation: "S ← 0",
+                description: "Halt computer ⇒ Stops the computer by clearing the start-stop flip-flop",
+                category: "control"
+            }
+        ];
+
+        function createInstructionCard(instr) {
+            const categoryClass = instr.category;
+            return `
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-name">${instr.name}</div>
+                        <div class="instruction-symbol">${instr.symbol}</div>
+                    </div>
+                    <div class="operation">${instr.operation}</div>
+                    <div class="instruction-desc">${instr.description}</div>
+                    <span class="category-badge ${categoryClass}">${instr.category.toUpperCase()}</span>
+                </div>
+            `;
+        }
+
+        function renderInstructions() {
+            const allGrid = document.getElementById('allGrid');
+            const logicalGrid = document.getElementById('logicalGrid');
+            const shiftGrid = document.getElementById('shiftGrid');
+            const controlGrid = document.getElementById('controlGrid');
+
+            allGrid.innerHTML = instructions.map(createInstructionCard).join('');
+            logicalGrid.innerHTML = instructions.filter(i => i.category === 'logical').map(createInstructionCard).join('');
+            shiftGrid.innerHTML = instructions.filter(i => i.category === 'shift').map(createInstructionCard).join('');
+            controlGrid.innerHTML = instructions.filter(i => i.category === 'control').map(createInstructionCard).join('');
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        renderInstructions();
+    </script>
+</body>
+</html>

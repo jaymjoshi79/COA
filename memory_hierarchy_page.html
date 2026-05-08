@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Hierarchy - Section 12-1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subtitle {
+            color: #667eea;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .intro-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section:nth-child(1) { animation-delay: 0.2s; }
+        .section:nth-child(2) { animation-delay: 0.4s; }
+        .section:nth-child(3) { animation-delay: 0.6s; }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .component-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .component-card:hover::before {
+            left: 100%;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .component-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .component-title {
+            font-size: 1.3rem;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pyramid-container {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .pyramid-level {
+            width: 100%;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .pyramid-level:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .level-1 {
+            width: 40%;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .level-2 {
+            width: 65%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.4);
+        }
+
+        .level-3 {
+            width: 90%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .level-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .level-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .info-popup {
+            display: none;
+            position: absolute;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            max-width: 300px;
+            color: #2d3748;
+            border: 2px solid #667eea;
+        }
+
+        .pyramid-level:hover .info-popup {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s ease;
+        }
+
+        tr:hover td {
+            background: #f7fafc;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .stat-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            flex: 1;
+            min-width: 150px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border-left: 5px solid #00acc1;
+            transition: all 0.3s ease;
+        }
+
+        .key-point:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 172, 193, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .pyramid-level {
+                width: 90% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Memory Hierarchy</h1>
+            <p class="subtitle">Memory Organization</p>
+            
+        </header>
+
+        <div class="intro-box">
+            <h2 style="color: white; margin-bottom: 1rem;">📚 What is Memory Hierarchy?</h2>
+            <p>The memory hierarchy is the organizational structure of memory devices in a computer system that addresses the critical trade-off between <strong>memory speed</strong>, <strong>storage capacity</strong>, and <strong>cost</strong>. This intelligent design ensures rapid access to frequently needed data while maintaining the ability to store vast amounts of information economically.</p>
+        </div>
+
+        <section class="section">
+            <h2><span class="icon">🔧</span>Key Components</h2>
+            <div class="components-grid">
+                <div class="component-card">
+                    <div class="component-number">1</div>
+                    <div class="component-title">Cache Memory</div>
+                    <p>Fastest access time with smallest capacity. Stores the most active data and instructions needed immediately by the CPU.</p>
+                </div>
+                <div class="component-card">
+                    <div class="component-number">2</div>
+                    <div class="component-title">Main Memory</div>
+                    <p>Intermediate speed and capacity. Holds programs and data currently being executed using RAM techniques.</p>
+                </div>
+                <div class="component-card">
+                    <div class="component-number">3</div>
+                    <div class="component-title">Auxiliary Memory</div>
+                    <p>Slowest access but largest capacity and lowest cost per bit. Used for permanent storage of inactive data.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><span class="icon">📊</span>The Inverted Pyramid Model</h2>
+            <div class="pyramid-container">
+                <p style="text-align: center; margin-bottom: 1rem; color: #4a5568; font-weight: 600;">Hover over each level to learn more</p>
+                <div class="pyramid">
+                    <div class="pyramid-level level-1">
+                        <div class="level-title">Cache Memory</div>
+                        <div class="level-subtitle">Closest to CPU | Fastest | Smallest</div>
+                        <div class="info-popup">
+                            <strong>⚡ Ultra-Fast Access</strong><br>
+                            Minimizes processing delays by storing the most active data and instructions
+                        </div>
+                    </div>
+                    <div class="pyramid-level level-2">
+                        <div class="level-title">Main Memory (RAM)</div>
+                        <div class="level-subtitle">Intermediate | Moderate Size</div>
+                        <div class="info-popup">
+                            <strong>⚖️ Balanced Performance</strong><br>
+                            Holds currently executing programs with random access capabilities
+                        </div>
+                    </div>
+                    <div class="pyramid-level level-3">
+                        <div class="level-title">Auxiliary Memory</div>
+                        <div class="level-subtitle">Farthest from CPU | Largest | Most Economical</div>
+                        <div class="info-popup">
+                            <strong>💾 Mass Storage</strong><br>
+                            Permanent storage solution with lowest cost per bit
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><span class="icon">📈</span>Hierarchy Characteristics</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Component</th>
+                        <th>Access Speed</th>
+                        <th>Capacity</th>
+                        <th>Cost per Bit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="highlight">Top</span></td>
+                        <td>Cache Memory</td>
+                        <td>⚡ Fastest</td>
+                        <td>Smallest</td>
+                        <td>Highest</td>
+                    </tr>
+                    <tr>
+                        <td><span class="highlight">Middle</span></td>
+                        <td>Main Memory</td>
+                        <td>🔄 Intermediate</td>
+                        <td>Medium</td>
+                        <td>Moderate</td>
+                    </tr>
+                    <tr>
+                        <td><span class="highlight">Bottom</span></td>
+                        <td>Auxiliary Memory</td>
+                        <td>🐢 Slowest</td>
+                        <td>Largest</td>
+                        <td>Lowest</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2><span class="icon">💡</span>Key Principles</h2>
+            
+            <div class="key-point">
+                <strong>🎯 Speed vs. Capacity Trade-off</strong><br>
+                As you move down the hierarchy, access speed decreases while storage capacity increases. This design maximizes system efficiency by placing fast but expensive memory close to the CPU.
+            </div>
+
+            <div class="key-point">
+                <strong>💰 Cost Optimization</strong><br>
+                The cost per bit decreases as you move down the hierarchy. This allows systems to combine small amounts of expensive fast memory with large amounts of affordable slow memory.
+            </div>
+
+            <div class="key-point">
+                <strong>🔄 Memory Management</strong><br>
+                Specialized hardware enables efficient data movement between hierarchy levels, ensuring the processor receives data when needed while maintaining overall system performance.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><span class="icon">🎓</span>Learning Objectives</h2>
+            <div class="stat-box">
+                <div class="stat">
+                    <div class="stat-icon">🏗️</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Main Levels</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-icon">⚖️</div>
+                    <div class="stat-value">Balance</div>
+                    <div class="stat-label">Speed & Cost</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value">Efficient</div>
+                    <div class="stat-label">Data Access</div>
+                </div>
+            </div>
+        </section>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="main_memory_webpage.html" style="text-decoration: none;" class="btn btn-primary">Main Memory</a>
+                
+        </div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <div class="footer">
+            <p style="margin-top: 0.5rem;"> © Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware for Signed-Magnitude Addition & Subtraction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .section {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+        .section:nth-child(6) { animation-delay: 0.6s; }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+            border-left-width: 6px;
+        }
+
+        .component-card h4 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid #cbd5e0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .example-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+        }
+
+        .calculation {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 1.1em;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffd89b 0%, #19547b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .advantage-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .advantage-list li {
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-radius: 10px;
+            border-left: 4px solid #48bb78;
+            transition: all 0.3s ease;
+        }
+
+        .advantage-list li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.2);
+        }
+
+        .interactive-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+	
+	
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 25px;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hardware for Signed-Magnitude Addition & Subtraction</h1>
+            <p class="subtitle">Understanding Digital Arithmetic Operations in Computer Systems</p>
+        </header>
+
+        <div class="section">
+            <h2>📚 Introduction</h2>
+            <p>In digital systems, arithmetic operations such as <strong>addition</strong> and <strong>subtraction</strong> are fundamental. The hardware implementation of these operations requires special handling when dealing with signed numbers (positive and negative values).</p>
+            <p style="margin-top: 15px;">The hardware efficiently performs operations by utilizing registers, adders, complementers, and control logic to decide between addition and subtraction.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Hardware</h2>
+	    <center><img src="signed_hardware.png" alt="Signed Magnitude Hardware" width="800px"></center>
+            <div class="component-grid">
+                <div class="component-card">
+                    <h4>📦 Registers (A & B)</h4>
+                    <p>Store the magnitudes of operands. Register A holds one operand while Register B holds the second operand.</p>
+                </div>
+                <div class="component-card">
+                    <h4>🔀 Sign Flip-Flops</h4>
+                    <p>Store sign bits (As, Bs) where 0 = positive and 1 = negative. Essential for determining operation type.</p>
+                </div>
+                <div class="component-card">
+                    <h4>🔄 Complementer</h4>
+                    <p>Forms the 2's complement of Register B. Controlled by mode signal M (M=0: pass through, M=1: complement).</p>
+                </div>
+                <div class="component-card">
+                    <h4>➕ Parallel Adder</h4>
+                    <p>Adds contents of Register A and (possibly complemented) Register B, producing the sum S.</p>
+                </div>
+                <div class="component-card">
+                    <h4>📤 Output Carry (E)</h4>
+                    <p>Holds carry-out from addition. Used for comparison and overflow detection.</p>
+                </div>
+                <div class="component-card">
+                    <h4>⚠️ Overflow Flip-Flop</h4>
+                    <p>AVF stores overflow bit when A and B are added, helping detect arithmetic overflow conditions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ Working Principle</h2>
+            
+            <div class="mode-toggle">
+                <button class="mode-btn active" onclick="showMode('add')">Addition Mode (M=0)</button>
+                <button class="mode-btn" onclick="showMode('sub')">Subtraction Mode (M=1)</button>
+            </div>
+
+            <div id="addMode">
+                <h3>Addition Mode (M = 0)</h3>
+                <ul style="padding-left: 20px; margin-top: 15px;">
+                    <li>✓ Complementer passes <strong>B</strong> directly to the adder</li>
+                    <li>✓ Input carry is set to <strong>0</strong></li>
+                    <li>✓ Adder computes: <span class="highlight">S = A + B</span></li>
+                    <li>✓ Result stored back in Register A</li>
+                    <li>✓ AVF flip-flop holds overflow information</li>
+                </ul>
+            </div>
+
+            <div id="subMode" style="display: none;">
+                <h3>Subtraction Mode (M = 1)</h3>
+                <ul style="padding-left: 20px; margin-top: 15px;">
+                    <li>✓ Complementer generates <strong>1's complement of B</strong></li>
+                    <li>✓ Input carry of <strong>1</strong> added to form 2's complement</li>
+                    <li>✓ Adder computes: <span class="highlight">S = A + B̄ + 1 = A - B</span></li>
+                    <li>✓ Equivalent to subtraction using 2's complement method</li>
+                    <li>✓ Output carry stored in E to determine magnitude relationship</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Interactive Calculator</h2>
+            <div class="interactive-demo">
+                <div class="input-group">
+                    <label>Register A (Binary):</label>
+                    <input type="text" id="regA" placeholder="e.g., 0101" maxlength="8">
+                </div>
+                <div class="input-group">
+                    <label>Register B (Binary):</label>
+                    <input type="text" id="regB" placeholder="e.g., 0011" maxlength="8">
+                </div>
+                <div class="mode-toggle">
+                    <button class="mode-btn" onclick="calculate('add')">Calculate Addition</button>
+                    <button class="mode-btn" onclick="calculate('sub')">Calculate Subtraction</button>
+                </div>
+                <div class="result-display" id="result">Enter values and click a button</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Example Operations</h2>
+            
+            <div class="example-box">
+                <h3>Example 1: Addition (M = 0)</h3>
+                <p><span class="info-badge">Input</span> A = 0101 (5), B = 0011 (3)</p>
+                <div class="calculation">
+                    0101 + 0011 = 1000
+                </div>
+                <p><span class="info-badge">Result</span> 1000 (8) stored in Register A</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example 2: Subtraction (M = 1)</h3>
+                <p><span class="info-badge">Input</span> A = 0101 (5), B = 0011 (3)</p>
+                <div class="calculation">
+                    Step 1: 1's complement of B = 1100<br>
+                    Step 2: Add carry = 1 → 1101 (2's complement)<br>
+                    Step 3: 0101 + 1101 = 10010
+                </div>
+                <p><span class="info-badge">Result</span> 0010 (2), carry ignored. A - B = 2</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✨ Design Advantages</h2>
+            <ul class="advantage-list">
+                <li>🔹 <strong>Efficient hardware utilization</strong> – Only one adder and one complementer required</li>
+                <li>🔹 <strong>Dual functionality</strong> – Handles both addition and subtraction using same circuitry</li>
+                <li>🔹 <strong>Overflow detection</strong> – Built-in through AVF flip-flop</li>
+                <li>🔹 <strong>Comparison capability</strong> – Output carry indicates magnitude relationship (A ≥ B or A < B)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>📝 Summary</h2>
+            <p>The hardware efficiently performs signed-magnitude <strong>addition and subtraction</strong> through the coordinated use of:</p>
+            <ul style="padding-left: 20px; margin-top: 15px; line-height: 2;">
+                <li>✓ Registers for operand storage</li>
+                <li>✓ Complementer for 2's complement operations</li>
+                <li>✓ Parallel adder for arithmetic calculations</li>
+                <li>✓ Flip-flops for sign, overflow, and carry detection</li>
+            </ul>
+            <p style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%); border-radius: 10px; border-left: 4px solid #f39c12;">
+                <strong>💡 Key Takeaway:</strong> This setup forms the foundation of computer arithmetic, illustrating how operations in a CPU or ALU are structured in modern digital systems.
+            </p>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="signed_arithmetic_guide.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Algorithm of Signed Magnitude Arithmetic</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            © Dr. Jay M. Joshi
+
+    </div>
+
+    </div>
+
+    <script>
+        function showMode(mode) {
+            const addMode = document.getElementById('addMode');
+            const subMode = document.getElementById('subMode');
+            const buttons = document.querySelectorAll('.mode-toggle .mode-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            if (mode === 'add') {
+                addMode.style.display = 'block';
+                subMode.style.display = 'none';
+                buttons[0].classList.add('active');
+            } else {
+                addMode.style.display = 'none';
+                subMode.style.display = 'block';
+                buttons[1].classList.add('active');
+            }
+        }
+
+        function calculate(operation) {
+            const regA = document.getElementById('regA').value.trim();
+            const regB = document.getElementById('regB').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            if (!/^[01]+$/.test(regA) || !/^[01]+$/.test(regB)) {
+                resultDiv.textContent = '⚠️ Please enter valid binary numbers (0s and 1s only)';
+                return;
+            }
+
+            const decA = parseInt(regA, 2);
+            const decB = parseInt(regB, 2);
+            let result, binary;
+
+            if (operation === 'add') {
+                result = decA + decB;
+                binary = result.toString(2);
+                resultDiv.innerHTML = `✅ Addition: ${regA} + ${regB} = <strong>${binary}</strong> (Decimal: ${result})`;
+            } else {
+                result = decA - decB;
+                binary = result >= 0 ? result.toString(2) : '(Negative: ' + Math.abs(result) + ')';
+                resultDiv.innerHTML = `✅ Subtraction: ${regA} - ${regB} = <strong>${binary}</strong> (Decimal: ${result})`;
+            }
+        }
+
+        // Add hover effects to component cards
+        document.querySelectorAll('.component-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.background = 'linear-gradient(135deg, #e6f2ff 0%, #fff 100%)';
+                setTimeout(() => {
+                    this.style.background = 'linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%)';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

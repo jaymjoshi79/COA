@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Addressing Modes - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+            background-size: cover;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        /* Navigation */
+        .nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-list {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            margin: 0 0.5rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: 2px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Main Content */
+        .main {
+            padding: 4rem 0;
+        }
+
+        .intro-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .intro-section h2 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .intro-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Addressing Mode Cards */
+        .addressing-mode {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .addressing-mode.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mode-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-header:hover {
+            transform: translateX(10px);
+        }
+
+        .mode-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .mode-title {
+            font-size: 2rem;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .mode-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .mode-content.expanded {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        .mode-description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #4a5568;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .demo-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .demo-title::before {
+            content: '⚡';
+            margin-right: 0.5rem;
+        }
+
+        .code-example {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-example::before {
+            content: 'Example';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: #667eea;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: #ffd700;
+            color: #1a202c;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .memory-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .memory-cell {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .memory-cell:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .memory-cell.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .memory-address {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .memory-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #667eea;
+            margin: 1rem 0;
+            animation: pulse 2s infinite;
+        }
+
+        /* Interactive Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+	
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .input-group input {
+            padding: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-list {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .intro-section, .addressing-mode {
+                padding: 2rem;
+            }
+            
+            .memory-demo {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .hidden { display: none; }
+        .fade-in { animation: fadeInUp 0.8s ease-out; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1>CPU Addressing Modes</h1>
+                <p>Interactive Guide to Computer Architecture Fundamentals</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#overview" class="nav-link active">Overview</a></li>
+                <li class="nav-item"><a href="#immediate" class="nav-link">Immediate</a></li>
+                <li class="nav-item"><a href="#register" class="nav-link">Register</a></li>
+                <li class="nav-item"><a href="#indirect" class="nav-link">Indirect</a></li>
+                <li class="nav-item"><a href="#autoincrement" class="nav-link">Auto Inc/Dec</a></li>
+                <li class="nav-item"><a href="#direct" class="nav-link">Direct</a></li>
+                <li class="nav-item"><a href="#relative" class="nav-link">Relative</a></li>
+                <li class="nav-item"><a href="#indexed" class="nav-link">Indexed</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <section id="overview" class="intro-section">
+                <h2>What are Addressing Modes?</h2>
+                <p class="mode-description">
+                    Addressing modes define the rules for <strong>interpreting or modifying the address field of an instruction</strong> 
+                    before the operand is actually referenced. They provide programming versatility and help reduce the number of bits 
+                    needed in the addressing field.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Programming Versatility</h3>
+                        <p>Provide pointers to memory, counters for loops, and indexing capabilities for data relocation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Bit Reduction</h3>
+                        <p>Help reduce the total number of bits needed in the addressing field of instructions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Flexible Access</h3>
+                        <p>Enable various methods for selecting operands during program execution.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <div class="demo-title">Effective Address Formula</div>
+                    <div class="code-example">
+effective_address = address_part_of_instruction + content_of_CPU_register
+                    </div>
+                    <p>The effective address is the actual memory location computed based on the addressing mode used.</p>
+                </div>
+		<h2>Instruction Formate with Mode</h2>
+		<center><img src="mode_inst_format.png" alt="Format with Mode" width="600px"></center>
+            </section>
+
+            <section id="immediate" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('immediate')">
+                    <div class="mode-number">1</div>
+                    <div class="mode-title">Immediate Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The operand is <span class="highlight">specified directly in the instruction itself</span>. 
+                        This mode uses an operand field rather than an address field and is particularly useful for 
+                        initializing registers to constant values.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD #<span class="highlight" id="immediate-value">100</span>    ; Load immediate value into AC
+AC ← <span class="highlight" id="immediate-result">100</span>
+                        </div>
+                        
+                        <div class="controls">
+                            <div class="input-group">
+                                <label>Value:</label>
+                                <input type="number" id="immediate-input" value="100" onchange="updateImmediate()">
+                            </div>
+                            <button class="control-btn" onclick="simulateImmediate()">Execute</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell">
+                                <div class="memory-address">Instruction</div>
+                                <div class="memory-value">LD #<span id="instr-value">100</span></div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="memory-cell" id="accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="register" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('register')">
+                    <div class="mode-number">2</div>
+                    <div class="mode-title">Register Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The address field specifies a <span class="highlight">processor register</span>. 
+                        The operands reside within the CPU. A k-bit field can specify any of 2^k registers.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD R<span class="highlight" id="reg-num">1</span>       ; Load from register R1
+AC ← R<span class="highlight" id="reg-source">1</span>  ; AC = <span id="reg-result">250</span>
+                        </div>
+
+                        <div class="controls">
+                            <div class="input-group">
+                                <label>Register:</label>
+                                <select id="register-select" onchange="updateRegister()">
+                                    <option value="1">R1 (250)</option>
+                                    <option value="2">R2 (150)</option>
+                                    <option value="3">R3 (300)</option>
+                                </select>
+                            </div>
+                            <button class="control-btn" onclick="simulateRegister()">Execute</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell">
+                                <div class="memory-address">R1</div>
+                                <div class="memory-value">250</div>
+                            </div>
+                            <div class="memory-cell">
+                                <div class="memory-address">R2</div>
+                                <div class="memory-value">150</div>
+                            </div>
+                            <div class="memory-cell">
+                                <div class="memory-address">R3</div>
+                                <div class="memory-value">300</div>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="memory-cell" id="reg-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="reg-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="indirect" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('indirect')">
+                    <div class="mode-number">3</div>
+                    <div class="mode-title">Register Indirect Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The <span class="highlight">content of the register provides the address</span> of the operand in memory. 
+                        The address field requires fewer bits to select the register than to specify the full memory address.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD (R1)      ; Load indirect via R1
+AC ← M[R1]   ; If R1=400, then AC ← M[400]
+                        </div>
+
+                        <div class="controls">
+                            <button class="control-btn" onclick="simulateIndirect()">Execute</button>
+                            <button class="control-btn" onclick="resetIndirect()">Reset</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell">
+                                <div class="memory-address">R1</div>
+                                <div class="memory-value">400</div>
+                            </div>
+                            <div class="arrow">points to</div>
+                            <div class="memory-cell" id="indirect-memory">
+                                <div class="memory-address">M[400]</div>
+                                <div class="memory-value">750</div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="memory-cell" id="indirect-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="indirect-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="autoincrement" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('autoincrement')">
+                    <div class="mode-number">4</div>
+                    <div class="mode-title">Auto Increment/Decrement Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        Similar to register indirect mode, but the <span class="highlight">register's content is incremented or decremented</span> 
+                        after access. Commonly used for accessing sequential data in tables.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD (R1)+     ; Load and auto-increment
+AC ← M[R1], R1 ← R1 + 1
+                        </div>
+
+                        <div class="controls">
+                            <button class="control-btn" onclick="simulateAutoIncrement()">Execute (R1)+</button>
+                            <button class="control-btn" onclick="simulateAutoDecrement()">Execute (R1)-</button>
+                            <button class="control-btn" onclick="resetAutoMode()">Reset</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell" id="auto-register">
+                                <div class="memory-address">R1</div>
+                                <div class="memory-value" id="auto-reg-value">500</div>
+                            </div>
+                            <div class="memory-cell" id="auto-memory-1">
+                                <div class="memory-address">M[500]</div>
+                                <div class="memory-value">100</div>
+                            </div>
+                            <div class="memory-cell" id="auto-memory-2">
+                                <div class="memory-address">M[501]</div>
+                                <div class="memory-value">200</div>
+                            </div>
+                            <div class="memory-cell" id="auto-memory-3">
+                                <div class="memory-address">M[502]</div>
+                                <div class="memory-value">300</div>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="memory-cell" id="auto-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="auto-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="direct" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('direct')">
+                    <div class="mode-number">5</div>
+                    <div class="mode-title">Direct Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The <span class="highlight">address of the operand is included as part of the instruction</span>. 
+                        The effective address is the same as the address part of the instruction.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD <span id="direct-addr">500</span>      ; Load direct from address 500
+AC ← M[<span id="direct-addr-2">500</span>]  ; AC = <span id="direct-result">850</span>
+                        </div>
+
+                        <div class="controls">
+                            <div class="input-group">
+                                <label>Address:</label>
+                                <input type="number" id="direct-input" value="500" onchange="updateDirect()">
+                            </div>
+                            <button class="control-btn" onclick="simulateDirect()">Execute</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell">
+                                <div class="memory-address">M[500]</div>
+                                <div class="memory-value">850</div>
+                            </div>
+                            <div class="memory-cell">
+                                <div class="memory-address">M[600]</div>
+                                <div class="memory-value">920</div>
+                            </div>
+                            <div class="memory-cell">
+                                <div class="memory-address">M[700]</div>
+                                <div class="memory-value">760</div>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="memory-cell" id="direct-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="direct-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="relative" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('relative')">
+                    <div class="mode-number">6</div>
+                    <div class="mode-title">Relative Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The effective address is obtained by <span class="highlight">adding the content of the Program Counter (PC) to the address part</span> 
+                        of the instruction. Allows smaller address fields for nearby memory locations.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Example</div>
+                        <div class="code-example">
+LD $<span id="rel-offset">50</span>       ; Load relative
+AC ← M[PC + <span id="rel-offset-2">50</span>]  ; If PC=200, EA=<span id="rel-ea">250</span>
+                        </div>
+
+                        <div class="controls">
+                            <div class="input-group">
+                                <label>PC:</label>
+                                <input type="number" id="pc-input" value="200" onchange="updateRelative()">
+                            </div>
+                            <div class="input-group">
+                                <label>Offset:</label>
+                                <input type="number" id="offset-input" value="50" onchange="updateRelative()">
+                            </div>
+                            <button class="control-btn" onclick="simulateRelative()">Execute</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell" id="rel-pc">
+                                <div class="memory-address">PC</div>
+                                <div class="memory-value" id="pc-value">200</div>
+                            </div>
+                            <div class="arrow">+</div>
+                            <div class="memory-cell" id="rel-offset-cell">
+                                <div class="memory-address">Offset</div>
+                                <div class="memory-value" id="offset-value">50</div>
+                            </div>
+                            <div class="arrow">=</div>
+                            <div class="memory-cell" id="rel-effective">
+                                <div class="memory-address">EA</div>
+                                <div class="memory-value" id="ea-value">250</div>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="memory-cell" id="rel-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="rel-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="indexed" class="addressing-mode">
+                <div class="mode-header" onclick="toggleMode('indexed')">
+                    <div class="mode-number">7</div>
+                    <div class="mode-title">Indexed Addressing Mode</div>
+                </div>
+                <div class="mode-content">
+                    <p class="mode-description">
+                        The <span class="highlight">content of the Index Register (XR) is added to the address part</span> 
+                        of the instruction. Useful for accessing array elements where the address field holds the base address.
+                    </p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Array Access Example</div>
+                        <div class="code-example">
+LD <span id="idx-base">500</span>(X)    ; Load indexed
+AC ← M[<span id="idx-base-2">500</span> + XR]  ; If XR=<span id="idx-reg">100</span>, EA=<span id="idx-ea">600</span>
+                        </div>
+
+                        <div class="controls">
+                            <div class="input-group">
+                                <label>Base:</label>
+                                <input type="number" id="base-input" value="500" onchange="updateIndexed()">
+                            </div>
+                            <div class="input-group">
+                                <label>Index:</label>
+                                <input type="number" id="index-input" value="100" onchange="updateIndexed()">
+                            </div>
+                            <button class="control-btn" onclick="simulateIndexed()">Execute</button>
+                            <button class="control-btn" onclick="nextArrayElement()">Next Element</button>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell" id="idx-base-cell">
+                                <div class="memory-address">Base</div>
+                                <div class="memory-value" id="base-value">500</div>
+                            </div>
+                            <div class="arrow">+</div>
+                            <div class="memory-cell" id="idx-register">
+                                <div class="memory-address">XR</div>
+                                <div class="memory-value" id="xr-value">100</div>
+                            </div>
+                            <div class="arrow">=</div>
+                            <div class="memory-cell" id="idx-effective">
+                                <div class="memory-address">EA</div>
+                                <div class="memory-value" id="idx-ea-value">600</div>
+                            </div>
+                        </div>
+
+                        <div class="memory-demo">
+                            <div class="memory-cell" id="array-0">
+                                <div class="memory-address">M[500]</div>
+                                <div class="memory-value">10</div>
+                            </div>
+                            <div class="memory-cell" id="array-1">
+                                <div class="memory-address">M[600]</div>
+                                <div class="memory-value">20</div>
+                            </div>
+                            <div class="memory-cell" id="array-2">
+                                <div class="memory-address">M[700]</div>
+                                <div class="memory-value">30</div>
+                            </div>
+                            <div class="memory-cell" id="array-3">
+                                <div class="memory-address">M[800]</div>
+                                <div class="memory-value">40</div>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="memory-cell" id="idx-accumulator">
+                                <div class="memory-address">Accumulator</div>
+                                <div class="memory-value" id="idx-ac-value">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="intro-section">
+                <h2>Summary & Comparison</h2>
+                <div class="interactive-demo">
+                    <div class="demo-title">Quick Reference Table</div>
+                    <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                                <th style="padding: 1rem; text-align: left; border-radius: 8px 0 0 0;">Mode</th>
+                                <th style="padding: 1rem; text-align: left;">Syntax</th>
+                                <th style="padding: 1rem; text-align: left;">Effective Address</th>
+                                <th style="padding: 1rem; text-align: left; border-radius: 0 8px 0 0;">Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f7fafc;">
+                                <td style="padding: 1rem; font-weight: 600;">Immediate</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD #100</td>
+                                <td style="padding: 1rem;">Operand = 100</td>
+                                <td style="padding: 1rem;">Constants</td>
+                            </tr>
+                            <tr style="background: white;">
+                                <td style="padding: 1rem; font-weight: 600;">Register</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD R1</td>
+                                <td style="padding: 1rem;">EA = R1</td>
+                                <td style="padding: 1rem;">Fast access</td>
+                            </tr>
+                            <tr style="background: #f7fafc;">
+                                <td style="padding: 1rem; font-weight: 600;">Register Indirect</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD (R1)</td>
+                                <td style="padding: 1rem;">EA = M[R1]</td>
+                                <td style="padding: 1rem;">Pointers</td>
+                            </tr>
+                            <tr style="background: white;">
+                                <td style="padding: 1rem; font-weight: 600;">Auto Increment</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD (R1)+</td>
+                                <td style="padding: 1rem;">EA = M[R1], R1++</td>
+                                <td style="padding: 1rem;">Arrays/Lists</td>
+                            </tr>
+                            <tr style="background: #f7fafc;">
+                                <td style="padding: 1rem; font-weight: 600;">Direct</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD 500</td>
+                                <td style="padding: 1rem;">EA = 500</td>
+                                <td style="padding: 1rem;">Global variables</td>
+                            </tr>
+                            <tr style="background: white;">
+                                <td style="padding: 1rem; font-weight: 600;">Relative</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD $50</td>
+                                <td style="padding: 1rem;">EA = PC + 50</td>
+                                <td style="padding: 1rem;">Branching</td>
+                            </tr>
+                            <tr style="background: #f7fafc;">
+                                <td style="padding: 1rem; font-weight: 600;">Indexed</td>
+                                <td style="padding: 1rem; font-family: monospace;">LD 500(X)</td>
+                                <td style="padding: 1rem;">EA = 500 + XR</td>
+                                <td style="padding: 1rem;">Arrays</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Performance Impact</h3>
+                        <p>Register modes are fastest, memory modes require additional cycles, indirect modes need multiple memory accesses.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Flexibility vs Speed</h3>
+                        <p>More flexible addressing modes often require more execution time but provide greater programming convenience.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Memory Efficiency</h3>
+                        <p>Some modes allow shorter instruction formats by reducing the address field size requirements.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="cpu_instructions_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning CPU Instructions</a>
+                </div>
+    </main>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+    <footer style="background: #2d3748; color: white; text-align: center; padding: 2rem 0; margin-top: 4rem;">
+	
+        <div class="container">
+            <p>&copy; Dr. Jay M. Joshi</p>
+            
+        </div>
+	
+    </footer></a>
+
+    <script>
+        // Global state
+        let currentAutoAddress = 500;
+        let currentIndexValue = 100;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up intersection observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.addressing-mode').forEach(mode => {
+                observer.observe(mode);
+            });
+
+            // Set up navigation
+            setupNavigation();
+        });
+
+        // Navigation functionality
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const target = document.getElementById(targetId);
+                    
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Update active nav item
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Update active nav on scroll
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100;
+                    if (window.pageYOffset >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Toggle mode content
+        function toggleMode(modeId) {
+            const content = document.querySelector(`#${modeId} .mode-content`);
+            content.classList.toggle('expanded');
+        }
+
+        // Immediate Mode Functions
+        function updateImmediate() {
+            const value = document.getElementById('immediate-input').value;
+            document.getElementById('immediate-value').textContent = value;
+            document.getElementById('immediate-result').textContent = value;
+            document.getElementById('instr-value').textContent = value;
+        }
+
+        function simulateImmediate() {
+            const value = document.getElementById('immediate-input').value;
+            const accumulator = document.getElementById('accumulator');
+            const acValue = document.getElementById('ac-value');
+            
+            accumulator.classList.add('active');
+            acValue.textContent = value;
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 2000);
+        }
+
+        // Register Mode Functions
+        function updateRegister() {
+            const select = document.getElementById('register-select');
+            const regNum = select.value;
+            const values = {'1': 250, '2': 150, '3': 300};
+            
+            document.getElementById('reg-num').textContent = regNum;
+            document.getElementById('reg-source').textContent = regNum;
+            document.getElementById('reg-result').textContent = values[regNum];
+        }
+
+        function simulateRegister() {
+            const select = document.getElementById('register-select');
+            const regNum = select.value;
+            const values = {'1': 250, '2': 150, '3': 300};
+            
+            const accumulator = document.getElementById('reg-accumulator');
+            const acValue = document.getElementById('reg-ac-value');
+            
+            accumulator.classList.add('active');
+            acValue.textContent = values[regNum];
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 2000);
+        }
+
+        // Indirect Mode Functions
+        function simulateIndirect() {
+            const memory = document.getElementById('indirect-memory');
+            const accumulator = document.getElementById('indirect-accumulator');
+            const acValue = document.getElementById('indirect-ac-value');
+            
+            memory.classList.add('active');
+            setTimeout(() => {
+                accumulator.classList.add('active');
+                acValue.textContent = '750';
+                memory.classList.remove('active');
+            }, 1000);
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 3000);
+        }
+
+        function resetIndirect() {
+            document.getElementById('indirect-ac-value').textContent = '0';
+            document.getElementById('indirect-accumulator').classList.remove('active');
+            document.getElementById('indirect-memory').classList.remove('active');
+        }
+
+        // Auto Increment/Decrement Functions
+        function simulateAutoIncrement() {
+            const regValue = document.getElementById('auto-reg-value');
+            const accumulator = document.getElementById('auto-accumulator');
+            const acValue = document.getElementById('auto-ac-value');
+            
+            const currentAddr = parseInt(regValue.textContent);
+            const memoryValues = {500: 100, 501: 200, 502: 300};
+            
+            // Highlight current memory location
+            const currentMemory = document.getElementById(`auto-memory-${currentAddr - 499}`);
+            if (currentMemory) {
+                currentMemory.classList.add('active');
+            }
+            
+            setTimeout(() => {
+                // Load value and increment register
+                acValue.textContent = memoryValues[currentAddr] || 0;
+                accumulator.classList.add('active');
+                regValue.textContent = currentAddr + 1;
+                
+                if (currentMemory) {
+                    currentMemory.classList.remove('active');
+                }
+            }, 1000);
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 3000);
+        }
+
+        function simulateAutoDecrement() {
+            const regValue = document.getElementById('auto-reg-value');
+            const accumulator = document.getElementById('auto-accumulator');
+            const acValue = document.getElementById('auto-ac-value');
+            
+            const currentAddr = parseInt(regValue.textContent);
+            const memoryValues = {500: 100, 501: 200, 502: 300, 499: 50};
+            
+            // Load value and decrement register
+            acValue.textContent = memoryValues[currentAddr] || 0;
+            accumulator.classList.add('active');
+            regValue.textContent = Math.max(499, currentAddr - 1);
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 2000);
+        }
+
+        function resetAutoMode() {
+            document.getElementById('auto-reg-value').textContent = '500';
+            document.getElementById('auto-ac-value').textContent = '0';
+            document.getElementById('auto-accumulator').classList.remove('active');
+            // Remove any active memory highlights
+            document.querySelectorAll('[id^="auto-memory-"]').forEach(cell => {
+                cell.classList.remove('active');
+            });
+        }
+
+        // Direct Mode Functions
+        function updateDirect() {
+            const addr = document.getElementById('direct-input').value;
+            const values = {500: 850, 600: 920, 700: 760};
+            
+            document.getElementById('direct-addr').textContent = addr;
+            document.getElementById('direct-addr-2').textContent = addr;
+            document.getElementById('direct-result').textContent = values[addr] || '???';
+        }
+
+        function simulateDirect() {
+            const addr = document.getElementById('direct-input').value;
+            const values = {500: 850, 600: 920, 700: 760};
+            
+            const accumulator = document.getElementById('direct-accumulator');
+            const acValue = document.getElementById('direct-ac-value');
+            
+            accumulator.classList.add('active');
+            acValue.textContent = values[addr] || '???';
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 2000);
+        }
+
+        // Relative Mode Functions
+        function updateRelative() {
+            const pc = parseInt(document.getElementById('pc-input').value);
+            const offset = parseInt(document.getElementById('offset-input').value);
+            const ea = pc + offset;
+            
+            document.getElementById('rel-offset').textContent = offset;
+            document.getElementById('rel-offset-2').textContent = offset;
+            document.getElementById('rel-ea').textContent = ea;
+            document.getElementById('pc-value').textContent = pc;
+            document.getElementById('offset-value').textContent = offset;
+            document.getElementById('ea-value').textContent = ea;
+        }
+
+        function simulateRelative() {
+            const pc = parseInt(document.getElementById('pc-input').value);
+            const offset = parseInt(document.getElementById('offset-input').value);
+            const ea = pc + offset;
+            
+            const pcCell = document.getElementById('rel-pc');
+            const offsetCell = document.getElementById('rel-offset-cell');
+            const eaCell = document.getElementById('rel-effective');
+            const accumulator = document.getElementById('rel-accumulator');
+            const acValue = document.getElementById('rel-ac-value');
+            
+            // Animate calculation
+            pcCell.classList.add('active');
+            setTimeout(() => {
+                offsetCell.classList.add('active');
+            }, 500);
+            
+            setTimeout(() => {
+                eaCell.classList.add('active');
+                pcCell.classList.remove('active');
+                offsetCell.classList.remove('active');
+            }, 1000);
+            
+            setTimeout(() => {
+                accumulator.classList.add('active');
+                acValue.textContent = '480'; // Example value at EA
+                eaCell.classList.remove('active');
+            }, 1500);
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+            }, 3500);
+        }
+
+        // Indexed Mode Functions
+        function updateIndexed() {
+            const base = parseInt(document.getElementById('base-input').value);
+            const index = parseInt(document.getElementById('index-input').value);
+            const ea = base + index;
+            
+            document.getElementById('idx-base').textContent = base;
+            document.getElementById('idx-base-2').textContent = base;
+            document.getElementById('idx-reg').textContent = index;
+            document.getElementById('idx-ea').textContent = ea;
+            document.getElementById('base-value').textContent = base;
+            document.getElementById('xr-value').textContent = index;
+            document.getElementById('idx-ea-value').textContent = ea;
+            
+            currentIndexValue = index;
+        }
+
+        function simulateIndexed() {
+            const base = parseInt(document.getElementById('base-input').value);
+            const index = parseInt(document.getElementById('index-input').value);
+            const ea = base + index;
+            const arrayValues = {500: 10, 600: 20, 700: 30, 800: 40};
+            
+            const baseCell = document.getElementById('idx-base-cell');
+            const indexCell = document.getElementById('idx-register');
+            const eaCell = document.getElementById('idx-effective');
+            const accumulator = document.getElementById('idx-accumulator');
+            const acValue = document.getElementById('idx-ac-value');
+            
+            // Highlight the target array element
+            const targetArray = document.getElementById(`array-${(ea - 500) / 100}`);
+            
+            // Animate calculation
+            baseCell.classList.add('active');
+            setTimeout(() => {
+                indexCell.classList.add('active');
+            }, 500);
+            
+            setTimeout(() => {
+                eaCell.classList.add('active');
+                if (targetArray) targetArray.classList.add('active');
+                baseCell.classList.remove('active');
+                indexCell.classList.remove('active');
+            }, 1000);
+            
+            setTimeout(() => {
+                accumulator.classList.add('active');
+                acValue.textContent = arrayValues[ea] || '???';
+                eaCell.classList.remove('active');
+            }, 1500);
+            
+            setTimeout(() => {
+                accumulator.classList.remove('active');
+                if (targetArray) targetArray.classList.remove('active');
+            }, 3500);
+        }
+
+        function nextArrayElement() {
+            currentIndexValue += 100;
+            document.getElementById('index-input').value = currentIndexValue;
+            updateIndexed();
+            simulateIndexed();
+        }
+
+        // Expand all modes on load for better UX
+        setTimeout(() => {
+            document.querySelectorAll('.mode-content').forEach(content => {
+                content.classList.add('expanded');
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

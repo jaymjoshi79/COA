@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus and Memory Transfers | Digital Computer Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .subsection {
+            margin-bottom: 2rem;
+        }
+
+        .subsection h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .code-notation {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.95rem;
+            margin: 1rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 2px dashed #cbd5e0;
+            text-align: center;
+        }
+
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .bus-visualization {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .register {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .register:hover, .register.active {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.4);
+        }
+
+        .bus-line {
+            flex: 1;
+            height: 4px;
+            background: linear-gradient(90deg, #cbd5e0 0%, #667eea 50%, #cbd5e0 100%);
+            margin: 0 1rem;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .data-flow {
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 12px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: dataFlow 2s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes dataFlow {
+            0% { left: 0; opacity: 1; }
+            100% { left: calc(100% - 12px); opacity: 0; }
+        }
+
+      .memory-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center horizontally */
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+}
+
+.memory-block {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    min-width: 150px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.memory-block:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+        .arrow {
+            font-size: 2rem;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .key-points {
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+	dialog {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .key-points h4 {
+            color: #2f855a;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .key-points li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+	.topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .bus-visualization {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .bus-line {
+                width: 100%;
+                height: 4px;
+                margin: 0;
+            }
+            
+            .memory-diagram {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Digital Architecture</div>
+                <nav class="section-nav">
+                    <a href="#bus-system" class="nav-btn">Bus System</a>
+                    <a href="#three-state" class="nav-btn">Three-State</a>
+                    <a href="#memory" class="nav-btn">Memory</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h1>Bus and Memory Transfers</h1>
+                <p>Explore efficient information transfer methods in digital computer systems through interactive demonstrations and comprehensive explanations.</p>
+            </section>
+
+            <section id="bus-system" class="section">
+                <h2>
+                    <div class="section-icon">🚌</div>
+                    Common Bus System
+                </h2>
+                
+                <div class="subsection">
+                    <h3>Why Do We Need a Bus System?</h3>
+                    <p>A typical digital computer contains many registers. Transferring information between them directly via individual wires would be excessively complex and inefficient. The common bus system provides an elegant solution.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Key Concept:</strong> A bus structure consists of a set of common lines, one for each bit of a register, through which binary information is transferred one bit at a time.
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>Interactive Bus Demonstration</h3>
+                    <div class="interactive-demo">
+                        <div class="demo-controls">
+                            <button class="demo-btn" onclick="selectRegister('A')">S₁S₀ = 00<br><small>Select Register A</small> </button>
+                            <button class="demo-btn" onclick="selectRegister('B')">S₁S₀ = 01<br><small>Select Register B</small></button>
+                            <button class="demo-btn" onclick="selectRegister('C')">S₁S₀ = 10<br><small>Select Register C</small></button>
+                            <button class="demo-btn" onclick="selectRegister('D')">S₁S₀ = 11<br><small>Select Register D</small></button>
+                        </div>
+                        
+                        <div class="bus-visualization" id="busDemo">
+                            <div class="register" data-reg="A">Reg A<br>1010</div>
+                            <div class="bus-line"><div class="data-flow"></div></div>
+                            <div class="register" data-reg="B">Reg B<br>1100</div>
+                            <div class="bus-line"><div class="data-flow"></div></div>
+                            <div class="register" data-reg="C">Reg C<br>0110</div>
+                            <div class="bus-line"><div class="data-flow"></div></div>
+                            <div class="register" data-reg="D">Reg D<br>1001</div>
+                        </div>
+                        
+                        <p id="busStatus">Click a register button to see bus selection in action!</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>Multiplexer Implementation</h3>
+                    <p>A common bus system can be constructed using multiplexers. For four 4-bit registers, we need four 4×1 multiplexers.</p>
+                    
+                    <div class="key-points">
+                        <h4>Selection Input Control:</h4>
+                        <ul>
+                            <li><strong>S₁S₀ = 00:</strong> Register A is selected</li>
+                            <li><strong>S₁S₀ = 01:</strong> Register B is selected</li>
+                            <li><strong>S₁S₀ = 10:</strong> Register C is selected</li>
+                            <li><strong>S₁S₀ = 11:</strong> Register D is selected</li>
+                        </ul>
+                    </div>
+		     <center><button class="demo-btn" button id="showFigureBtn">See the Figure</button></center>
+
+    <dialog id="figureDialog">
+        <img src="bus_transfer.png" alt="Bus Transfer" width="800px">
+        <br><br>
+        <button id="closeDialogBtn">Close</button>
+    </dialog>
+
+                    <div class="code-notation">
+BUS ← C    // Content of register C is loaded onto the bus<br>
+R1 ← BUS   // Content of the bus is loaded into register R1<br>
+R2 ← R1    // Combined operation: transfer from R1 to R2<br>
+                    </div>
+                </div>
+            </section>
+
+            <section id="three-state" class="section">
+                <h2>
+                    <div class="section-icon">🔌</div>
+                    Three-State Bus Buffers
+                </h2>
+                
+                <div class="subsection">
+                    <h3>Understanding Three-State Logic</h3>
+                    <p>An alternative to multiplexers, three-state gates provide an elegant solution for bus construction with better scalability.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Three Output States:</strong>
+                        <br>• Logic 0 (Low)
+                        <br>• Logic 1 (High) 
+                        <br>• High-Impedance (Disconnected)
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>High-Impedance State</h3>
+                    <p>In the high-impedance state, the output is effectively <strong>disconnected</strong> and does not affect the circuit. It's like an open circuit, allowing multiple outputs to share a common bus line safely.</p>
+                    
+                    <div class="interactive-demo">
+                        <div class="demo-controls">
+                            <button class="demo-btn" onclick="toggleBuffer(0)">S₁S₀ = 00<br><small>Enable Buffer 1</small></button>
+                            <button class="demo-btn" onclick="toggleBuffer(1)">S₁S₀ = 01<br><small>Enable Buffer 2</small> </button>
+                            <button class="demo-btn" onclick="toggleBuffer(2)">S₁S₀ = 10<br><small>Enable Buffer 3</small> </button>
+			    <button class="demo-btn" onclick="toggleBuffer(3)">S₁S₀ = 11<br><small>Enable Buffer 4</small> </button>
+                        </div>
+                        
+                        <div id="bufferStatus">
+                            <p><strong>Buffer States:</strong></p>
+                            <div id="bufferDisplay">
+                                <span class="buffer-state">Buffer 1: Disabled (Hi-Z)</span><br>
+                                <span class="buffer-state">Buffer 2: Disabled (Hi-Z)</span><br>
+                                <span class="buffer-state">Buffer 3: Disabled (Hi-Z)</span><br>
+				<span class="buffer-state">Buffer 4: Disabled (Hi-Z)</span><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+		<center><button class="demo-btn" button id="showFigureBtn1">See the Figure</button></center>
+
+    <dialog id="figureDialog1">
+        <img src="three_state.png" alt="Three State Bus Transfer" width="800px">
+        <br><br>
+        <button id="closeDialogBtn1">Close</button>
+    </dialog>
+
+                <div class="key-points">
+                    <h4>Advantages of Three-State Buffers:</h4>
+                    <ul>
+                        <li>Multiple outputs can connect to the same bus line safely</li>
+                        <li>Only one buffer is enabled at a time</li>
+                        <li>Better scalability for large systems</li>
+                        <li>Simplified control logic with decoders</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="memory" class="section">
+                <h2>
+                    <div class="section-icon">💾</div>
+                    Memory Transfers
+                </h2>
+                
+                <div class="subsection">
+                    <h3>Memory Unit Operations</h3>
+                    <p>The memory unit stores binary information in groups called words. Data transfer to and from memory is crucial for register transfer operations.</p>
+                </div>
+
+                <div class="subsection">
+                    <h3>Memory Address Register (AR)</h3>
+                    <p>To access a specific word in memory, its address must be provided through the Memory Address Register (AR).</p>
+		    <br><br>
+                    <h3>Memory Data Register (DR)</h3>
+                    <p>It holds the data to be written into memory or receives the data read from memory during a memory operation.</p>
+
+                    <div class="memory-diagram">
+                        <div class="memory-block">
+                            Address Register<br>(AR)
+                        </div>
+                        <div class="arrow">→</div>
+                        <div class="memory-block">
+                            Memory Unit<br>(M)
+                        </div>
+			<div class="arrow">↔</div>
+			<div class="memory-block">
+                            Data Register<br>(DR)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>Memory Read Operation</h3>
+                    <div class="highlight-box">
+                        <strong>Purpose:</strong> Transfer a word from memory to an external data register
+                        <br><br>
+                        <strong>Process:</strong>
+                        <br>1. Place the desired word address in AR
+                        <br>2. Memory unit provides content at that address to DR
+                    </div>
+                    
+                    <div class="code-notation">
+DR ← M[AR]
+// Content of memory word M at address AR is transferred to Data Register DR
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>Memory Write Operation</h3>
+                    <div class="highlight-box">
+                        <strong>Purpose:</strong> Transfer a word from a register into memory
+                        <br><br>
+                        <strong>Process:</strong>
+                        <br>1. Place the target address in AR
+                        <br>2. Place the data to be written in a data register (e.g., R1)
+                        <br>3. Transfer occurs from register to memory location
+                    </div>
+                    
+                    <div class="code-notation">
+M[AR] ← R1
+// Content of register R1 is transferred to memory word M at address AR
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <div class="demo-controls">
+                        <button class="demo-btn" onclick="simulateMemoryRead()">Simulate Memory Read</button>
+                        <button class="demo-btn" onclick="simulateMemoryWrite()">Simulate Memory Write</button>
+                    </div>
+                    <div id="memoryOperation">
+                        <p>Click a button above to simulate memory operations!</p>
+                    </div>
+                </div>
+            </section>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="arithmetic_microoperations_page.html" class="btn btn-primary">Start Learning Arithmatic Microoperations</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+        </div>
+    </main>
+
+    <script>
+        let bufferStates = [false, false, false, false];
+
+        const showBtn = document.getElementById('showFigureBtn');
+        const closeBtn = document.getElementById('closeDialogBtn');
+        const dialog = document.getElementById('figureDialog');
+	
+        showBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            dialog.close();
+        });
+	
+	const showBtn1 = document.getElementById('showFigureBtn1');
+        const closeBtn1 = document.getElementById('closeDialogBtn1');
+        const dialog1 = document.getElementById('figureDialog1');
+
+	showBtn1.addEventListener('click', () => {
+            dialog1.showModal();
+        });
+
+        closeBtn1.addEventListener('click', () => {
+            dialog1.close();
+        });
+
+        function selectRegister(reg) {
+            // Remove active class from all registers
+            document.querySelectorAll('.register').forEach(r => r.classList.remove('active'));
+            
+            // Add active class to selected register
+            document.querySelector(`[data-reg="${reg}"]`).classList.add('active');
+            
+            // Update status
+            document.getElementById('busStatus').textContent = 
+                `Register ${reg} is now connected to the bus! Data flows through the common bus lines.`;
+            
+            // Trigger data flow animation
+            document.querySelectorAll('.data-flow').forEach(flow => {
+                flow.style.animation = 'none';
+                setTimeout(() => {
+                    flow.style.animation = 'dataFlow 2s linear infinite';
+                }, 10);
+            });
+        }
+        
+        function toggleBuffer(index) {
+            // Disable all other buffers first
+            for (let i = 0; i < bufferStates.length; i++) {
+                if (i !== index) {
+                    bufferStates[i] = false;
+                }
+            }
+            
+            // Toggle the selected buffer
+            bufferStates[index] = !bufferStates[index];
+            
+            updateBufferDisplay();
+        }
+        
+        function updateBufferDisplay() {
+            const display = document.getElementById('bufferDisplay');
+            let html = '';
+            
+            for (let i = 0; i < bufferStates.length; i++) {
+                const state = bufferStates[i] ? 'Enabled (Active)' : 'Disabled (Hi-Z)';
+                const color = bufferStates[i] ? '#48bb78' : '#cbd5e0';
+                html += `<span class="buffer-state" style="color: ${color}">Buffer ${i + 1}: ${state}</span><br>`;
+            }
+            
+            display.innerHTML = html;
+        }
+        
+        function simulateMemoryRead() {
+            document.getElementById('memoryOperation').innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%); padding: 1rem; border-radius: 8px; border: 1px solid rgba(72, 187, 120, 0.3);">
+                    <h4 style="color: #2f855a; margin-bottom: 0.5rem;">Memory Read Operation Active</h4>
+                    <p><strong>Step 1:</strong> AR ← 0x1000 (Address loaded into AR)</p>
+                    <p><strong>Step 2:</strong> DR ← M[AR] (Data at address 0x1000 loaded into DR)</p>
+                    <p><strong>Result:</strong> DR now contains: 0xABCD</p>
+                </div>
+            `;
+        }
+        
+        function simulateMemoryWrite() {
+            document.getElementById('memoryOperation').innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); padding: 1rem; border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.3);">
+                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">Memory Write Operation Active</h4>
+                    <p><strong>Step 1:</strong> AR ← 0x2000 (Target address loaded into AR)</p>
+                    <p><strong>Step 2:</strong> R1 ← 0x1234 (Data prepared in register R1)</p>
+                    <p><strong>Step 3:</strong> M[AR] ← R1 (Data written to memory location)</p>
+                    <p><strong>Result:</strong> Memory location 0x2000 now contains: 0x1234</p>
+                </div>
+            `;
+        }
+        
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        // Initialize buffer display
+        updateBufferDisplay();
+    </script>
+</body>
+</html>

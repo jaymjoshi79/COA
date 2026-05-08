@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asynchronous Data Transfer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 1.8em;
+            flex: 1;
+        }
+
+        .section-content {
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .interactive-demo {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .signal-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .signal {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.5s ease;
+        }
+
+        .signal.active {
+            background: #4caf50;
+            color: white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+            animation: glow 1s ease-in-out infinite;
+        }
+
+        .signal.inactive {
+            background: #ddd;
+            color: #999;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(76, 175, 80, 0.9); }
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            animation: slide 1s ease-in-out infinite;
+        }
+
+        @keyframes slide {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .figure-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .figure-title {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f5f7fa;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .key-points {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .key-points li::before {
+            content: '✓';
+            position: absolute;
+            left: 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+	.key-points ol {
+    margin: 8px 0 8px 20px;
+    padding-left: 20px;
+    background: #f8f9ff;
+    border-left: 3px solid #667eea;
+    border-radius: 5px;
+}
+
+.key-points ol li {
+    padding: 6px 10px;
+    margin: 4px 0;
+    background: transparent;
+    border-radius: 3px;
+    list-style-type: decimal;
+    color: #333;
+}
+
+.key-points ol li::marker {
+    color: #667eea;
+    font-weight: bold;
+}
+.key-points ol li::before {
+    content: none;   /* removes ✓ from numbered items */
+}
+        .fifo-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .fifo-box {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #667eea;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+
+        .fifo-box.filled {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .content { padding: 20px; }
+            .section { padding: 20px; }
+            .signal-display { flex-direction: column; }
+            .arrow { transform: rotate(90deg); margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📡 Asynchronous Data Transfer</h1>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">📌</div>
+                    <h2>Context & Overview</h2>
+                </div>
+                <div class="section-content">
+                    <p>Asynchronous data transfer is the procedure for handling information transfer between units that <span class="highlight">operate independently</span>, where data flow is not controlled by a common clock signal.</p>
+                    
+                    <div class="key-points">
+                        <h3>Why Asynchronous Transfer?</h3>
+                        <ul>
+                            <li>Peripheral devices operate much slower than the CPU</li>
+                            <li>Different devices have different timing requirements</li>
+                            <li>Synchronizes fast CPU clock with variable device timing</li>
+                            <li>Enables reliable communication over long distances</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2>Strobe Control</h2>
+                </div>
+                <div class="section-content">
+                    <p>Strobe control is a <span class="highlight">fundamental method</span> for asynchronous parallel data transfer using a single control line.</p>
+                    
+                    <div class="interactive-demo">
+                        <h3>Interactive Demo: Strobe Signal</h3>
+                        <button class="demo-button" onclick="simulateStrobe()">Activate Strobe</button>
+                        <div class="signal-display">
+                            <div class="signal inactive" id="source">SOURCE</div>
+                            <div class="arrow">→</div>
+                            <div class="signal inactive" id="strobe">STROBE</div>
+                            <div class="arrow">→</div>
+                            <div class="signal inactive" id="dest">DEST</div>
+                        </div>
+                    </div>
+
+                    <div class="key-points">
+                        <h3>Key Characteristics:</h3>
+                        <ul>
+                            <li>Uses single control line to initiate transfer</li>
+                            <li>Can be source-initiated or destination-initiated</li>
+                            <li>Simple but no confirmation of successful transfer</li>
+                            <li>Unreliable for long-distance communication</li>
+                        </ul>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Source Initiated Strobe Control</div>
+			<center><img src="source_int.png"  alt="Source Initiate Strobe" style="max-width:60%; height: auto;"></center>
+                        <p>In a strobe-controlled data transfer, the source unit first places data on the bus and waits for it to settle before activating the strobe pulse. This signal remains active long enough for the destination unit to receive the information, often using the falling edge of the pulse to trigger the transfer into an internal register. Once the strobe is disabled, the data is considered invalid, and the source may subsequently remove it from the bus. New valid data is only recognized by the system when the strobe signal is enabled once again.</p>
+                    </div>
+		    <div class="figure-card">
+                        <div class="figure-title">Destination Initiated Strobe Control</div>
+			<center><img src="dest_int.png"  alt="Destination Initiate Strobe" style="max-width:60%; height: auto;"></center>
+                        <p>Based on the provided text, the data transfer process is initiated by the destination unit activating a strobe pulse to request data from the source. The source unit responds by placing valid binary information on the data bus, where it must remain long enough for the destination to accept it. The falling edge of this strobe pulse can trigger a register in the destination unit, after which the destination disables the strobe. Finally, the source removes the data from the bus once a predetermined time interval has passed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2>Handshaking</h2>
+                </div>
+                <div class="section-content">
+                    <p>Handshaking is a <span class="highlight">more robust method</span> using two or three control signals to ensure reliable synchronization.</p>
+                    
+                    <div class="interactive-demo">
+                        <h3>Interactive Demo: Handshaking Process</h3>
+                        <button class="demo-button" onclick="simulateHandshake()">Start Handshake</button>
+                        <div class="signal-display">
+                            <div class="signal inactive" id="sender">SENDER</div>
+                            <div class="arrow" id="arrow1">→</div>
+                            <div class="signal inactive" id="ready">READY</div>
+                            <div class="arrow" id="arrow2">←</div>
+                            <div class="signal inactive" id="ack">ACK</div>
+                            <div class="arrow" id="arrow3">→</div>
+                            <div class="signal inactive" id="receiver">RECEIVER</div>
+                        </div>
+                    </div>
+
+                    <div class="key-points">
+                        <h3>Handshaking Signals:</h3>
+                        <ul>
+                            <li><strong>Data Ready Signal:</strong> Source informs destination data is available</li>
+                            <li><strong>Data Accepted (ACK):</strong> Destination confirms receipt of data</li>
+                            <li>Provides explicit synchronization timing</li>
+                            <li>Ensures both sender and receiver are coordinated</li>
+                        </ul>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Source Initiated Transfer using Handshaking</div>
+			<center><img src="source_int_hand.png" alt="Source Handshaking" style="max-width:60%; height: auto;"></center>
+                        <p>This process ensures reliable communication through a four-step sequence: the source places data on the bus and enables the data valid signal, the destination activates data accepted once it receives the information, and both signals are then sequentially disabled to return the system to its initial state. This synchronized exchange allows for arbitrary delays between states, ensuring the source never sends new data until the destination is ready.</p>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Destination initiated transfer using Handshaking</div>
+			<center><img src="dest_hand.png" alt="Source Handshaking" style="max-width:60%; height: auto;"></center>
+                        <p>In a destination-initiated transfer, the process begins when the destination unit sends a ready for data signal, prompting the source unit to place data on the bus. This method is functionally identical to a source-initiated transfer, with the primary difference being the initial state of the handshake and the naming of the signals. Essentially, the ready for data signal acts as the logical complement to the data accepted signal used in source-initiated sequences.</p>
+                    </div>
+		    <div class="key-points">
+                        <h3>Timeouts:</h3>
+                        <ul>
+                            <li><strong>Initialization:</strong> An internal clock begins counting as soon as a unit enables one of its handshaking control signals.</li>
+                            <li><strong>Error Detection:</strong> If the corresponding return handshake signal is not received within a predetermined time period, the unit assumes a fault has occurred.</li>
+                            <li><strong>Response:</strong> The resulting timeout signal triggers an alarm or interrupts the processor to execute a service routine for error recovery.</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2>Asynchronous Serial Transfer</h2>
+                </div>
+                <div class="section-content">
+                    <p>Serial transfer transmits information <span class="highlight">one bit at a time</span>, sequentially - essential for long-distance communication.</p>
+                    
+                    <div class="interactive-demo">
+                        <h3>Serial Data Frame Structure</h3>
+                        <div style="display: flex; justify-content: center; margin: 20px 0;">
+                            <div class="fifo-box" style="background: #ff6b6b; color: white;">START</div>
+                            <div class="fifo-box filled">D0</div>
+                            <div class="fifo-box filled">D1</div>
+                            <div class="fifo-box filled">D2</div>
+                            <div class="fifo-box filled">D3</div>
+                            <div class="fifo-box filled">D4</div>
+                            <div class="fifo-box filled">D5</div>
+                            <div class="fifo-box filled">D6</div>
+                            <div class="fifo-box filled">D7</div>
+                            <div class="fifo-box" style="background: #4ecdc4; color: white;">P</div>
+                            <div class="fifo-box" style="background: #45b7d1; color: white;">STOP</div>
+                        </div>
+                        <p style="text-align: center; color: #666;">START bit → 8 Data bits → Parity bit → STOP bit</p>
+                    </div>
+
+                    <div class="key-points">
+                        <h3>Serial Transfer Features:</h3>
+                        <ul>
+                            <li>More economical than parallel lines for long distances</li>
+                            <li>Uses shift registers for parallel-to-serial conversion</li>
+                            <li>Start/Stop bits frame data for synchronization</li>
+                            <li>Transmitter and receiver use separate clocks</li>
+                        </ul>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Baud Rate</div>
+                        <p>The baud rate represents the speed of serial data transmission and is equivalent to the total number of bits sent per second, including overhead. In the example provided, each character consists of 11 bits (one start bit, eight information bits, and two stop bits) and is transmitted at a rate of 10 characters per second. Consequently, the resulting transfer rate is 110 baud, where each individual bit has a duration of approximately 9.09 ms.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2>Asynchronous Communication Interface</h2>
+                </div>
+                <div class="section-content">
+                    <p>Dedicated hardware module (UART/USART) managing <span class="highlight">asynchronous serial communication</span>.</p>
+                    
+                    <div class="key-points">
+                        <h3>Interface Functions:</h3>
+                        <ul>
+                            <li><strong>Initialization:</strong> The CPU starts by sending a "control byte" to the Control Register to set up how the data will be transferred.</li>
+                            <li><strong>Transmitting Data:</strong> The CPU writes a data byte to the Transmitter Register, which then moves it to a shift register to be sent out bit-by-bit (serially).</li>
+                            <li><strong>Receiving Data:</strong> Incoming serial data is collected in a shift register; once a full byte is ready, it moves to the Receiver Register for the CPU to read.</li>
+                            <li><strong>Monitoring Status:</strong> The Status Register acts like a dashboard, using "flags" to tell the CPU if data is ready, if a transmission is finished, or if any errors happened.</li>
+			    <li> <strong>CPU Controls:</strong> The CPU uses the Chip Select (CS) signal to "wake up" the interface and uses the Register Select (RS) along with Read/Write lines to pick which specific register it wants to talk to.</li>
+                        </ul>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Communication Interface Block Diagram</div>
+			<center><img src="uart.png" alt="Source Handshaking" style="max-width:70%; height: auto;"></center>
+                        <p>Internal structure showing parallel data registers, serial shift registers, control logic, and clock dividers.</p>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">Interface Control Logic</div>
+			<center><img src="uart_table.png" alt="Source Handshaking" style="max-width:60%; height: auto;"></center>
+                        <p>It outlines the logic for register selection in a communication interface, likely a UART or similar I/O device, based on Chip Select (CS) and Register Select (RS) signals. It defines whether the system is performing a Read (RD) or Write (WR) operation to access specific internal components like the Transmitter, Receiver, Control, or Status registers. When the Chip Select is inactive (0), the data bus enters a high-impedance state, effectively disconnecting the device from the bus.</p>
+                    </div>
+		    <div class="key-points">
+                        <h3>Transmitter:</h3>
+                        <ul>
+                            <li><strong>Status Check:</strong> The CPU first reads the Status Register to see if the transmitter register is empty and ready for new data.</li>
+                            <li><strong>Loading Data:</strong> If empty, the CPU sends a character to the Transmitter Register, and the interface automatically marks it as "full" by clearing a flag.</li>
+                            <li><strong>Framing the Data:</strong> The interface adds a start bit (set to 0) at the beginning and stop bits at the end of the character to prepare it for travel.</li>
+                            <li><strong>Shifting Out:</strong> The character moves from the transmitter register into a Shift Register, which sends the data out one bit at a time at the set baud rate.</li>
+			    <li><strong>Double Buffering:</strong> Because the transmitter register becomes "empty" as soon as data moves to the shift register, the CPU can load a second character while the first one is still being sent out.</li>
+                        </ul>
+                    </div>
+
+		    <div class="key-points">
+                        <h3>Receiver:</h3>
+                        <ul>
+                            <li><strong>Idle State:</strong> When no data is being sent, the receive line stays at a 1-state (high).</li>
+                            <li><strong>Detection:</strong> The receiver constantly watches for a 0 signal, which acts as the start bit to trigger the receiving process.</li>
+                            <li><strong>Collection:</strong> Once the start bit is found, incoming bits are "shifted" into a shift register one by one at the specific baud rate.</li>
+                            <li><strong>Validation:</strong> After the data bits arrive, the interface automatically checks the parity and stop bits to ensure the information is correct.</li>
+			    <li><strong>Storage:</strong> The cleaned-up character (without start/stop bits) is moved to the receiver register, and a flag is set in the status register to show it is "full."</li>
+			    <li><strong>CPU Pickup:</strong> The CPU monitors that flag; when it sees the register is full, it reads the data from the receiver register.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">5</div>
+                    <h2>First-In, First-Out (FIFO) Buffer</h2>
+                </div>
+                <div class="section-content">
+                    <p>Temporary storage managing <span class="highlight">rate differences</span> between asynchronous units.</p>
+                    
+                    <div class="interactive-demo">
+                        <h3>Interactive FIFO Demo</h3>
+                        <button class="demo-button" onclick="pushFIFO()">Push Data</button>
+                        <button class="demo-button" onclick="popFIFO()">Pop Data</button>
+                        <button class="demo-button" onclick="resetFIFO()">Reset</button>
+                        <div class="fifo-visual" id="fifoDisplay">
+                            <div class="fifo-box" id="f0"></div>
+                            <div class="fifo-box" id="f1"></div>
+                            <div class="fifo-box" id="f2"></div>
+                            <div class="fifo-box" id="f3"></div>
+                            <div class="fifo-box" id="f4"></div>
+                            <div class="fifo-box" id="f5"></div>
+                        </div>
+                        <p style="text-align: center; color: #666; margin-top: 10px;">Push adds data, Pop removes (First-In, First-Out)</p>
+                    </div>
+
+                    <div class="key-points">
+                        <h3>FIFO Characteristics:</h3>
+                        <ul>
+                            <li>Prevents data loss when sender is faster than receiver</li>
+                            <li>Data read in same order as written (FIFO principle)</li>
+                            <li>Managed by interlocked control flip-flops and handshaking signals (Insert/Delete) that automatically shift data to the next available register stage.</li>
+                            <li>Enables asynchronous input/output operations</li>
+                        </ul>
+                    </div>
+
+                    <div class="figure-card">
+                        <div class="figure-title">FIFO Buffer Structure</div>
+			<center><img src="FIFO.png" alt="Source Handshaking" style="max-width:60%; height: auto;"></center>
+                        <p>Shows 4x4 FIFO memory structure using a falling-through control logic that enables asynchronous data transfer by shifting data through registers based on the status of individual stage flip-flops.</p>
+                    </div>
+		    <div class="key-points">
+                        <h3>Structure & Indicators:</h3>
+                        <ul>
+                            <li><strong>Capacity:</strong> The circuit stores four words (4 bits each). You can make it "wider" by adding bits to registers or "deeper" by adding more registers.</li>
+                            <li><strong>Status Flags (F<sub>i</sub>):</strong> Each register has a corresponding control flip-flop (F).</li>
+                            <ol><li>F = 1: The register is full (contains valid data).</li>
+                            <li>F = 0: The register is empty (invalid data).</li></ol>
+			    
+                        </ul>
+                    </div>
+			<div class="key-points">
+                        <h3>Ripple-Through:</h3>
+                        <ul>
+                            <li>Automatic Shifting: Data automatically moves to the right if the current register is full (F<sub>i</sub> = 1) and the next one is empty (F<sub>i+1</sub> = 0).</li>
+                            <li>The Transfer: When this "Full-to-Empty" condition is met, a clock pulse is generated that:</li>
+                            <ol><li>Copies data from R<sub>i</sub> to R<sub>i+1</sub>.</li>
+				<li>Sets F<sub>i+1</sub> to 1 (marking it full).</li>
+                            <li>Resets F<sub>i</sub> to 0 (marking it empty).</li></ol>
+			    <li>Data keeps "falling" toward the output until it hits a register that is already full or reaches the final stage (R<sub>4</sub>).</li>
+                        </ul>
+                    </div>
+
+			<div class="key-points">
+                        <h3>Input & Output Handshaking:</h3>
+                        <ul>
+                            <li><strong>Input Ready:</strong> If R<sub>1</sub> is empty (F<sub>1</sub> = 0), the system signals it can accept data.</li>
+                            <li><strong>Insert:</strong> Triggering this line loads data into R<sub>1</sub> and sets F<sub>1</sub> = 1, which immediately tells the system the input is "busy" until the data ripples forward.</li>
+                            <li><strong>Output Ready:</strong> When F<sub>4</sub> = 1, it signals the destination that valid data is waiting in R<sub>4</sub>.</li>
+				<li><strong>Delete:</strong> When the destination accepts the data, it triggers "Delete." This resets F<sub>4</sub> to 0, creating an empty slot that allows data in R<sub>3</sub> to move forward.</li>
+                            
+			    
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="topic-actions" style="text-align: center;">
+                    <a href="io_transfer_modes.html" style="text-decoration: none;" class="btn btn-primary">Start Learning I/O Transfer Modes</a>
+                </div>
+
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        let fifoQueue = [];
+        let fifoCounter = 1;
+
+        function simulateStrobe() {
+            const source = document.getElementById('source');
+            const strobe = document.getElementById('strobe');
+            const dest = document.getElementById('dest');
+
+            source.classList.add('active');
+            setTimeout(() => {
+                strobe.classList.add('active');
+                setTimeout(() => {
+                    dest.classList.add('active');
+                    setTimeout(() => {
+                        source.classList.remove('active');
+                        strobe.classList.remove('active');
+                        dest.classList.remove('active');
+                    }, 1000);
+                }, 500);
+            }, 500);
+        }
+
+        function simulateHandshake() {
+            const sender = document.getElementById('sender');
+            const ready = document.getElementById('ready');
+            const ack = document.getElementById('ack');
+            const receiver = document.getElementById('receiver');
+
+            sender.classList.add('active');
+            setTimeout(() => {
+                ready.classList.add('active');
+                setTimeout(() => {
+                    receiver.classList.add('active');
+                    setTimeout(() => {
+                        ack.classList.add('active');
+                        setTimeout(() => {
+                            sender.classList.remove('active');
+                            ready.classList.remove('active');
+                            ack.classList.remove('active');
+                            receiver.classList.remove('active');
+                        }, 1000);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        function pushFIFO() {
+            if (fifoQueue.length < 6) {
+                fifoQueue.push(fifoCounter++);
+                updateFIFO();
+            }
+        }
+
+        function popFIFO() {
+            if (fifoQueue.length > 0) {
+                fifoQueue.shift();
+                updateFIFO();
+            }
+        }
+
+        function resetFIFO() {
+            fifoQueue = [];
+            fifoCounter = 1;
+            updateFIFO();
+        }
+
+        function updateFIFO() {
+            for (let i = 0; i < 6; i++) {
+                const box = document.getElementById('f' + i);
+                if (i < fifoQueue.length) {
+                    box.textContent = fifoQueue[i];
+                    box.classList.add('filled');
+                } else {
+                    box.textContent = '';
+                    box.classList.remove('filled');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

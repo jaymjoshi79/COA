@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Instruction - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .instruction-format {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            text-align: center;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .tab:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .tab.active {
+            background: #764ba2;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .execution-steps {
+            display: grid;
+            gap: 15px;
+        }
+
+        .step {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+
+        .step:hover {
+            transform: translateX(10px);
+        }
+
+        .step-number {
+            background: white;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .memory-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .memory-block {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .memory-block:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .memory-address {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .memory-block:hover .memory-address {
+            color: white;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .flowchart {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .flow-node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px auto;
+            max-width: 300px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-node::after {
+            content: '↓';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .flow-node:last-child::after {
+            content: '';
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .demo-btn {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .register-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .register {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .register-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #764ba2;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BSA: Branch and Save Return Address</h1>
+            <p class="subtitle">Understanding Memory Reference Instructions</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>📋 Overview</h2>
+                <p>The <span class="highlight">BSA (Branch and Save Return Address)</span> instruction is a fundamental operation in computer architecture used for subroutine calling. It enables branching to a subroutine while preserving the return address for later continuation.</p>
+                
+                <div class="instruction-format">
+                    M[AR] ← PC, PC ← AR + 1
+                </div>
+
+                <p>This instruction, expressed in register transfer notation, demonstrates how the return address is saved before jumping to the subroutine.</p>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Instruction Tabs</h2>
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('execution')">Execution Steps</button>
+                    <button class="tab" onclick="showTab('example')">Numerical Example</button>
+                    <button class="tab" onclick="showTab('timing')">Timing Diagram</button>
+                    <button class="tab" onclick="showTab('flowchart')">Control Flow</button>
+                </div>
+
+                <div id="execution" class="tab-content active">
+                    <h3>Execution Process</h3>
+                    <div class="execution-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>The current value of the Program Counter (PC) is stored at the memory address specified by the Address Register (AR)</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>The effective address plus one (AR + 1) is transferred to PC</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>Program execution continues at the new PC address (subroutine entry point)</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>The return address is stored at the first location of the subroutine</div>
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        <div class="note-title">⚠️ Important Note:</div>
+                        <p>BSA cannot be executed in one clock cycle due to bus system limitations. It requires a sequence of two microoperations with appropriate timing signals.</p>
+                    </div>
+                </div>
+
+                <div id="example" class="tab-content">
+                    <h3>Numerical Example: BSA at Address 20</h3>
+                    <p>Consider the instruction <span class="highlight">BSA 135</span> located at address 20:</p>
+                    <center><img src="bsa_exec.png" alt="BSA Execution" width="600px"></center>
+                    <div class="memory-diagram">
+                        <div class="memory-block">
+                            <div class="memory-address">Address 20</div>
+                            <div>BSA 135</div>
+                        </div>
+                        <div class="memory-block">
+                            <div class="memory-address">Address 21</div>
+                            <div>Next Instruction</div>
+                        </div>
+                        <div class="memory-block">
+                            <div class="memory-address">Address 135</div>
+                            <div>21 (saved)</div>
+                        </div>
+                        <div class="memory-block">
+                            <div class="memory-address">Address 136</div>
+                            <div>Subroutine Start</div>
+                        </div>
+                    </div>
+		    
+                    <div class="execution-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>Fetch BSA instruction from address 20</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>M[135] ← 21 (save return address)</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>PC ← 136 (branch to subroutine)</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>Execute subroutine starting at 136</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">5</div>
+                            <div>BUN indirect at 135 returns to address 21</div>
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        <div class="note-title">💡 Key Insight:</div>
+                        <p>The return address (21) is stored at the subroutine entry point (135), and the PC is set to 136 (AR + 1) to begin execution of the subroutine body.</p>
+                    </div>
+                </div>
+
+                <div id="timing" class="tab-content">
+                    <h3>Timing Sequence</h3>
+                    <p>The BSA instruction requires two microoperations:</p>
+
+                    <div class="flowchart">
+                        <div class="flow-node">
+                            <strong>D₅T₄:</strong> M[AR] ← PC, AR ← AR + 1
+                        </div>
+                        <div class="flow-node">
+                            <strong>D₅T₅:</strong> PC ← AR, SC ← 0
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        <div class="note-title">⏱️ Timing Breakdown:</div>
+                        <ul style="margin-left: 20px;">
+                            <li><strong>T₄:</strong> Initiates memory write, places PC content onto bus, enables INR input of AR</li>
+                            <li><strong>T₅:</strong> Completes memory write, transfers AR to PC by next clock transition</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="flowchart" class="tab-content">
+                    <h3>Memory Reference Instructions Flowchart</h3>
+                    <p>Control sequence for memory reference instructions including BSA:</p>
+
+                    <center><img src="mem_inst_flow.png" alt="Memory Instruction Flow" width="600px"></center>
+
+                    <div class="note">
+                        <div class="note-title">🔄 Subroutine Return:</div>
+                        <p>The BUN instruction at the end of the subroutine performs an indirect jump: <strong>PC ← M[AR]</strong>, which retrieves the saved return address and continues execution at the original calling point.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎮 Interactive Demo</h2>
+                <div class="interactive-demo">
+                    <p>Simulate BSA instruction execution:</p>
+                    <div class="demo-controls">
+                        <button class="demo-btn" onclick="resetDemo()">Reset</button>
+                        <button class="demo-btn" onclick="stepDemo()">Step Forward</button>
+                    </div>
+
+                    <div class="register-display">
+                        <div class="register">
+                            <div class="register-name">PC (Program Counter)</div>
+                            <div class="register-value" id="pc-value">20</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">AR (Address Register)</div>
+                            <div class="register-value" id="ar-value">135</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">Memory[135]</div>
+                            <div class="register-value" id="mem135-value">—</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">SC (Sequence Counter)</div>
+                            <div class="register-value" id="sc-value">0</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Step: </strong><span id="step-description">Initial state - Ready to execute BSA 135</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 Other Memory Reference Instructions</h2>
+                <div class="memory-diagram">
+                    <div class="memory-block">
+                        <div class="memory-address">AND</div>
+                        <div>AC ← AC ∧ DR</div>
+                    </div>
+                    <div class="memory-block">
+                        <div class="memory-address">ADD</div>
+                        <div>AC ← AC + DR</div>
+                    </div>
+                    <div class="memory-block">
+                        <div class="memory-address">LDA</div>
+                        <div>AC ← DR</div>
+                    </div>
+                    <div class="memory-block">
+                        <div class="memory-address">STA</div>
+                        <div>M[AR] ← AC</div>
+                    </div>
+                    <div class="memory-block">
+                        <div class="memory-address">BUN</div>
+                        <div>PC ← AR</div>
+                    </div>
+                    <div class="memory-block">
+                        <div class="memory-address">ISZ</div>
+                        <div>M[AR] ← M[AR] + 1<br>if (M[AR] = 0)<br> then PC ← PC + 1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	    <div class="topic-actions">
+    <a href="register_ref_instructions.html" class="btn btn-primary">
+        Start Register Reference Instruction
+    </a>
+</div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+    </a>
+
+    <script>
+        let demoStep = 0;
+        const steps = [
+            { pc: 20, ar: 135, mem135: '—', sc: 0, desc: 'Initial state - Ready to execute BSA 135' },
+            { pc: 20, ar: 135, mem135: '—', sc: 4, desc: 'T₄: Fetching BSA instruction' },
+            { pc: 21, ar: 135, mem135: '21', sc: 4, desc: 'T₄: Saving return address (PC=21) to M[135], incrementing AR' },
+            { pc: 136, ar: 136, mem135: '21', sc: 5, desc: 'T₅: Transferring AR to PC, jumping to subroutine' },
+            { pc: 136, ar: 136, mem135: '21', sc: 0, desc: 'Complete! Subroutine begins at address 136' }
+        ];
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function updateDemo() {
+            const step = steps[demoStep];
+            document.getElementById('pc-value').textContent = step.pc;
+            document.getElementById('ar-value').textContent = step.ar;
+            document.getElementById('mem135-value').textContent = step.mem135;
+            document.getElementById('sc-value').textContent = step.sc;
+            document.getElementById('step-description').textContent = step.desc;
+        }
+
+        function stepDemo() {
+            if (demoStep < steps.length - 1) {
+                demoStep++;
+                updateDemo();
+            }
+        }
+
+        function resetDemo() {
+            demoStep = 0;
+            updateDemo();
+        }
+
+        updateDemo();
+    </script>
+</body>
+</html>

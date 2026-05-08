@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subroutine Parameters and Data Linkage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #666;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .code-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #2d3748;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .code-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .code-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-table tr:hover {
+            background: #4a5568;
+        }
+        
+        .location {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .label {
+            color: #90cdf4;
+        }
+        
+        .instruction {
+            color: #f687b3;
+        }
+        
+        .operand {
+            color: #68d391;
+        }
+        
+        .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+        
+        .visualization {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .memory-diagram {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .memory-block {
+            background: #3182ce;
+            color: white;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .memory-block:hover {
+            background: #2b6cb0;
+            transform: scale(1.05);
+        }
+        
+        .memory-block.highlight {
+            background: #e53e3e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .execution-steps {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+        .step {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            border-color: #667eea;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            transform: translateX(10px);
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .concept-box {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #e67e22;
+        }
+        
+        .concept-box h3 {
+            color: #d35400;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .memory-diagram {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Subroutine Parameters and Data Linkage</h1>
+            <p>Understanding Assembly Language Parameter Passing Mechanisms</p>
+        </div>
+        
+        <div class="content-grid">
+            <div class="card">
+                <h2>📋 Assembly Code Analysis</h2>
+                <table class="code-table">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Label</th>
+                            <th>Instruction</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="location"> </td>
+                            <td class="label"></td>
+                            <td class="instruction">ORG 200</td>
+                            <td class="comment">Program starts at 200</td>
+                        </tr>
+                        <tr>
+                            <td class="location">200</td>
+                            <td class="label"></td>
+                            <td class="instruction">LDA X</td>
+                            <td class="comment">Load first operand into AC</td>
+                        </tr>
+                        <tr>
+                            <td class="location">201</td>
+                            <td class="label"></td>
+                            <td class="instruction">BSA OR</td>
+                            <td class="comment">Branch to subroutine OR</td>
+                        </tr>
+                        <tr>
+                            <td class="location">202</td>
+                            <td class="label"></td>
+                            <td class="instruction">HEX 3AF6</td>
+                            <td class="comment">Second operand stored here</td>
+                        </tr>
+                        <tr>
+                            <td class="location">203</td>
+                            <td class="label"></td>
+                            <td class="instruction">STA Y</td>
+                            <td class="comment">Subroutine returns here</td>
+                        </tr>
+			<tr>
+                            <td class="location">204</td>
+                            <td class="label"></td>
+                            <td class="instruction">HLT</td>
+                            <td class="comment"> </td>
+                        </tr>
+                        <tr>
+                            <td class="location">205</td>
+                            <td class="label">X,</td>
+                            <td class="instruction">HEX 7B95</td>
+                            <td class="comment">First operand stored here</td>
+                        </tr>
+                        <tr>
+                            <td class="location">206</td>
+                            <td class="label">Y,</td>
+                            <td class="instruction">HEX 0</td>
+                            <td class="comment">Result stored here</td>
+                        </tr>
+                        <tr class="subroutine-start">
+                            <td class="location">207</td>
+                            <td class="label">OR,</td>
+                            <td class="instruction">HEX 0</td>
+                            <td class="comment">Subroutine OR</td>
+                        </tr>
+                        <tr>
+                            <td class="location">208</td>
+                            <td class="label"></td>
+                            <td class="instruction">CMA</td>
+                            <td class="comment">Complement first operand</td>
+                        </tr>
+                        <tr>
+                            <td class="location">209</td>
+                            <td class="label"></td>
+                            <td class="instruction">STA TMP</td>
+                            <td class="comment">Store in temporary location</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20A</td>
+                            <td class="label"></td>
+                            <td class="instruction">LDA OR I</td>
+                            <td class="comment">Load second operand</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20B</td>
+                            <td class="label"></td>
+                            <td class="instruction">CMA</td>
+                            <td class="comment">Complement second operand</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20C</td>
+                            <td class="label"></td>
+                            <td class="instruction">AND TMP</td>
+                            <td class="comment">AND complemented operands</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20D</td>
+                            <td class="label"></td>
+                            <td class="instruction">CMA</td>
+                            <td class="comment">Complement again to get OR</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20E</td>
+                            <td class="label"></td>
+                            <td class="instruction">ISZ OR</td>
+                            <td class="comment">Increment return address</td>
+                        </tr>
+                        <tr>
+                            <td class="location">20F</td>
+                            <td class="label"></td>
+                            <td class="instruction">BUN OR I</td>
+                            <td class="comment">Return to main program</td>
+                        </tr>
+                        <tr>
+                            <td class="location">210</td>
+                            <td class="label">TMP,</td>
+                            <td class="instruction">HEX 0</td>
+                            <td class="comment">Temporary storage</td>
+                        </tr>
+			<tr>
+                            <td class="location"> </td>
+                            <td class="label"> </td>
+                            <td class="instruction">END</td>
+                            <td class="comment"> </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>🔄 Parameter Passing Methods</h2>
+                
+                <div class="concept-box">
+                    <h3>Call by Reference</h3>
+                    <p>The subroutine accesses parameters through memory addresses. Changes made in the subroutine affect the original data.</p>
+                </div>
+                
+                <div class="concept-box">
+                    <h3>BSA (Branch and Save Address)</h3>
+                    <p>Stores the return address in the first location of the subroutine and jumps to the next location to begin execution.</p>
+                </div>
+                
+                <div class="concept-box">
+                    <h3>Indirect Addressing</h3>
+                    <p>Uses the 'I' suffix to access data indirectly through pointers, enabling flexible parameter passing.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <h2>🎯 Interactive Memory Visualization</h2>
+            <p>Click the buttons below to see how the subroutine execution affects memory locations:</p>
+            
+            <div class="controls">
+                <button class="btn" onclick="resetExecution()">Reset</button>
+                <button class="btn" onclick="executeStep()">Next Step</button>
+                <button class="btn" onclick="autoExecute()">Auto Execute</button>
+            </div>
+            
+            <div class="memory-diagram">
+                <div class="memory-block" id="ac">AC: 0000</div>
+                <div class="memory-block" id="x">X(205): 7B95</div>
+                <div class="memory-block" id="y">Y(206): 0000</div>
+                <div class="memory-block" id="operand2">202: 3AF6</div>
+                <div class="memory-block" id="tmp">TMP(210): 0000</div>
+                <div class="memory-block" id="or">OR(207): 0000</div>
+            </div>
+            
+            <div class="execution-steps">
+                <h3>Execution Steps:</h3>
+                <div class="step" id="step0">
+                    <span class="step-number">1</span>
+                    <strong>LDA X:</strong> Load first operand (7B95) into AC
+                </div>
+                <div class="step" id="step1">
+                    <span class="step-number">2</span>
+                    <strong>BSA OR:</strong> Save return address (202) in OR, jump to 208
+                </div>
+                <div class="step" id="step2">
+                    <span class="step-number">3</span>
+                    <strong>CMA:</strong> Complement AC (7B95 → 846A)
+                </div>
+                <div class="step" id="step3">
+                    <span class="step-number">4</span>
+                    <strong>STA TMP:</strong> Store complemented first operand in TMP
+                </div>
+                <div class="step" id="step4">
+                    <span class="step-number">5</span>
+                    <strong>LDA OR I:</strong> Load second operand (3AF6) using indirect addressing
+                </div>
+                <div class="step" id="step5">
+                    <span class="step-number">6</span>
+                    <strong>CMA:</strong> Complement second operand (3AF6 → C509)
+                </div>
+                <div class="step" id="step6">
+                    <span class="step-number">7</span>
+                    <strong>AND TMP:</strong> AND the two complemented operands
+                </div>
+                <div class="step" id="step7">
+                    <span class="step-number">8</span>
+                    <strong>CMA:</strong> Final complement to get OR result
+                </div>
+                <div class="step" id="step8">
+                    <span class="step-number">9</span>
+                    <strong>Return:</strong> ISZ OR and BUN OR I to return with result
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <div class="content-grid">
+            <div class="card">
+                <h2>🧮 De Morgan's Law Implementation</h2>
+                <p>This subroutine implements the OR operation using De Morgan's Law:</p>
+                <div style="text-align: center; font-size: 1.2em; margin: 20px 0;">
+                    <strong>A OR B = NOT(NOT A AND NOT B)</strong>
+                </div>
+                <p>The algorithm:</p>
+                <ol style="margin: 15px 0; padding-left: 20px;">
+                    <li>Complement operand A</li>
+                    <li>Complement operand B</li>
+                    <li>AND the two complements</li>
+                    <li>Complement the result</li>
+                </ol>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Key Advantages</h2>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li><strong>Reusability:</strong> Subroutine can be called multiple times</li>
+                    <li><strong>Modularity:</strong> Separates functionality into distinct units</li>
+                    <li><strong>Parameter Passing:</strong> Flexible data exchange mechanism</li>
+                    <li><strong>Memory Efficiency:</strong> Single copy serves multiple calls</li>
+                    <li><strong>Maintainability:</strong> Changes in one place affect all calls</li>
+                </ul>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="assembly_block_move.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Subroutine Move Data Block</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+    
+    <script>
+        let currentStep = 0;
+        let isExecuting = false;
+        
+        const memoryStates = [
+            { ac: '7B95', x: '7B95', y: '0000', operand2: '3AF6', tmp: '0000', or: '0000' },
+            { ac: '7B95', x: '7B95', y: '0000', operand2: '3AF6', tmp: '0000', or: '0202' },
+            { ac: '846A', x: '7B95', y: '0000', operand2: '3AF6', tmp: '0000', or: '0202' },
+            { ac: '846A', x: '7B95', y: '0000', operand2: '3AF6', tmp: '846A', or: '0202' },
+            { ac: '3AF6', x: '7B95', y: '0000', operand2: '3AF6', tmp: '846A', or: '0202' },
+            { ac: 'C509', x: '7B95', y: '0000', operand2: '3AF6', tmp: '846A', or: '0202' },
+            { ac: '8408', x: '7B95', y: '0000', operand2: '3AF6', tmp: '846A', or: '0202' },
+            { ac: '7BF7', x: '7B95', y: '0000', operand2: '3AF6', tmp: '846A', or: '0202' },
+            { ac: '7BF7', x: '7B95', y: '7BF7', operand2: '3AF6', tmp: '846A', or: '0203' }
+        ];
+        
+        function updateMemoryDisplay(state) {
+            document.getElementById('ac').textContent = `AC: ${state.ac}`;
+            document.getElementById('x').textContent = `X(205): ${state.x}`;
+            document.getElementById('y').textContent = `Y(206): ${state.y}`;
+            document.getElementById('operand2').textContent = `202: ${state.operand2}`;
+            document.getElementById('tmp').textContent = `TMP(210): ${state.tmp}`;
+            document.getElementById('or').textContent = `OR(207): ${state.or}`;
+        }
+        
+        function highlightStep(stepNum) {
+            // Remove all active classes
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            // Remove all memory highlights
+            document.querySelectorAll('.memory-block').forEach(block => block.classList.remove('highlight'));
+            
+            if (stepNum >= 0 && stepNum < 9) {
+                document.getElementById(`step${stepNum}`).classList.add('active');
+                
+                // Highlight relevant memory blocks
+                switch(stepNum) {
+                    case 0:
+                        document.getElementById('ac').classList.add('highlight');
+                        document.getElementById('x').classList.add('highlight');
+                        break;
+                    case 1:
+                        document.getElementById('or').classList.add('highlight');
+                        break;
+                    case 2:
+                    case 5:
+                    case 7:
+                        document.getElementById('ac').classList.add('highlight');
+                        break;
+                    case 3:
+                        document.getElementById('tmp').classList.add('highlight');
+                        break;
+                    case 4:
+                        document.getElementById('operand2').classList.add('highlight');
+                        break;
+                    case 6:
+                        document.getElementById('tmp').classList.add('highlight');
+                        document.getElementById('ac').classList.add('highlight');
+                        break;
+                    case 8:
+                        document.getElementById('y').classList.add('highlight');
+                        break;
+                }
+            }
+        }
+        
+        function executeStep() {
+            if (currentStep < memoryStates.length) {
+                updateMemoryDisplay(memoryStates[currentStep]);
+                highlightStep(currentStep);
+                currentStep++;
+            }
+        }
+        
+        function resetExecution() {
+            currentStep = 0;
+            updateMemoryDisplay(memoryStates[0]);
+            highlightStep(-1);
+            isExecuting = false;
+        }
+        
+        async function autoExecute() {
+            if (isExecuting) return;
+            isExecuting = true;
+            resetExecution();
+            
+            for (let i = 0; i < memoryStates.length; i++) {
+                if (!isExecuting) break;
+                executeStep();
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+            isExecuting = false;
+        }
+        
+        // Initialize display
+        resetExecution();
+    </script>
+</body>
+</html>

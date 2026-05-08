@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Microoperations | Digital Computer Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            color: #495057;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .shift-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .shift-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shift-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .shift-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+        }
+
+        .shift-card h4 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #495057;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+       .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+
+        .register-display {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .bit {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            background: white;
+            color: #667eea;
+            margin: 0 2px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .bit.highlight {
+            background: #ffd700;
+            color: #333;
+            transform: scale(1.1);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+	.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+        .highlight-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #f39c12;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box h4 {
+            color: #e67e22;
+            margin-bottom: 0.5rem;
+        }
+	dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+        .footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+            
+            .demo-controls {
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="fade-in">Shift Microoperations</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section fade-in">
+            <h2>🔄 Introduction to Shift Microoperations</h2>
+            <p>Shift microoperations are fundamental operations used for serial transfer of data within digital computers. They are frequently employed in conjunction with arithmetic, logical, and other data-processing tasks. These operations manipulate the bits within a register by moving them to the left or right.</p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="icon">⚡</div>
+                    <h4>Serial Data Transfer</h4>
+                    <p>Efficient movement of data bits within registers</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">🔧</div>
+                    <h4>Data Processing</h4>
+                    <p>Used with arithmetic and logical operations</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">🎯</div>
+                    <h4>Bit Manipulation</h4>
+                    <p>Precise control over individual bit positions</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section fade-in">
+            <h2>📊 Types of Shift Microoperations</h2>
+            
+            <div class="shift-types">
+                <div class="shift-card">
+                    <h4>1. Logical Shift</h4>
+                    <p>Transfers a <strong>0 (zero)</strong> into the serial input of the register. Used for basic left or right shifting of binary data.</p>
+                    
+                    <div class="code-block">
+R ← shl R //Shift left<br>
+R ← shr R //Shift right
+                    </div>
+                    
+                    <p><strong>Key Feature:</strong> Always inserts zeros from the shifting end.</p>
+                </div>
+
+                <div class="shift-card">
+                    <h4>2. Circular Shift (Rotate)</h4>
+                    <p>Circulates bits around the two ends of the register. Bits shifted out from one end are reinserted into the other end, ensuring no loss of information.</p>
+                    
+                    <div class="code-block">
+//Circular shift left<br>
+R ← cil R <br>
+// Circular shift right<br>
+R ← cir R  
+                    </div>
+                    
+                    <p><strong>Key Feature:</strong> No data loss - bits wrap around.</p>
+                </div>
+
+                <div class="shift-card">
+                    <h4>3. Arithmetic Shift</h4>
+                    <p>Shifts signed binary numbers while preserving the sign. Left shifts multiply by 2, right shifts divide by 2.</p>
+                    
+                    <div class="code-block" style="font-size: 0.90em;">
+
+//Arithmetic shift left<br>
+R ← ashl R <br>
+//Arithmetic shift right<br>
+R ← ashr R  
+                    </div>
+                    
+                    <p><strong>Key Feature:</strong> Sign bit preservation for signed numbers.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section fade-in">
+            <h2>🎮 Interactive Shift Demonstration</h2>
+            <div class="interactive-demo">
+                <h3 style="color: white;">8-bit Register Shift Simulator</h3>
+		<p style="color: white;">Click the buttons below to see different shift operations in action!</p>
+
+                
+                <div class="register-display">
+                    <div>Register Value:</div>
+                    <div id="register" style="margin: 1rem 0;">
+                        <span class="bit" id="bit7">1</span>
+                        <span class="bit" id="bit6">0</span>
+                        <span class="bit" id="bit5">1</span>
+                        <span class="bit" id="bit4">1</span>
+                        <span class="bit" id="bit3">0</span>
+                        <span class="bit" id="bit2">1</span>
+                        <span class="bit" id="bit1">0</span>
+                        <span class="bit" id="bit0">1</span>
+                    </div>
+                    <div>Binary: <span id="binaryValue">10110101</span> | Decimal: <span id="decimalValue">181</span></div>
+                </div>
+                
+                <div class="demo-controls">
+                    <button class="btn" onclick="logicalShiftLeft()">Logical Shift Left</button>
+                    <button class="btn" onclick="logicalShiftRight()">Logical Shift Right</button>
+                    <button class="btn" onclick="circularShiftLeft()">Circular Shift Left</button>
+                    <button class="btn" onclick="circularShiftRight()">Circular Shift Right</button>
+                    <button class="btn" onclick="resetRegister()">Reset</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section fade-in">
+            <h2>⚠️ Arithmetic Shift Details</h2>
+            
+            <h3>Arithmetic Shift Right</h3>
+            <p>The sign bit (leftmost bit) remains <strong>unchanged</strong> and is also transferred to the next position, preserving the sign of signed numbers.</p>
+            <pre style="background-color: white; color: black; font-size: 16px; line-height: 1.2;">
+┌─────┐
+│     │
+│ ┌───────┬───────┬───────────┬───────┬───────┐
+└→│ Rn-1  │ Rn-2  │     →     │  R1   │  R0   │
+  └───────┴───────┴───────────┴───────┴───────┘
+   ↑
+   │
+   └── Sign bit (feedback)
+
+</pre>
+            <h3>Arithmetic Shift Left</h3>
+            <p>A <strong>0 (zero)</strong> is inserted into the rightmost position. This operation effectively multiplies the number by 2, but overflow must be monitored.</p>
+	<div class="highlight-box">
+                <h4>Overflow Detection in Arithmetic Shift Left</h4>
+                <p>An overflow occurs when the sign bit changes value after the shift. This can be detected using an Exclusive-OR operation on the two most significant bits before the shift: <code>Vs = Rn-1 ⊕ Rn-2</code></p>
+            </div>
+        </section>
+
+        <section class="section fade-in">
+            <h2>🔧 Hardware Implementation</h2>
+            <p>Shift microoperations are commonly implemented using:</p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="icon">🎛️</div>
+                    <h4>Combinational Shifter</h4>
+                    <p>Built with multiplexers for high-speed operations</p>
+		    <div style="text-align: center;">
+		<button class="btn" button id="showFigureBtn">See the Figure</button>
+		</div>
+    <dialog id="figureDialog">
+        <img src="bi_shift.png" alt="Bidirectional Shifter" width="400px">>
+        <br><br>
+        <button class="btn"  button id="closeDialogBtn">Close</button>
+    </dialog>
+                </div>
+		
+
+            </div>
+
+            <div class="code-block">
+Combinational Shifter Function Table:<br>
+S = 0 (Shift Right): IR → H0, A0 → H1, A1 → H2, A2 → H3<br>
+S = 1 (Shift Left):   IL → H3, A1 → H0, A2 → H1, A3 → H2<br>
+            </div>
+        </section>
+    </div>
+	<div class="topic-actions">
+    <a href="alu_webpage.html" class="btn btn-primary">
+        Start Learning Arithmetic Logical Shift Unit
+    </a>
+	</div>
+   <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+
+    <script>
+        let registerBits = [1, 0, 1, 1, 0, 1, 0, 1]; // Initial value: 10110101
+	const showBtn = document.getElementById('showFigureBtn');
+        const closeBtn = document.getElementById('closeDialogBtn');
+        const dialog = document.getElementById('figureDialog');
+
+        showBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            dialog.close();
+        });
+
+        function updateDisplay() {
+            for (let i = 0; i < 8; i++) {
+                document.getElementById(`bit${7-i}`).textContent = registerBits[i];
+            }
+            
+            const binaryString = registerBits.join('');
+            const decimalValue = parseInt(binaryString, 2);
+            
+            document.getElementById('binaryValue').textContent = binaryString;
+            document.getElementById('decimalValue').textContent = decimalValue;
+        }
+
+        function highlightBits(indices) {
+            // Remove all highlights
+            for (let i = 0; i < 8; i++) {
+                document.getElementById(`bit${i}`).classList.remove('highlight');
+            }
+            
+            // Add highlights to specified bits
+            indices.forEach(index => {
+                document.getElementById(`bit${7-index}`).classList.add('highlight');
+            });
+            
+            // Remove highlights after animation
+            setTimeout(() => {
+                indices.forEach(index => {
+                    document.getElementById(`bit${7-index}`).classList.remove('highlight');
+                });
+            }, 1000);
+        }
+
+        function logicalShiftLeft() {
+            highlightBits([7, 0]); // Highlight MSB and LSB
+            registerBits.shift(); // Remove leftmost bit
+            registerBits.push(0); // Add 0 to rightmost
+            setTimeout(updateDisplay, 300);
+        }
+
+        function logicalShiftRight() {
+            highlightBits([0, 7]); // Highlight LSB and MSB
+            registerBits.pop(); // Remove rightmost bit
+            registerBits.unshift(0); // Add 0 to leftmost
+            setTimeout(updateDisplay, 300);
+        }
+
+        function circularShiftLeft() {
+            highlightBits([7, 0]); // Highlight bits that will move
+            const leftmostBit = registerBits.shift();
+            registerBits.push(leftmostBit);
+            setTimeout(updateDisplay, 300);
+        }
+
+        function circularShiftRight() {
+            highlightBits([0, 7]); // Highlight bits that will move
+            const rightmostBit = registerBits.pop();
+            registerBits.unshift(rightmostBit);
+            setTimeout(updateDisplay, 300);
+        }
+
+        function resetRegister() {
+            registerBits = [1, 0, 1, 1, 0, 1, 0, 1];
+            updateDisplay();
+        }
+
+        // Add smooth scroll behavior for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add intersection observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>

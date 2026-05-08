@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division Algorithms</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            color: #444;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ff6b6b15 0%, #ee5a6f15 100%);
+            border-left: 4px solid #ff6b6b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .figure-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .division-table {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .demo-input {
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            margin: 10px;
+            width: 150px;
+        }
+
+        .demo-btn {
+            background: white;
+            color: #f5576c;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .flowchart-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tab-btn {
+                padding: 12px 18px;
+                font-size: 0.9em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Division Algorithms</h1>
+            <p class="subtitle">Understanding Hardware Implementation of Binary Division</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="showTab('hardware')">Hardware Implementation</button>
+            <button class="tab-btn" onclick="showTab('overflow')">Divide Overflow</button>
+            <button class="tab-btn" onclick="showTab('algorithm')">Hardware Algorithm</button>
+            <button class="tab-btn" onclick="showTab('other')">Other Algorithms</button>
+        </div>
+
+        <div id="overview" class="content-card active">
+            <h2>Introduction to Division Algorithms</h2>
+            
+            <p>Division is one of the fundamental arithmetic operations in digital systems. Unlike addition and subtraction, division is more complex and requires multiple iterative steps to complete. This section explores how binary division is implemented in digital hardware.</p>
+
+            <div class="info-box">
+                <h3>Key Concepts</h3>
+                <ul>
+                    <li><strong>Dividend (A):</strong> The number being divided</li>
+                    <li><strong>Divisor (B):</strong> The number by which we divide</li>
+                    <li><strong>Quotient (Q):</strong> The result of the division</li>
+                    <li><strong>Remainder:</strong> What remains after division</li>
+                </ul>
+            </div>
+
+            <h3>Division Process</h3>
+            <p>Binary division follows a similar process to decimal long division, but operates on binary digits. The basic steps involve:</p>
+            
+            <ol>
+                <li>Compare the divisor with the current portion of the dividend</li>
+                <li>If dividend portion ≥ divisor, subtract and record 1 in quotient</li>
+                <li>If dividend portion < divisor, record 0 in quotient</li>
+                <li>Shift and repeat until all bits are processed</li>
+            </ol>
+
+            <div class="figure-container">
+                <div class="figure-title">Binary Division Example</div>
+                <div class="division-table">
+                    <pre style="text-align: left;">
+Divisor:                    11010        Quotient = Q
+B = 10001              ⟌0111000000      Dividend = A
+                        01110           5 bits of A < B, quotient has 5 bits
+                        011100          6 bits of A > B
+                        -10001          Shift right B and subtract; enter 1 in Q
+                        -------
+                        -010110         7 bits of remainder > B
+                        --10001         Shift right B and subtract; enter 1 in Q
+                        -------
+                        --00101         Remainder < B; enter 0 in Q; shift right B
+                        ---01010        Remainder > B
+                        ----10001       Shift right B and subtract; enter 1 in Q
+                        ---------
+                        ----00110       Remainder < B; enter 0 in Q
+                        -----00110      Final remainder
+                    </pre>
+                </div>
+                <p style="margin-top: 15px; color: #666;">This example shows dividing 0111000000 by 10001, resulting in quotient 11010 and remainder 00110</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🧮 Try Binary Division</h3>
+                <p>Enter decimal numbers to see the division process</p>
+                <div>
+                    <input type="number" id="dividend" class="demo-input" placeholder="Dividend" value="56">
+                    <input type="number" id="divisor" class="demo-input" placeholder="Divisor" value="17">
+                    <button class="demo-btn" onclick="performDivision()">Calculate</button>
+                </div>
+                <div class="result-display" id="result">
+                    Enter values and click Calculate
+                </div>
+            </div>
+        </div>
+
+        <div id="hardware" class="content-card">
+            <h2>Hardware Implementation for Signed-Magnitude Data</h2>
+            
+            <p>The hardware implementation of division for signed-magnitude data uses a restoring division algorithm. This approach uses dedicated registers and performs iterative shifts and subtractions.</p>
+
+            <h3>Register Configuration</h3>
+            <div class="info-box">
+                <ul>
+                    <li><strong>Register A:</strong> Initially holds the dividend, later accumulates the remainder</li>
+                    <li><strong>Register B:</strong> Holds the divisor (constant during operation)</li>
+                    <li><strong>Register Q:</strong> Accumulates the quotient bit by bit</li>
+                    <li><strong>Register E:</strong> Sign bit for remainder (1-bit register)</li>
+                    <li><strong>SC (Sequence Counter):</strong> Counts the number of iteration steps</li>
+                </ul>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">Example of Binary Division with Digital Hardware</div>
+                <div class="division-table">
+                    <pre style="text-align: left;">
+Divisor B = 10001,        B̄ + 1 = 01111
+
+             E      A          Q      SC
+Dividend:          01110      00000    5
+shl EAQ      0     11100      00000    
+add B̄ + 1          01111      00000
+                   -----
+E = 1        1     01011
+
+Set Qn = 1   1     01011      00001    4
+shl EAQ      0     10110      00010
+Add B̄ + 1          01111
+                   -----
+E = 1        1     00101
+
+Set Qn = 1   1     00101      00011    3
+shl EAQ      0     01010      00110
+Add B̄ + 1          01111
+                   ----- 
+             0     11001      00110          E = 0; leave Qn = 0 
+Add B              10001               
+                   ----- 
+             1     01010               2     Restore remainder 
+shl EAQ      0     10100      01100
+Add B̄ + 1          01111
+                   -----
+E = 1        1     00011
+
+Set Qn = 1   1     00011      01101    1
+shl EAQ      0     00110      11010
+Add B̄ + 1          01111
+                   ----- 
+             0     10101      11010	     E = 0; leave Qn = 0 
+Add B              10001               0
+                   -----
+             1     00110      11010	     Restore remainder 
+Neglect E
+Remainder in A:    00110
+Quotient in Q:                11010
+                    </pre>
+                </div>
+                <p style="margin-top: 15px; color: #666;">Detailed step-by-step hardware execution showing register operations</p>
+            </div>
+
+            <h3>Operation Steps</h3>
+            <div class="step">
+                <strong>Step 1: Initialization</strong><br>
+                Load dividend into register A, divisor into register B, set Q to 0, and SC to n-1 (where n is the number of bits)
+            </div>
+            <div class="step">
+                <strong>Step 2: Shift Left EAQ</strong><br>
+                Shift the combined EAQ register left by one position, moving the next bit of A into consideration
+            </div>
+            <div class="step">
+                <strong>Step 3: Subtract Divisor</strong><br>
+                Add B̄ + 1 (two's complement of B) to A, effectively performing A - B
+            </div>
+            <div class="step">
+                <strong>Step 4: Check Sign Bit E</strong><br>
+                If E = 0 (result positive), set Qn = 1; if E = 1 (result negative), restore A by adding B and set Qn = 0
+            </div>
+            <div class="step">
+                <strong>Step 5: Repeat</strong><br>
+                Decrement SC and repeat steps 2-4 until SC = 0
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important Note:</strong> The restoring division algorithm gets its name from the restoration step where we add back the divisor if the subtraction result is negative. This ensures the partial remainder is always positive.
+            </div>
+        </div>
+
+        <div id="overflow" class="content-card">
+            <h2>Divide Overflow</h2>
+            
+            <p>Divide overflow occurs when the quotient exceeds the capacity of the register allocated to hold it. This is a critical condition that must be detected before performing the division operation.</p>
+
+            <h3>Overflow Conditions</h3>
+            <div class="warning-box">
+                <p><strong>Overflow occurs when:</strong></p>
+                <ul>
+                    <li>The divisor is zero (division by zero)</li>
+                    <li>The dividend is greater than or equal to the divisor when both are considered as unsigned integers</li>
+                    <li>The magnitude of the dividend ≥ magnitude of the divisor × 2^n (where n is register size)</li>
+                </ul>
+            </div>
+
+            <h3>Detection Mechanism</h3>
+            <p>Before starting the division process, the hardware performs an overflow check:</p>
+
+            <div class="code-block">
+if (A ≥ B) then<br>
+&nbsp;&nbsp;&nbsp;    Set Divide Overflow Flag (DVF = 1)<br>
+&nbsp;&nbsp;&nbsp;    Do not perform division<br>
+else<br>
+&nbsp;&nbsp;&nbsp;    Clear Divide Overflow Flag (DVF = 0)<br>
+&nbsp;&nbsp;&nbsp;    Proceed with division<br>
+            </div>
+
+            <div class="info-box">
+                <h3>Example: Overflow Detection</h3>
+                <p>Consider a 5-bit quotient register:</p>
+                <ul>
+                    <li>If dividend A = 11110 and divisor B = 10001</li>
+                    <li>Initially compare: A (30 decimal) vs B (17 decimal)</li>
+                    <li>Since 30 ≥ 17, but quotient would fit in 5 bits, initial subtraction is performed</li>
+                    <li>The algorithm checks if EA initially (before first shift) would be ≥ B</li>
+                    <li>If true, overflow is flagged because quotient needs more than allocated bits</li>
+                </ul>
+            </div>
+
+            <h3>Handling Overflow</h3>
+            <p>When overflow is detected, the system typically:</p>
+            <ol>
+                <li>Sets a divide overflow flag in the status register</li>
+                <li>May trigger an interrupt to alert the processor</li>
+                <li>Does not modify the dividend and divisor registers</li>
+                <li>Allows software to handle the exceptional condition</li>
+            </ol>
+
+            <div class="step">
+                <strong>Hardware Check Flow:</strong><br>
+                EA ← A ⊕ B (XOR signs for quotient sign)<br>
+                Qn ← A ⊕ B<br>
+                SC ← n - 1<br>
+                EA ← A + B̄ + 1<br>
+                if (E = 1) then DVF ← 0, proceed with division<br>
+                if (E = 0) then DVF ← 1, signal overflow
+            </div>
+        </div>
+
+        <div id="algorithm" class="content-card">
+            <h2>Hardware Algorithm Flowchart</h2>
+            
+            <p>The complete hardware algorithm for binary division follows a structured flowchart that guides the sequential operations of the division unit.</p>
+
+            <div class="figure-container">
+                <div class="figure-title">Division Algorithm Flowchart</div>
+                
+                    <center><img src="div_mag.png" alt="Signed Division Flowchart" width="500px"></center>
+                
+            </div>
+
+            <h3>Detailed Magnitude Division Loop</h3>
+            <p>The "Divide Magnitudes" section expands into the following iterative process:</p>
+
+            <div class="info-box">
+                <strong>Iterative Division Steps:</strong>
+                <ol>
+                    <li><strong>shl EAQ:</strong> Shift left the combined EAQ register</li>
+                    <li><strong>Comparison:</strong> Check E bit after adding B̄ + 1
+                        <ul>
+                            <li>If E = 0: A ≥ B, set Qn = 1, keep subtraction result</li>
+                            <li>If E = 1: A < B, set Qn = 0, restore by adding B</li>
+                        </ul>
+                    </li>
+                    <li><strong>SC ← SC - 1:</strong> Decrement sequence counter</li>
+                    <li><strong>Check SC:</strong> If SC ≠ 0, repeat; if SC = 0, finish</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+// Pseudocode for Division Algorithm<br>
+DIVIDE(A, B):<br>
+&nbsp;&nbsp;&nbsp;    E ← 0<br>
+&nbsp;&nbsp;&nbsp;    Q ← 0<br>
+&nbsp;&nbsp;&nbsp;    SC ← n - 1<br><br>
+    
+&nbsp;&nbsp;&nbsp;    // Overflow check<br>
+&nbsp;&nbsp;&nbsp;    EA ← A + (NOT B) + 1<br>
+&nbsp;&nbsp;&nbsp;    if E = 0 then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        DVF ← 1<br>
+&nbsp;&nbsp;&nbsp;        return OVERFLOW<br><br>
+    
+&nbsp;&nbsp;&nbsp;    // Restore and continue<br>
+&nbsp;&nbsp;&nbsp;    A ← A + B<br><br>
+    
+&nbsp;&nbsp;&nbsp;    // Main division loop<br>
+&nbsp;&nbsp;&nbsp;    while SC ≠ 0 do<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        Shift_Left(E, A, Q)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        EA ← A + (NOT B) + 1<br><br>
+        
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        if E = 1 then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            Q[0] ← 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            A ← A + B  // Restore<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        else<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;            Q[0] ← 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        end if<br><br>
+        
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        SC ← SC - 1<br>
+&nbsp;&nbsp;&nbsp;    end while<br><br>
+    
+&nbsp;&nbsp;&nbsp;    return Q (quotient), A (remainder)
+            </div>
+
+            <h3>Timing Analysis</h3>
+            <p>For an n-bit division operation:</p>
+            <ul>
+                <li><strong>Number of iterations:</strong> n cycles</li>
+                <li><strong>Operations per cycle:</strong> 1 shift + 1 add/subtract + decision</li>
+                <li><strong>Total time complexity:</strong> O(n)</li>
+                <li><strong>Hardware complexity:</strong> Requires adder, shifter, and control logic</li>
+            </ul>
+        </div>
+
+        <div id="other" class="content-card">
+            <h2>Other Division Algorithms</h2>
+            
+            <p>Beyond the restoring division algorithm, several alternative approaches exist for implementing division in hardware, each with unique trade-offs.</p>
+
+            <h3>1. Non-Restoring Division</h3>
+            <div class="info-box">
+                <p><strong>Key Improvement:</strong> Eliminates the restoration step, making the algorithm faster.</p>
+                <p>Instead of restoring the remainder after a negative result, the algorithm alternates between addition and subtraction based on the sign of the previous result.</p>
+                
+                <div class="code-block" style="margin-top: 15px;">
+Non-Restoring Algorithm:<br>
+1. If remainder ≥ 0: Shift left, subtract divisor<br>
+2. If remainder < 0: Shift left, add divisor<br>
+3. Quotient bit: 1 if remainder ≥ 0, else 0<br>
+4. Final adjustment if remainder is negative
+                </div>
+                
+                <p style="margin-top: 15px;"><strong>Advantage:</strong> Saves one clock cycle per iteration when restoration would be needed</p>
+                <p><strong>Disadvantage:</strong> Slightly more complex control logic</p>
+            </div>
+
+            <h3>2. Two's Complement Division</h3>
+            <div class="info-box">
+                <p>Handles signed numbers directly without converting to magnitude form:</p>
+                <ul>
+                    <li>Works with negative dividends and divisors</li>
+                    <li>Uses modified comparison and correction steps</li>
+                    <li>Eliminates need for separate sign handling</li>
+                    <li>Quotient and remainder signs follow mathematical rules</li>
+                </ul>
+                <p><strong>Rule:</strong> Sign of quotient = (sign of dividend) XOR (sign of divisor)</p>
+                <p><strong>Rule:</strong> Sign of remainder = sign of dividend</p>
+            </div>
+
+            <h3>3. SRT Division</h3>
+            <div class="info-box">
+                <p><strong>Named after:</strong> Sweeney, Robertson, and Tocher</p>
+                <p>Uses a redundant number representation allowing quotient digits of {-1, 0, 1}:</p>
+                <ul>
+                    <li>Can determine quotient digit by examining only few MSBs</li>
+                    <li>Reduces hardware complexity for high-speed division</li>
+                    <li>Used in many modern processors (e.g., Intel Pentium series)</li>
+                    <li>Requires quotient conversion at the end</li>
+                </ul>
+            </div>
+
+            <h3>4. Array Divider</h3>
+            <div class="step">
+                <strong>Parallel Implementation:</strong> Uses combinational logic array
+                <ul>
+                    <li>Unrolls the division loop into parallel hardware</li>
+                    <li>Each stage performs one subtraction/comparison</li>
+                    <li>Trades area for speed (O(1) time, O(n²) area)</li>
+                    <li>Very fast but expensive in terms of silicon area</li>
+                    <li>Used in specialized high-performance applications</li>
+                </ul>
+            </div>
+
+            <h3>5. Newton-Raphson Division</h3>
+            <div class="info-box">
+                <p><strong>Iterative Approximation Method:</strong></p>
+                <p>Computes 1/B using Newton-Raphson iteration, then multiplies by A:</p>
+                <div class="code-block" style="margin-top: 15px;">
+Algorithm:<br>
+X₀ = initial approximation of 1/B<br>
+Xᵢ₊₁ = Xᵢ(2 - B·Xᵢ)  // Iterate until convergence<br>
+Result = A · Xₙ         // Final quotient
+                </div>
+                <ul>
+                    <li>Converges quadratically (doubles precision each iteration)</li>
+                    <li>Requires fast multiplier hardware</li>
+                    <li>Better for floating-point division</li>
+                    <li>Used in modern FPUs (Floating Point Units)</li>
+                </ul>
+            </div>
+
+            <h3>6. Goldschmidt Division</h3>
+            <div class="step">
+                <strong>Multiplicative Normalization:</strong>
+                <ul>
+                    <li>Simultaneously multiplies dividend and divisor by factors</li>
+                    <li>Converges divisor toward 1, making dividend approach quotient</li>
+                    <li>Highly parallelizable for pipelined architectures</li>
+                    <li>Used in AMD processors and GPUs</li>
+                </ul>
+            </div>
+
+            <h3>Comparison Table</h3>
+            <div class="figure-container">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 12px; border: 1px solid #ddd;">Algorithm</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">Speed</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">Hardware Cost</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">Best Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Restoring</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(n) cycles</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Low</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Simple microcontrollers</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Non-Restoring</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(n) cycles (faster)</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Low-Medium</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">General purpose CPUs</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>SRT</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(n) cycles (efficient)</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Medium</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">High-speed processors</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Array Divider</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(1) cycle</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Very High</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Specialized applications</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Newton-Raphson</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(log n) iterations</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">High</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Floating-point units</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Goldschmidt</strong></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">O(log n) iterations</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">High</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Pipelined FPUs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Selecting the Right Algorithm</h3>
+            <div class="warning-box">
+                <p><strong>Design Considerations:</strong></p>
+                <ul>
+                    <li><strong>Speed Requirements:</strong> How many clock cycles can you afford?</li>
+                    <li><strong>Area Constraints:</strong> How much silicon area is available?</li>
+                    <li><strong>Power Budget:</strong> Parallel solutions consume more power</li>
+                    <li><strong>Data Type:</strong> Integer vs. floating-point division</li>
+                    <li><strong>Precision Needs:</strong> Higher precision requires more iterations</li>
+                    <li><strong>Frequency:</strong> How often is division performed?</li>
+                </ul>
+            </div>
+
+            <h3>Modern Implementation Trends</h3>
+            <p>Contemporary processors often use hybrid approaches:</p>
+            <ul>
+                <li><strong>Integer Division:</strong> SRT or non-restoring algorithms</li>
+                <li><strong>Floating-Point:</strong> Newton-Raphson or Goldschmidt with table lookup</li>
+                <li><strong>Low-Power Devices:</strong> Simple restoring with clock gating</li>
+                <li><strong>GPUs:</strong> Approximation methods with refinement</li>
+            </ul>
+
+            <div class="info-box">
+                <h3>📚 Historical Note</h3>
+                <p>The infamous Pentium FDIV bug (1994) was caused by an error in the lookup table used for SRT division. Five entries out of 1066 were incorrect, leading to rare but significant floating-point division errors. This incident cost Intel $475 million and highlighted the critical importance of verification in division hardware.</p>
+            </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="floating_point_webpage.html" style="text-decoration: none;" class="btn btn-primary">Floating Point Arithmetic Operations</a>
+                </div>
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            © Dr. Jay M. Joshi
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all content cards
+            const cards = document.querySelectorAll('.content-card');
+            cards.forEach(card => card.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Highlight active button
+            event.target.classList.add('active');
+        }
+
+        function performDivision() {
+            const dividend = parseInt(document.getElementById('dividend').value);
+            const divisor = parseInt(document.getElementById('divisor').value);
+            const resultDiv = document.getElementById('result');
+            
+            if (isNaN(dividend) || isNaN(divisor)) {
+                resultDiv.innerHTML = '⚠️ Please enter valid numbers';
+                return;
+            }
+            
+            if (divisor === 0) {
+                resultDiv.innerHTML = '🚫 Error: Division by zero!<br>Divide overflow detected';
+                return;
+            }
+            
+            const quotient = Math.floor(dividend / divisor);
+            const remainder = dividend % divisor;
+            
+            const dividendBin = dividend.toString(2).padStart(8, '0');
+            const divisorBin = divisor.toString(2).padStart(8, '0');
+            const quotientBin = quotient.toString(2).padStart(8, '0');
+            const remainderBin = remainder.toString(2).padStart(8, '0');
+            
+            resultDiv.innerHTML = `
+                <strong>Decimal Result:</strong><br>
+                ${dividend} ÷ ${divisor} = ${quotient} R ${remainder}<br><br>
+                <strong>Binary Representation:</strong><br>
+                Dividend: ${dividendBin} (${dividend}₁₀)<br>
+                Divisor: ${divisorBin} (${divisor}₁₀)<br>
+                Quotient: ${quotientBin} (${quotient}₁₀)<br>
+                Remainder: ${remainderBin} (${remainder}₁₀)
+            `;
+        }
+
+        // Initialize with example calculation
+        window.onload = function() {
+            performDivision();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5.1 Instruction Codes - Computer Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .navigation {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 15px 0;
+            padding-left: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .instruction-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+            border: 2px solid #e3f2fd;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instruction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .instruction-card:hover::before {
+            left: 100%;
+        }
+
+        .instruction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .instruction-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .instruction-code {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-right: 15px;
+        }
+
+        .instruction-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .binary-display {
+            background: #2c3e50;
+            color: #00ff88;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .binary-display::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff, #ffff00);
+            border-radius: 12px;
+            z-index: -1;
+            animation: rainbow 3s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .format-diagram {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+	    font-family: 'Poppins', Times;
+        }
+
+        .format-row {
+            display: flex;
+            margin: 15px 0;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .format-bit {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            margin: 0 2px;
+            border-radius: 8px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .format-bit:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .format-label {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .demo-input {
+            padding: 15px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin: 10px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .quiz-container {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .quiz-question {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .quiz-option {
+            background: white;
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            background: #f8f9ff;
+            border-color: #667eea;
+            transform: translateX(10px);
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+	.footer {
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: float-animation 15s infinite linear;
+        }
+	
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+		 .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+        @keyframes float-animation {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+            
+            .format-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-buttons {
+                justify-content: center;
+            }
+            
+            .nav-btn {
+                font-size: 0.9em;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Instruction Codes</h1>
+            <p>Understanding Computer Operations & Binary Instructions</p>
+        </div>
+
+        <div class="navigation">
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showSection('intro')">Introduction</button>
+                <button class="nav-btn" onclick="showSection('components')">Components</button>
+                <button class="nav-btn" onclick="showSection('formats')">Formats</button>
+                <button class="nav-btn" onclick="showSection('instructions')">Instruction Set</button>
+                <button class="nav-btn" onclick="showSection('demo')">Interactive Demo</button>
+                <button class="nav-btn" onclick="showSection('quiz')">Quiz</button>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Introduction Section -->
+        <div id="intro" class="section active">
+            <h2>Introduction to Instruction Codes</h2>
+            <p style="font-size: 1.2em; text-align: center; margin-bottom: 30px; color: #666;">
+                A computer instruction is a <strong>binary code</strong> that specifies a sequence of micro-operations for the computer to perform.
+            </p>
+            
+            <div class="instruction-card">
+                <div class="instruction-header">
+                    <div class="instruction-code">BINARY</div>
+                    <div class="instruction-name">What is an Instruction Code?</div>
+                </div>
+                <p>Instructions are fundamental to how computers process information, dictating the specific operations the machine should execute. Each instruction tells the computer exactly what to do and how to do it.</p>
+            </div>
+
+            <div class="binary-display">
+                <div style="text-align: center; font-size: 1.2em; margin-bottom: 15px;">Example 16-bit Instruction</div>
+                <div style="text-align: center; font-size: 1.5em; letter-spacing: 3px;">
+                    <span id="binaryExample">0010 1100 1010 0001</span>
+                </div>
+                <div style="text-align: center; margin-top: 15px; color: #00d4ff;">
+                    ↑ Opcode ↑    ↑ Address ↑
+                </div>
+            </div>
+
+            <h3>Key Concepts</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 25px;">
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">1</div>
+                        <div class="instruction-name">Binary Foundation</div>
+                    </div>
+                    <p>All computer instructions are represented in binary format (0s and 1s) that the processor can understand and execute.</p>
+                </div>
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">2</div>
+                        <div class="instruction-name">Micro-operations</div>
+                    </div>
+                    <p>Each instruction triggers a sequence of micro-operations - the smallest executable operations within the processor.</p>
+                </div>
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">3</div>
+                        <div class="instruction-name">Control Unit</div>
+                    </div>
+                    <p>The control unit interprets instruction codes and generates appropriate control signals to execute operations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Components Section -->
+        <div id="components" class="section">
+            <h2>Components of Instruction Codes</h2>
+            
+            <h3>Operation Code (Opcode)</h3>
+            <div class="instruction-card">
+                <div class="instruction-header">
+                    <div class="instruction-code">OPCODE</div>
+                    <div class="instruction-name">The Heart of Every Instruction</div>
+                </div>
+                <p>The opcode is a group of bits that defines the specific operation to be performed. Common operations include add, subtract, shift, and complement.</p>
+                
+                <div class="format-diagram">
+                    <h4>Opcode Examples</h4>
+                    <div class="format-row">
+                        <div class="format-bit" onclick="showOpcodeInfo('000')">000</div>
+                        <div class="format-label">AND Operation</div>
+                    </div>
+                    <div class="format-row">
+                        <div class="format-bit" onclick="showOpcodeInfo('001')">001</div>
+                        <div class="format-label">ADD Operation</div>
+                    </div>
+                    <div class="format-row">
+                        <div class="format-bit" onclick="showOpcodeInfo('010')">010</div>
+                        <div class="format-label">LDA (Load Accumulator)</div>
+                    </div>
+                    <div id="opcodeInfo" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; display: none;">
+                        <p id="opcodeDescription">Click on an opcode to see its description!</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Addressing Components</h3>
+            <div class="instruction-card">
+                <div class="instruction-header">
+                    <div class="instruction-code">ADDR</div>
+                    <div class="instruction-name">Operands and Addresses</div>
+                </div>
+                <p>Instructions must specify where operands (data) are located and where results should be stored. This involves processor registers or memory addresses.</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Interactive Address Calculator</h4>
+                <p>Enter a 12-bit address (0-4095) to see its binary representation:</p>
+                <input type="number" id="addressInput" class="demo-input" min="0" max="4095" placeholder="Enter address (0-4095)">
+                <button class="demo-button" onclick="calculateAddress()">Convert to Binary</button>
+                <div id="addressResult" style="margin-top: 20px; font-family: 'Courier New'; font-size: 1.2em;"></div>
+            </div>
+        </div>
+
+        <!-- Formats Section -->
+        <div id="formats" class="section">
+            <h2>Instruction Formats</h2>
+            
+            <h3>Memory-Reference Instructions</h3>
+            <div class="format-diagram">
+                <h4>16-bit Memory-Reference Format</h4>
+                <div class="format-row">
+                    <div class="format-bit">15</div>
+                    <div class="format-bit">14</div>
+                    <div class="format-bit">13</div>
+                    <div class="format-bit">12</div>
+                    <div style="margin: 0 10px;">|</div>
+                    <div class="format-bit">11</div>
+                    <div class="format-bit">10</div>
+                    <div class="format-bit">9</div>
+                    <div class="format-bit">8</div>
+                    <div style="margin: 0 5px;">...</div>
+                    <div class="format-bit">1</div>
+                    <div class="format-bit">0</div>
+                </div>
+                <div class="format-row">
+                    <div class="format-label">I</div>
+                    <div class="format-label">Opcode (3 bits)</div>
+                    <div class="format-label">Address (12 bits)</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <p><strong>I bit (bit 15):</strong> Addressing mode (0 = Direct, 1 = Indirect)</p>
+                    <p><strong>Opcode:</strong> 000 through 110 for memory operations</p>
+                    <p><strong>Address:</strong> 12-bit address (0-4095)</p>
+                </div>
+            </div>
+
+            <h3>Register-Reference Instructions</h3>
+            <div class="format-diagram">
+                <h4>16-bit Register-Reference Format</h4>
+                <div class="format-row">
+                    <div class="format-bit">15</div>
+                    <div class="format-bit">14</div>
+                    <div class="format-bit">13</div>
+                    <div class="format-bit">12</div>
+                    <div style="margin: 0 10px;">|</div>
+                    <div class="format-bit">11</div>
+                    <div class="format-bit">10</div>
+                    <div class="format-bit">9</div>
+                    <div class="format-bit">8</div>
+                    <div style="margin: 0 5px;">...</div>
+                    <div class="format-bit">1</div>
+                    <div class="format-bit">0</div>
+                </div>
+                <div class="format-row">
+                    <div class="format-label">0</div>
+                    <div class="format-label">111</div>
+                    <div class="format-label">Register Operation (12 bits)</div>
+                </div>
+            </div>
+
+            <h3>Input-Output Instructions</h3>
+            <div class="format-diagram">
+                <h4>16-bit I/O Format</h4>
+                <div class="format-row">
+                    <div class="format-bit">15</div>
+                    <div class="format-bit">14</div>
+                    <div class="format-bit">13</div>
+                    <div class="format-bit">12</div>
+                    <div style="margin: 0 10px;">|</div>
+                    <div class="format-bit">11</div>
+                    <div class="format-bit">10</div>
+                    <div class="format-bit">9</div>
+                    <div class="format-bit">8</div>
+                    <div style="margin: 0 5px;">...</div>
+                    <div class="format-bit">1</div>
+                    <div class="format-bit">0</div>
+                </div>
+                <div class="format-row">
+                    <div class="format-label">1</div>
+                    <div class="format-label">111</div>
+                    <div class="format-label">I/O Operation (12 bits)</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h4>Instruction Format Identifier</h4>
+                <p>Enter a 16-bit binary instruction to identify its format:</p>
+                <input type="text" id="instructionInput" class="demo-input" placeholder="Enter 16-bit binary (e.g., 0010110010100001)" maxlength="16">
+                <button class="demo-button" onclick="identifyFormat()">Identify Format</button>
+                <div id="formatResult" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div id="instructions" class="section">
+            <h2>Basic Computer Instruction Set</h2>
+            
+            <h3>Memory-Reference Instructions</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">AND</div>
+                        <div class="instruction-name">Logical AND</div>
+                    </div>
+                    <p>Performs logical AND between memory word and Accumulator (AC)</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> AC ← AC ∧ M[Address]<br>
+                        <strong>Example:</strong> If AC = 1010 and M[100] = 1100, result = 1000
+                    </div>
+                </div>
+
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">ADD</div>
+                        <div class="instruction-name">Addition</div>
+                    </div>
+                    <p>Adds memory word to AC with carry to E flip-flop</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> AC ← AC + M[Address]<br>
+                        <strong>Note:</strong> Overflow sets the E (carry) flip-flop
+                    </div>
+                </div>
+
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">LDA</div>
+                        <div class="instruction-name">Load Accumulator</div>
+                    </div>
+                    <p>Loads memory word into the Accumulator</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> AC ← M[Address]<br>
+                        <strong>Use:</strong> Initialize AC with a value from memory
+                    </div>
+                </div>
+
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">STA</div>
+                        <div class="instruction-name">Store Accumulator</div>
+                    </div>
+                    <p>Stores AC content into memory location</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> M[Address] ← AC<br>
+                        <strong>Use:</strong> Save AC value to memory
+                    </div>
+                </div>
+
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">BUN</div>
+                        <div class="instruction-name">Branch Unconditionally</div>
+                    </div>
+                    <p>Transfers program control to new address</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> PC ← Address<br>
+                        <strong>Use:</strong> Implement loops and jumps
+                    </div>
+                </div>
+
+                <div class="instruction-card" onclick="toggleDetails(this)">
+                    <div class="instruction-header">
+                        <div class="instruction-code">BSA</div>
+                        <div class="instruction-name">Branch and Save</div>
+                    </div>
+                    <p>Branches to subroutine and saves return address</p>
+                    <div class="details" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee;">
+                        <strong>Operation:</strong> M[Address] ← PC, PC ← Address + 1<br>
+                        <strong>Use:</strong> Implement subroutine calls
+                    </div>
+                </div>
+            </div>
+
+            <h3>Register-Reference Instructions</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 25px;">
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">CLA</div>
+                        <div class="instruction-name">Clear AC</div>
+                    </div>
+                    <p>Sets Accumulator to zero</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">CLE</div>
+                        <div class="instruction-name">Clear E</div>
+                    </div>
+                    <p>Sets E flip-flop to zero</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">CMA</div>
+                        <div class="instruction-name">Complement AC</div>
+                    </div>
+                    <p>Complements all bits in AC</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">INC</div>
+                        <div class="instruction-name">Increment AC</div>
+                    </div>
+                    <p>Increments AC by one</p>
+                </div>
+            </div>
+
+            <h3>Input-Output Instructions</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 25px;">
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">INP</div>
+                        <div class="instruction-name">Input Character</div>
+                    </div>
+                    <p>Inputs character from terminal into AC</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">OUT</div>
+                        <div class="instruction-name">Output Character</div>
+                    </div>
+                    <p>Outputs character from AC to printer</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">SKI</div>
+                        <div class="instruction-name">Skip if Input Flag</div>
+                    </div>
+                    <p>Skips next instruction if input flag is on</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-header">
+                        <div class="instruction-code">ION</div>
+                        <div class="instruction-name">Interrupt On</div>
+                    </div>
+                    <p>Turns interrupt facility on</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Section -->
+        <div id="demo" class="section">
+            <h2>Interactive Demonstration</h2>
+            
+            <div class="interactive-demo">
+                <h3>Instruction Execution Simulator</h3>
+                <p>Select an instruction and see how it executes step by step:</p>
+                
+                <div style="margin: 20px 0;">
+                    <label for="instrSelect">Choose Instruction:</label>
+                    <select id="instrSelect" class="demo-input" onchange="updateSimulation()">
+                        <option value="LDA">LDA - Load Accumulator</option>
+                        <option value="ADD">ADD - Addition</option>
+                        <option value="AND">AND - Logical AND</option>
+                        <option value="STA">STA - Store Accumulator</option>
+                        <option value="CLA">CLA - Clear Accumulator</option>
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h4>Before Execution</h4>
+                        <div class="binary-display" style="margin: 10px 0;">
+                            <div>AC: <span id="acBefore">0000000000000000</span></div>
+                            <div>Memory[100]: <span id="memBefore">0000000000001010</span></div>
+                        </div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h4>After Execution</h4>
+                        <div class="binary-display" style="margin: 10px 0;">
+                            <div>AC: <span id="acAfter">0000000000001010</span></div>
+                            <div>Memory[100]: <span id="memAfter">0000000000001010</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="demo-button" onclick="runSimulation()">Execute Instruction</button>
+                <div id="simulationSteps" style="margin-top: 20px; text-align: left;"></div>
+            </div>
+
+            <div class="interactive-demo" style="background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);">
+                <h3>Binary to Hex Converter</h3>
+                <p>Convert instruction codes between binary and hexadecimal:</p>
+                
+                <div style="margin: 20px 0;">
+                    <input type="text" id="binaryInput" class="demo-input" placeholder="Enter 16-bit binary" maxlength="16">
+                    <button class="demo-button" onclick="convertToHex()">Convert to Hex</button>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <input type="text" id="hexInput" class="demo-input" placeholder="Enter 4-digit hex" maxlength="4">
+                    <button class="demo-button" onclick="convertToBinary()">Convert to Binary</button>
+                </div>
+                
+                <div id="conversionResult" style="background: white; padding: 15px; border-radius: 10px; margin-top: 20px;"></div>
+            </div>
+
+
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz" class="section">
+            <h2>Knowledge Quiz</h2>
+            
+            <div class="quiz-container">
+                <div id="quizQuestion" class="quiz-question">
+                    What is the primary purpose of an instruction code's opcode?
+                </div>
+                
+                <div class="quiz-option" onclick="selectAnswer(this, false)">
+                    A) To specify the memory address of operands
+                </div>
+                <div class="quiz-option" onclick="selectAnswer(this, true)">
+                    B) To define the specific operation to be performed
+                </div>
+                <div class="quiz-option" onclick="selectAnswer(this, false)">
+                    C) To indicate the addressing mode only
+                </div>
+                <div class="quiz-option" onclick="selectAnswer(this, false)">
+                    D) To store the result of the operation
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="demo-button" onclick="nextQuestion()" id="nextBtn" style="display: none;">Next Question</button>
+                    <div id="quizScore" style="margin-top: 15px; font-size: 1.2em; font-weight: bold;"></div>
+                </div>
+            </div>
+
+            <div style="background: white; border-radius: 15px; padding: 25px; margin-top: 25px;">
+                <h3>Key Takeaways</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div class="instruction-card">
+                        <div class="instruction-header">
+                            <div class="instruction-code">1</div>
+                            <div class="instruction-name">Binary Foundation</div>
+                        </div>
+                        <p>All instructions are binary codes that specify micro-operations</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-header">
+                            <div class="instruction-code">2</div>
+                            <div class="instruction-name">Three Formats</div>
+                        </div>
+                        <p>Memory-reference, Register-reference, and I/O instructions</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-header">
+                            <div class="instruction-code">3</div>
+                            <div class="instruction-name">Addressing Modes</div>
+                        </div>
+                        <p>Direct (I=0) and Indirect (I=1) addressing modes</p>
+                    </div>
+                </div>
+            </div>
+		<div class="topic-actions">
+    <a href="addressing_modes_webpage.html" class="btn btn-primary">
+        Start Learning Direct and Indirect Addressing
+    </a>
+</div>
+
+        </div>
+		    <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+		<div class="footer">
+           			<p>© Dr. Jay M. Joshi</p>
+        		</div>
+    </div>
+
+    <script>
+        let currentSection = 'intro';
+        let quizQuestions = [
+            {
+                question: "What is the primary purpose of an instruction code's opcode?",
+                options: [
+                    "To specify the memory address of operands",
+                    "To define the specific operation to be performed",
+                    "To indicate the addressing mode only",
+                    "To store the result of the operation"
+                ],
+                correct: 1
+            },
+            {
+                question: "In a 16-bit instruction format, what does the I bit (bit 15) indicate?",
+                options: [
+                    "The interrupt status",
+                    "The instruction type",
+                    "The addressing mode (direct/indirect)",
+                    "The input/output flag"
+                ],
+                correct: 2
+            },
+            {
+                question: "Which opcode pattern identifies register-reference instructions?",
+                options: [
+                    "000 through 110",
+                    "111 with I=0",
+                    "111 with I=1",
+                    "Any 3-bit pattern"
+                ],
+                correct: 1
+            },
+            {
+                question: "What happens during the execution of an ADD instruction?",
+                options: [
+                    "AC is cleared to zero",
+                    "Memory content is copied to AC",
+                    "Memory word is added to AC with potential carry",
+                    "AC content is stored in memory"
+                ],
+                correct: 2
+            }
+        ];
+        
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let questionsAnswered = 0;
+
+        // Create floating elements
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            for (let i = 0; i < 15; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.width = element.style.height = Math.random() * 20 + 10 + 'px';
+                element.style.animationDelay = Math.random() * 15 + 's';
+                element.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(element);
+            }
+        }
+
+        // Animate binary example
+        function animateBinaryExample() {
+            const binaryElement = document.getElementById('binaryExample');
+            const examples = [
+                '0010 1100 1010 0001',
+                '0001 0110 0000 1100',
+                '0000 1010 1111 0000',
+                '1111 0000 1010 1010'
+            ];
+            let index = 0;
+            
+            setInterval(() => {
+                index = (index + 1) % examples.length;
+                binaryElement.textContent = examples[index];
+            }, 3000);
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            currentSection = sectionId;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const sections = ['intro', 'components', 'formats', 'instructions', 'demo', 'quiz'];
+            const currentIndex = sections.indexOf(currentSection);
+            const progress = ((currentIndex + 1) / sections.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showOpcodeInfo(opcode) {
+            const info = document.getElementById('opcodeInfo');
+            const description = document.getElementById('opcodeDescription');
+            
+            const opcodeData = {
+                '000': 'AND - Performs logical AND operation between AC and memory word',
+                '001': 'ADD - Adds memory word to AC with carry to E flip-flop',
+                '010': 'LDA - Loads memory word into the Accumulator (AC)'
+            };
+            
+            description.textContent = opcodeData[opcode] || 'Unknown opcode';
+            info.style.display = 'block';
+        }
+
+        function calculateAddress() {
+            const address = parseInt(document.getElementById('addressInput').value);
+            if (isNaN(address) || address < 0 || address > 4095) {
+                document.getElementById('addressResult').innerHTML = '<span style="color: red;">Please enter a valid address (0-4095)</span>';
+                return;
+            }
+            
+            const binary = address.toString(2).padStart(12, '0');
+            const formatted = binary.replace(/(.{4})/g, '$1 ').trim();
+            
+            document.getElementById('addressResult').innerHTML = `
+                <strong>Decimal:</strong> ${address}<br>
+                <strong>Binary:</strong> ${formatted}<br>
+                <strong>Hex:</strong> ${address.toString(16).toUpperCase().padStart(3, '0')}
+            `;
+        }
+
+        function identifyFormat() {
+            const input = document.getElementById('instructionInput').value.replace(/\s/g, '');
+            if (input.length !== 16 || !/^[01]+$/.test(input)) {
+                document.getElementById('formatResult').innerHTML = '<span style="color: red;">Please enter a valid 16-bit binary instruction</span>';
+                return;
+            }
+            
+            const iBit = input[0];
+            const opcode = input.substring(1, 4);
+            
+            let format, description;
+            
+            if (opcode === '111') {
+                if (iBit === '0') {
+                    format = 'Register-Reference';
+                    description = 'Operates on processor registers (AC, E flip-flop)';
+                } else {
+                    format = 'Input-Output';
+                    description = 'Handles data transfer with external devices';
+                }
+            } else {
+                format = 'Memory-Reference';
+                description = iBit === '0' ? 'Direct addressing mode' : 'Indirect addressing mode';
+            }
+            
+            document.getElementById('formatResult').innerHTML = `
+                <strong>Format:</strong> ${format}<br>
+                <strong>I Bit:</strong> ${iBit}<br>
+                <strong>Opcode:</strong> ${opcode}<br>
+                <strong>Description:</strong> ${description}
+            `;
+        }
+
+        function updateSimulation() {
+            const instruction = document.getElementById('instrSelect').value;
+            const acBefore = document.getElementById('acBefore');
+            const acAfter = document.getElementById('acAfter');
+            const memBefore = document.getElementById('memBefore');
+            const memAfter = document.getElementById('memAfter');
+            
+            // Reset to initial state
+            acBefore.textContent = '0000000000000000';
+            memBefore.textContent = '0000000000001010';
+            memAfter.textContent = '0000000000001010';
+            
+            switch(instruction) {
+                case 'LDA':
+                    acAfter.textContent = '0000000000001010';
+                    break;
+                case 'ADD':
+                    acBefore.textContent = '0000000000000101';
+                    acAfter.textContent = '0000000000001111';
+                    break;
+                case 'AND':
+                    acBefore.textContent = '0000000000001111';
+                    acAfter.textContent = '0000000000001010';
+                    break;
+                case 'STA':
+                    acBefore.textContent = '0000000000001111';
+                    acAfter.textContent = '0000000000001111';
+                    memAfter.textContent = '0000000000001111';
+                    break;
+                case 'CLA':
+                    acBefore.textContent = '0000000000001010';
+                    acAfter.textContent = '0000000000000000';
+                    break;
+            }
+        }
+
+        function runSimulation() {
+            const instruction = document.getElementById('instrSelect').value;
+            const steps = document.getElementById('simulationSteps');
+            
+            const stepDescriptions = {
+                'LDA': [
+                    '1. Fetch instruction from memory',
+                    '2. Decode opcode (010) as LDA',
+                    '3. Read address part (100)',
+                    '4. Access memory location 100',
+                    '5. Load memory content into AC',
+                    '6. Update program counter'
+                ],
+                'ADD': [
+                    '1. Fetch instruction from memory',
+                    '2. Decode opcode (001) as ADD',
+                    '3. Read address part (100)',
+                    '4. Access memory location 100',
+                    '5. Add memory content to AC',
+                    '6. Set E flip-flop if carry occurs',
+                    '7. Update program counter'
+                ],
+                'AND': [
+                    '1. Fetch instruction from memory',
+                    '2. Decode opcode (000) as AND',
+                    '3. Read address part (100)',
+                    '4. Access memory location 100',
+                    '5. Perform logical AND with AC',
+                    '6. Store result in AC',
+                    '7. Update program counter'
+                ],
+                'STA': [
+                    '1. Fetch instruction from memory',
+                    '2. Decode opcode (011) as STA',
+                    '3. Read address part (100)',
+                    '4. Access memory location 100',
+                    '5. Store AC content in memory',
+                    '6. Update program counter'
+                ],
+                'CLA': [
+                    '1. Fetch instruction from memory',
+                    '2. Decode as register-reference (111)',
+                    '3. Identify CLA operation',
+                    '4. Clear Accumulator to zero',
+                    '5. Update program counter'
+                ]
+            };
+            
+            steps.innerHTML = '<h4>Execution Steps:</h4>' + 
+                stepDescriptions[instruction].map((step, index) => 
+                    `<div style="margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 5px; opacity: 0; animation: fadeIn 0.5s ${index * 0.3}s forwards;">${step}</div>`
+                ).join('');
+        }
+
+        function convertToHex() {
+            const binary = document.getElementById('binaryInput').value.replace(/\s/g, '');
+            if (binary.length !== 16 || !/^[01]+$/.test(binary)) {
+                document.getElementById('conversionResult').innerHTML = '<span style="color: red;">Please enter a valid 16-bit binary number</span>';
+                return;
+            }
+            
+            const hex = parseInt(binary, 2).toString(16).toUpperCase().padStart(4, '0');
+            document.getElementById('conversionResult').innerHTML = `
+                <strong>Binary:</strong> ${binary.replace(/(.{4})/g, '$1 ').trim()}<br>
+                <strong>Hexadecimal:</strong> ${hex}
+            `;
+        }
+
+        function convertToBinary() {
+            const hex = document.getElementById('hexInput').value.toUpperCase();
+            if (!/^[0-9A-F]{1,4}$/.test(hex)) {
+                document.getElementById('conversionResult').innerHTML = '<span style="color: red;">Please enter a valid hexadecimal number</span>';
+                return;
+            }
+            
+            const binary = parseInt(hex, 16).toString(2).padStart(16, '0');
+            document.getElementById('conversionResult').innerHTML = `
+                <strong>Hexadecimal:</strong> ${hex.padStart(4, '0')}<br>
+                <strong>Binary:</strong> ${binary.replace(/(.{4})/g, '$1 ').trim()}
+            `;
+        }
+
+        function toggleDetails(card) {
+            const details = card.querySelector('.details');
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                details.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                details.style.display = 'none';
+            }
+        }
+
+        function selectAnswer(option, isCorrect) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+                opt.onclick = null;
+            });
+            
+            // Mark the selected answer
+            if (isCorrect) {
+                option.classList.add('correct');
+                quizScore++;
+            } else {
+                option.classList.add('incorrect');
+                // Show correct answer
+                document.querySelectorAll('.quiz-option').forEach((opt, index) => {
+                    if (index === quizQuestions[currentQuizIndex].correct) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            questionsAnswered++;
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updateQuizScore();
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuizIndex];
+            document.getElementById('quizQuestion').textContent = question.question;
+            
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((option, index) => {
+                option.textContent = String.fromCharCode(65 + index) + ') ' + question.options[index];
+                option.classList.remove('correct', 'incorrect');
+                option.onclick = () => selectAnswer(option, index === question.correct);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function updateQuizScore() {
+            document.getElementById('quizScore').textContent = `Score: ${quizScore}/${questionsAnswered}`;
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+            document.querySelector('.quiz-container').innerHTML = `
+                <h3>Quiz Complete!</h3>
+                <div style="text-align: center; font-size: 2em; margin: 30px 0;">
+                    Final Score: ${quizScore}/${quizQuestions.length} (${percentage}%)
+                </div>
+                <div style="text-align: center;">
+                    ${percentage >= 80 ? 
+                        '<p style="color: #28a745; font-size: 1.2em;">🎉 Excellent! You have mastered instruction codes!</p>' :
+                        percentage >= 60 ?
+                        '<p style="color: #ffc107; font-size: 1.2em;">👍 Good job! Review the material for better understanding.</p>' :
+                        '<p style="color: #dc3545; font-size: 1.2em;">📚 Keep studying! Review the concepts and try again.</p>'
+                    }
+                    <button class="demo-button" onclick="restartQuiz()" style="margin-top: 20px;">Restart Quiz</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            questionsAnswered = 0;
+            location.reload();
+        }
+
+        // CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize the page
+        window.addEventListener('load', function() {
+            createFloatingElements();
+            animateBinaryExample();
+            updateSimulation();
+            loadQuestion();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

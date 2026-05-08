@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Arithmetic Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+	.flow-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+        .section {
+            margin-bottom: 50px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .info-box:hover {
+            transform: translateX(10px);
+        }
+
+        .pipeline-stages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stage {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stage::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .stage:hover::before {
+            left: 100%;
+        }
+
+        .stage:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stage-number {
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .stage-title {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .demo-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .calculation-steps {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .step {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+	    color: black;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .math {
+            font-family: 'Courier New', monospace;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .result-box {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 100px;
+            backdrop-filter: blur(10px);
+        }
+
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .pipeline-stages {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Arithmetic Pipeline</h1>
+            <p class="subtitle">High-Speed Computer Architecture for Complex Numerical Computations</p>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>🎯 Overview and Application</h2>
+                <div class="info-box">
+                    <p><strong>Arithmetic pipelining</strong> is a fundamental organization technique used in high-speed computer architectures, specializing in complex numerical computations.</p>
+                </div>
+                
+                <div class="pipeline-flow">
+                    <div class="flow-item">
+                        <h4>High-Speed Computers</h4>
+                        <p>Primary implementation environment</p>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="flow-item">
+                        <h4>Floating Point Ops</h4>
+                        <p>Complex arithmetic operations</p>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="flow-item">
+                        <h4>Scientific Computing</h4>
+                        <p>Real-world applications</p>
+                    </div>
+                </div>
+
+                <p>This pipelining technique is specifically used for:</p>
+                <div class="calculation-steps">
+                    <div class="step">✓ Floating point operations (addition, subtraction, multiplication)</div>
+                    <div class="step">✓ Multiplication of fixed point numbers</div>
+                    <div class="step">✓ Complex scientific computations</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🔄 The Four Pipeline Segments</h2>
+                <p>Floating-point numbers <span class="math">X = A × 2^a</span> and <span class="math">Y = B × 2^b</span> are processed through four dedicated segments:</p>
+                
+                <div class="pipeline-stages">
+                    <div class="stage">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Compare Exponents</div>
+                        <p>Calculate the difference between exponents (a - b) through subtraction</p>
+                    </div>
+                    
+                    <div class="stage">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Align Mantissas</div>
+                        <p>Shift mantissa of smaller exponent number to match the larger. Choose result exponent</p>
+                    </div>
+                    
+                    <div class="stage">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Add/Subtract</div>
+                        <p>Perform arithmetic operation on the aligned mantissas</p>
+                    </div>
+                    
+                    <div class="stage">
+                        <div class="stage-number">4</div>
+                        <div class="stage-title">Normalize Result</div>
+                        <p>Shift mantissa and adjust exponent to normalized floating-point form</p>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Segment</th>
+                            <th>Operation</th>
+                            <th>Function</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Segment 1</strong></td>
+                            <td>Compare Exponents</td>
+                            <td>Determines difference between exponents through subtraction</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Segment 2</strong></td>
+                            <td>Align Mantissas</td>
+                            <td>Adjusts mantissa to match larger exponent via shifting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Segment 3</strong></td>
+                            <td>Add/Subtract Mantissas</td>
+                            <td>Performs arithmetic operation on aligned mantissas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Segment 4</strong></td>
+                            <td>Normalize Results</td>
+                            <td>Shifts mantissa and adjusts exponent for normalized form</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+	    
+	    <div class="section">
+                <h2>🏗️ Diagram for Floating point Addition or Subtraction </h2>
+                <div class="demo-container">
+			<center><img src="arith_pipe.png" alt="Circuit Diagram of Status bit" width="600px"></center>
+                </div>
+	   </div>
+            <div class="section">
+                <h2>📊 Numerical Illustration</h2>
+                <div class="demo-container">
+                    <h3>Example: Adding Two Floating-Point Numbers</h3>
+                    <p><strong>Given:</strong> <span class="math">X = 0.9504 × 10³</span> and <span class="math">Y = 0.8200 × 10²</span></p>
+                    
+                    <div class="calculation-steps">
+                        <div class="step">
+                            <strong>Step 1: Compare Exponents</strong><br>
+                            Difference: <span class="math">3 - 2 = 1</span>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>Step 2: Align Mantissas</strong><br>
+                            X is larger, so shift Y's mantissa right by 1 position:<br>
+                            <span class="math">X = 0.9504 × 10³</span><br>
+                            <span class="math">Y = 0.0820 × 10³</span>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>Step 3: Add Mantissas</strong><br>
+                            <span class="math">Z = (0.9504 + 0.0820) × 10³ = 1.0324 × 10³</span>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>Step 4: Normalize Result</strong><br>
+                            Mantissa > 1, shift left and increment exponent:<br>
+                            <span class="math">Z = 0.10324 × 10⁴</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="interactive-demo">
+                    <h2 style="color: white; border: none;">🧮 Interactive Calculator</h2>
+                    <p>Try your own floating-point addition:</p>
+                    
+                    <div class="input-group">
+                        <label>First Number (X): Mantissa × 10^Exponent</label>
+                        <input type="number" id="mantissaX" placeholder="Mantissa (e.g., 0.9504)" step="0.0001" value="0.9504">
+                        <input type="number" id="expX" placeholder="Exponent (e.g., 3)" value="3">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Second Number (Y): Mantissa × 10^Exponent</label>
+                        <input type="number" id="mantissaY" placeholder="Mantissa (e.g., 0.8200)" step="0.0001" value="0.8200">
+                        <input type="number" id="expY" placeholder="Exponent (e.g., 2)" value="2">
+                    </div>
+                    
+                    <button onclick="calculate()">Calculate Pipeline Steps</button>
+                    
+                    <div class="result-box" id="results">
+                        <p>Enter values and click Calculate to see the pipeline in action!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>💡 Key Benefits</h2>
+                <div class="info-box">
+                    <p><strong>Overlapped Execution:</strong> Different operands can be processed simultaneously in different pipeline stages, dramatically increasing throughput.</p>
+                </div>
+                <div class="info-box">
+                    <p><strong>Efficient Resource Usage:</strong> Each segment specializes in one operation, optimizing hardware utilization.</p>
+                </div>
+                <div class="info-box">
+                    <p><strong>High Performance:</strong> Essential for scientific computing, graphics processing, and machine learning applications.</p>
+                </div>
+            </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="Instruction_pipeline.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Instruction Pipelining</a>
+                </div>
+	
+        </div>
+
+    </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    <script>
+        function calculate() {
+    const mantX = parseFloat(document.getElementById('mantissaX').value);
+    const expX = parseInt(document.getElementById('expX').value);
+    const mantY = parseFloat(document.getElementById('mantissaY').value);
+    const expY = parseInt(document.getElementById('expY').value);
+
+    if (isNaN(mantX) || isNaN(expX) || isNaN(mantY) || isNaN(expY)) {
+        document.getElementById('results').innerHTML =
+            '<p style="color: #ff6b6b;">Please enter valid numbers in all fields.</p>';
+        return;
+    }
+
+    let result = '<h3>Pipeline Execution Steps:</h3>';
+
+    // Step 1: Compare exponents
+    const expDiff = expX - expY;
+    result += `<div class="step"><strong>Step 1: Compare Exponents</strong><br>
+               Difference: ${expX} - ${expY} = ${expDiff}</div>`;
+
+    // Step 2: Align mantissas
+    let alignedMantX = mantX;
+    let alignedMantY = mantY;
+    let resultExp = Math.max(expX, expY);
+
+    if (expX > expY) {
+        alignedMantY = mantY / Math.pow(10, expDiff);
+    } else if (expY > expX) {
+        alignedMantX = mantX / Math.pow(10, -expDiff);
+    }
+
+    result += `<div class="step"><strong>Step 2: Align Mantissas</strong><br>
+               X = ${alignedMantX.toFixed(4)} × 10^${resultExp}<br>
+               Y = ${alignedMantY.toFixed(4)} × 10^${resultExp}</div>`;
+
+    // Step 3: Add mantissas
+    let sumMant = alignedMantX + alignedMantY;
+    result += `<div class="step"><strong>Step 3: Add Mantissas</strong><br>
+               Z = (${alignedMantX.toFixed(4)} + ${alignedMantY.toFixed(4)}) × 10^${resultExp}<br>
+               Z = ${sumMant.toFixed(4)} × 10^${resultExp}</div>`;
+
+    // Step 4: Normalize
+    let normalizedMant = sumMant;
+    let normalizedExp = resultExp;
+
+    // Normalize mantissa so 1 ≤ mantissa < 10
+    if (normalizedMant !== 0) {
+        while (Math.abs(normalizedMant) >= 10) {
+            normalizedMant /= 10;
+            normalizedExp++;
+        }
+        while (Math.abs(normalizedMant) < 1) {
+            normalizedMant *= 10;
+            normalizedExp--;
+        }
+    }
+
+    result += `<div class="step"><strong>Step 4: Normalize Result</strong><br>
+               Final Result: <strong>${normalizedMant.toFixed(5)} × 10^${normalizedExp}</strong></div>`;
+
+    document.getElementById('results').innerHTML = result;
+}
+
+
+        // Add subtle animation to stages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach((stage, index) => {
+                setTimeout(() => {
+                    stage.style.animation = 'fadeIn 0.6s ease-in';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

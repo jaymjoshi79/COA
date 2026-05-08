@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Associative Memory - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 25px 0 15px 0;
+            font-size: 1.4em;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .memory-cell {
+            display: inline-block;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .memory-cell.active {
+            background: #764ba2;
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .operations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .operation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .operation-card:hover {
+            transform: scale(1.05);
+        }
+
+        .formula {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	.footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .flow-box {
+            display: inline-block;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px 30px;
+            margin: 10px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 2em;
+            margin: 0 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 5px;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .demo-output {
+            background: #2d3436;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            min-height: 60px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .searching {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>⚡ Associative Memory</h1>
+            <p class="subtitle">Content-Addressable Memory for High-Speed Data Retrieval</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>🎯 What is Associative Memory?</h2>
+            <p>Associative Memory, also known as <span class="highlight">Content Addressable Memory (CAM)</span>, is a specialized memory storage system where data is accessed by its content rather than by a specific address or location. Unlike conventional memory that requires sequential searching, associative memory enables parallel searches across all stored data simultaneously.</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="icon">🔍</div>
+                    <h4>Content-Based Search</h4>
+                    <p>Search by data content, not address</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">⚡</div>
+                    <h4>Parallel Processing</h4>
+                    <p>All entries checked simultaneously</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🎯</div>
+                    <h4>Fast Retrieval</h4>
+                    <p>Minimal access time</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🔄</div>
+                    <h4>Flexible Matching</h4>
+                    <p>Partial or complete matches</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏗️ Hardware Organization</h2>
+            <p>The associative memory consists of an array of memory cells with built-in logic circuits for parallel comparison.</p>
+            
+            <div class="diagram">
+                <center><img src="block_associative.png"  alt="RAM Chip" style="max-width:40%; height: auto;"></center>
+            </div>
+
+            <h3>Key Components:</h3>
+            <div class="operations">
+                <div class="operation-card">
+                    <h4>📝 Argument Register (A)</h4>
+                    <p>Holds the word or data to be searched</p>
+                </div>
+                <div class="operation-card">
+                    <h4>🔑 Key Register (K)</h4>
+                    <p>Specifies which bits should be compared</p>
+                </div>
+                <div class="operation-card">
+                    <h4>🧠 Memory Array</h4>
+                    <p>Stores words with m bits per word</p>
+                </div>
+                <div class="operation-card">
+                    <h4>✅ Match Register (M)</h4>
+                    <p>Indicates which words matched</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔧 Memory Operations</h2>
+            
+            <h3>1. Read Operation</h3>
+            <p>When a word in memory matches the unmasked argument bits, all matched words are read out sequentially. If multiple words match, the match register identifies them one at a time.</p>
+            
+            <h3>2. Write Operation</h3>
+            <p>Writing can occur in different forms:</p>
+            <ul style="margin-left: 30px; margin-top: 10px;">
+                <li><strong>Sequential Write:</strong> Address each location sequentially</li>
+                <li><strong>Random Write:</strong> Decode address as in standard RAM</li>
+                <li><strong>Content-Based Write:</strong> Find specific content and write to first match</li>
+            </ul>
+
+            <h3>3. Tag Register for Management</h3>
+            <p>A tag register can specify active/inactive words, with positions for new word insertion. Deleted words become inactive, and their tag bits are masked with K for searching only active words.</p>
+        </div>
+	<div class="card">
+            <h2>🧩 Cell Structure of Associative Memory</h2>
+            <p>The matching process for each word is based on a comparison algorithm derived from Boolean logic:</p>
+            <ul style="margin-left: 30px; margin-top: 10px;">
+		<li> <strong>Parallel Comparison:</strong> Unlike standard RAM, which searches by address, associative memory compares the argument (A) against all words in the array simultaneously.</li>
+		<li> <strong>Bit-Level Logic:</strong> For each word i, the hardware checks every bit j. The comparison only matters if the key bit K<sub>j</sub> is enabled (set to 1). A "match" for a single word occurs only if all unmasked bits in that word exactly match the corresponding bits in the Argument Register.
+		<li><strong>Setting the Match Bit (M<sub>i</sub>):</strong>If word i matches the search criteria, the corresponding bit M<sub>i</sub> in the Match Register is set to 1. If there is even one discrepancy in the unmasked bits, M<sub>i</sub> is cleared to 0.</li>
+	    </ul>
+		<center><img src="word_cell.png"  alt="Cell" style="max-width:50%; height: auto;"></center>
+	</div>
+	<div class="card">
+	   <h2> 🧬 Internal Organization of Cell C<sub>ij</sub></h2>
+		<ul style="margin-left: 30px; margin-top: 10px;">
+			<li><strong>Storage (F<sub>ij</sub>):</strong> Uses an RS flip-flop as the core storage element for a single bit.</li>
+			<li><strong>Writing:</strong> When the Write line is high, the Input bit is steered to the S or R terminals, updating the flip-flop.</li>
+			<li><strong>Reading:</strong> When the Read line is high, an AND gate outputs the current state of F<sub>ij</sub> to the Output line.</li>
+			<li><strong>Matching:</strong> The Match Logic compares the stored bit (F<sub>ij</sub>) with the argument bit (A<sub>j</sub>).</li>
+			<li><strong>Masking:</strong> The Key bit (K<sub>j</sub>) determines if this specific cell's match result is passed to the decision logic for the match register (M<sub>i</sub>).
+		</ul>
+		<center><img src="one_cell.png"  alt="One Cell" style="max-width:30%; height: auto;"></center>
+	</div>
+	<div class="card">
+            <h2>🧮 Match Logic</h2>
+        <p>The matching process for each word is based on a comparison algorithm derived from Boolean logic</p>    
+	<ul style="margin-left: 30px; margin-top: 10px;">
+		<li><strong>Basic Bit Equality (x<sub>j</sub>):</strong> The first step is comparing an individual bit of the input argument (A<sub>j</sub>) with the bit stored in the memory cell (F<sub>ij</sub>). Two bits are considered a match if they are both 1 or both 0. This is represented by the Boolean function:
+		<div class="formula">
+                x<sub>j</sub> = A<sub>j</sub> F<sub>ij</sub> + A<sub>j</sub>' F<sub>ij</sub>'
+            </div>
+		If x<sub>j</sub> = 1, the bits match; if x<sub>j</sub> = 0, they do not</li>
+	<li><strong>The Role of the Key Bit (K<sub>j</sub>):</strong> In associative memory, we often want to search only specific parts of a word (masking). This is handled by the Key Register.
+		<ul style="margin-left: 50px; margin-top: 10px;"> 
+		<li><strong>If K<sub>j</sub> = 1:</strong> The bit in that position is important. The comparison x<sub>j</sub> must be performed.</li>
+		<li><strong>If K<sub>j</sub> = 0:</strong> The bit position is "masked" or ignored. The logic should automatically treat this bit as a "match" so it doesn't interfere with the overall word result.</li></ul> This is achieved by ORing the comparison with the complement of the key: (x<sub>j</sub> + K<sub>j</sub>').</li>
+	<li><strong>Word Match Condition (M<sub>i</sub>):</strong> A "match" for an entire word (M<sub>i</sub>) only occurs if every single bit position either matches the input or is masked by the key. The logic uses an AND operation across all n bits in the word. If any unmasked bit fails to match, the AND operation results in 0, and M<sub>i</sub> will be 0.
+	</li>
+	<li><strong>The Complete Boolean Expression:</strong> Combining the equality logic and the masking logic, the final match signal for word $i$ is expressed as:
+		<div class="formula">
+                M<sub>i</sub> = 
+  <span style="font-size: 1.5em; vertical-align: middle;">&prod;</span>
+  <sub style="position: relative; left: -2em; bottom: -1.5em;">j=1</sub>
+  <sup style="position: relative; left: -4em; top: -1em;">n</sup>
+  (A<sub>j</sub>F<sub>ij</sub> + A'<sub>j</sub>F'<sub>ij</sub> + K'<sub>j</sub>)
+            </div>
+	</ul>
+	
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Match Demo</h3>
+                <p><strong>Click memory cells to toggle their state:</strong></p>
+                <div id="memory-demo">
+                    <div class="memory-cell" onclick="toggleCell(this)" data-value="101">Word 1: 101 11100</div>
+                    <div class="memory-cell" onclick="toggleCell(this)" data-value="100">Word 2: 100 11100</div>
+                    <div class="memory-cell" onclick="toggleCell(this)" data-value="101">Word 3: 101 00001</div>
+                </div>
+                <p style="margin-top: 20px;"><strong>Argument:</strong> 101 11100 (checking first 3 bits only)</p>
+                <button onclick="simulateSearch()">🔍 Search for Matches</button>
+                <div class="demo-output" id="output">Click "Search for Matches" to see results...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✨ Key Advantages</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="icon">⚡</div>
+                    <h4>Speed</h4>
+                    <p>Parallel searching reduces access time significantly</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🎯</div>
+                    <h4>Efficiency</h4>
+                    <p>No sequential scanning required</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🔍</div>
+                    <h4>Flexibility</h4>
+                    <p>Partial matching with key register</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">💾</div>
+                    <h4>Database Applications</h4>
+                    <p>Ideal for table lookups and searches</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🚀 Applications</h2>
+            <div class="operations">
+                <div class="operation-card">
+                    <h4>💳 Cache Memory</h4>
+                    <p>Fast data lookup in CPU caches</p>
+                </div>
+                <div class="operation-card">
+                    <h4>🌐 Network Routing</h4>
+                    <p>IP address lookup tables</p>
+                </div>
+                <div class="operation-card">
+                    <h4>🗄️ Database Systems</h4>
+                    <p>Quick record retrieval</p>
+                </div>
+                <div class="operation-card">
+                    <h4>🔐 Security</h4>
+                    <p>Pattern matching and filtering</p>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="cache_memory_webpage.html" style="text-decoration: none;" class="btn btn-primary">Cache Memory</a>
+                
+        </div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <div class="footer">
+            <p style="margin-top: 0.5rem;"> © Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleCell(element) {
+            element.classList.toggle('active');
+        }
+
+        function simulateSearch() {
+            const output = document.getElementById('output');
+            const cells = document.querySelectorAll('.memory-cell');
+            
+            output.innerHTML = 'Searching...';
+            output.classList.add('searching');
+            
+            setTimeout(() => {
+                output.classList.remove('searching');
+                let results = 'SEARCH RESULTS:\n\n';
+                results += 'Argument: 101 11100\n';
+                results += 'Key: Checking first 3 bits\n';
+                results += '─────────────────────────\n\n';
+                
+                cells.forEach((cell, index) => {
+                    const value = cell.dataset.value;
+                    if (value === '101') {
+                        results += `✓ Word ${index + 1}: MATCH\n`;
+                        cell.style.background = '#00ff00';
+                        cell.style.color = '#000';
+                        setTimeout(() => {
+                            if (!cell.classList.contains('active')) {
+                                cell.style.background = '';
+                                cell.style.color = '';
+                            }
+                        }, 2000);
+                    } else {
+                        results += `✗ Word ${index + 1}: NO MATCH\n`;
+                    }
+                });
+                
+                results += '\nMatch Register: [1, 0, 1]';
+                output.innerHTML = results;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

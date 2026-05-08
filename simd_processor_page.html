@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMD Array Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .architecture {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .component {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 150px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .component:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .pe-array {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .pe-unit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .pe-unit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .feature-item h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+
+        .example-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .interactive-demo {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ SIMD Array Processor</h1>
+            <p class="subtitle">Single Instruction, Multiple Data Architecture</p>
+        </header>
+
+        <div class="card">
+            <h2>What is a SIMD Array Processor?</h2>
+            <p>A SIMD array processor is a computer with multiple processing units operating in parallel. The processing units are synchronized to perform the same operation under the control of a common control unit, thus providing a <strong>single instruction stream, multiple data stream (SIMD)</strong> organization.</p>
+        </div>
+
+	<div class="card">
+            <h2>SIMD Array Processor Organization</h2>
+	    <center><img src="simd_org.png" alt="Organization of SIMD" width="600px"></center>
+	</div>
+        <div class="card">
+            <h2>Architecture Components</h2>
+            <div class="architecture">
+                <div class="component" onclick="showInfo('master')">
+                    <h3>Master Control Unit</h3>
+                    <p>Decodes instructions</p>
+                </div>
+                <div class="component" onclick="showInfo('memory')">
+                    <h3>Main Memory</h3>
+                    <p>Stores program</p>
+                </div>
+            </div>
+
+            <h3 style="text-align: center; margin: 30px 0; color: #667eea;">Processing Elements (PEs)</h3>
+            <div class="pe-array">
+                <div class="pe-unit" onclick="showPE(1)">PE₁<br>+<br>M₁</div>
+                <div class="pe-unit" onclick="showPE(2)">PE₂<br>+<br>M₂</div>
+                <div class="pe-unit" onclick="showPE(3)">PE₃<br>+<br>M₃</div>
+                <div class="pe-unit" onclick="showPE(4)">PE₄<br>+<br>M₄</div>
+            </div>
+            <p style="text-align: center; margin-top: 10px; color: #666;">Each PE includes: ALU, Floating-point unit, and Working registers</p>
+        </div>
+
+        <div class="card">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>📡 Broadcast Instructions</h3>
+                    <p>Vector instructions are broadcast to all PEs simultaneously</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔄 Parallel Execution</h3>
+                    <p>Vector operands distributed to local memories for parallel execution</p>
+                </div>
+                <div class="feature-item">
+                    <h3>💾 Local Memory</h3>
+                    <p>Each PE has its own local memory for operand storage</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🎯 Masking Schemes</h3>
+                    <p>Control individual PE status during execution</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>How It Works: Vector Addition Example</h2>
+            <div class="example-box">
+                C = A + B
+            </div>
+            <div class="highlight">
+                <h3>Execution Steps:</h3>
+                <ol style="margin-left: 20px; line-height: 2;">
+                    <li><strong>Store:</strong> Master control unit stores <em>i</em>th components of A and B in local memory M<sub>i</sub></li>
+                    <li><strong>Broadcast:</strong> Floating-point add instruction (c<sub>i</sub> = a<sub>i</sub> + b<sub>i</sub>) sent to all PEs</li>
+                    <li><strong>Execute:</strong> Addition takes place simultaneously in all local memories</li>
+                    <li><strong>Result:</strong> Vector sum produced in one add cycle</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Interactive Demo: PE Activation</h2>
+            <div class="interactive-demo">
+                <p style="margin-bottom: 15px;">Click the button to simulate vector operation across 64 PEs:</p>
+                <button onclick="simulateOperation()">Execute Vector Operation</button>
+                <div id="demo-result" style="margin-top: 20px; min-height: 50px;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Notable Implementation: ILLIAC IV</h2>
+            <div class="highlight">
+                <p><strong>ILLIAC IV</strong> was the best-known SIMD array processor, developed at the University of Illinois and manufactured by the Burroughs Corp. Though no longer in operation, it demonstrated the power of SIMD architecture for specialized computational tasks.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Applications & Limitations</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <div>
+                    <h3 style="color: #28a745;">✅ Best Suited For:</h3>
+                    <ul>
+                        <li>Numerical problems</li>
+                        <li>Vector operations</li>
+                        <li>Matrix computations</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: #dc3545;">❌ Less Efficient For:</h3>
+                    <ul>
+                        <li>Conventional data processing</li>
+                        <li>Irregular computational patterns</li>
+                        <li>General-purpose computing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="index.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Next Unit</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+
+    </div>
+
+    <script>
+        function showInfo(component) {
+            const messages = {
+                master: 'Master Control Unit: Decodes instructions and determines execution method. Handles scalar and program control instructions directly.',
+                memory: 'Main Memory: Used for storage of the program. The master control unit accesses this to fetch and decode instructions.'
+            };
+            alert(messages[component]);
+        }
+
+        function showPE(num) {
+            alert(`Processing Element ${num}\n\nComponents:\n• ALU (Arithmetic Logic Unit)\n• Floating-point arithmetic unit\n• Working registers\n• Local Memory M${num}\n\nExecutes vector operations in parallel with other PEs.`);
+        }
+
+        function simulateOperation() {
+            const resultDiv = document.getElementById('demo-result');
+            resultDiv.innerHTML = '<p>🔄 Broadcasting instruction to all PEs...</p>';
+            
+            setTimeout(() => {
+                resultDiv.innerHTML += '<p>✅ All 64 PEs executing simultaneously...</p>';
+            }, 1000);
+
+            setTimeout(() => {
+                resultDiv.innerHTML += '<p>🎯 Vector operation completed in parallel!</p>';
+                resultDiv.innerHTML += '<p style="color: #4CAF50; font-weight: bold;">Result: Vector sum computed in one cycle across all processing elements.</p>';
+            }, 2000);
+        }
+
+        // Add animation on scroll
+        const cards = document.querySelectorAll('.card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideUp 0.6s ease-out';
+                }
+            });
+        });
+
+        cards.forEach(card => observer.observe(card));
+    </script>
+</body>
+</html>

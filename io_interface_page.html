@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input-Output Interface | Chapter 11</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .intro-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .intro-box h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .section-header:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .section-content {
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+
+        .section-content.active {
+            max-height: 1000px;
+            padding: 25px;
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+
+        .example-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .register-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .register-card {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .register-card:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        .register-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .register-desc {
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #2d3436;
+            font-weight: 600;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .info-badge:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 12px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .subtitle { font-size: 1em; }
+            .content { padding: 20px; }
+            .register-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Input-Output Interface</h1>
+            <p class="subtitle">Input-Output Organization</p>
+        </header>
+
+        <div class="content">
+            <div class="intro-box">
+                <h2>🎯 Context and Purpose</h2>
+                <p>The <span class="highlight">Input-Output Interface</span> is central to understanding how processors interact with external peripherals. The physical organization includes an <span class="highlight">Input-Output Processor (IOP)</span> containing electronic circuits for controlling information transfer between the computer and the outside world.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(1)">
+                    <div class="section-number">1</div>
+                    <div class="section-title">I/O Bus and Interface Modules</div>
+                    <div class="toggle-icon" id="icon-1">▼</div>
+                </div>
+                <div class="section-content" id="content-1">
+		    <p>This architecture defines how various I/O devices connect to the core computer system.</p>
+		    <center><img src="io_interface.png" alt="BCD Multiplication Register" style="max-width:55%; height: auto;"></center>
+                    
+                    <div class="example-box">
+                        <h3>🔌 Key Component</h3>
+                        <ul>
+				<li><strong>Address Decoder:</strong> Enables the interface to recognize when the processor is specifically addressing it.</li>
+				<li><strong>Buffer Register:</strong> A temporary storage area that holds data being moved between the high-speed bus and the (usually) slower peripheral.</li>
+				<li><strong>Status Register:</strong> A register used to store "bits" that represent the current state of the device, which the processor monitors to decide when to send or receive data.</li>
+			</ul>
+			<h3>🔌 Key Command</h3>
+                        <ul>
+                            <li><strong>I/O Command:</strong> function code sent by the processor to an interface that instructs the interface and its connected peripheral device to perform a specific operation, where the meaning of the command depends on the particular peripheral being addressed.</li>
+                            <li><strong>Control Command:</strong> Used to activate a peripheral and give it specific operational instructions (e.g., "rewind" or "start moving")</li>
+			    <li><strong>Status Command:</strong> Used to check the condition of the peripheral or interface by reading bits in a status register to determine readiness or detect errors such as a busy device or transfer failure.</li>
+			    <li><strong>Data Output Command:</strong> Triggers the interface to take data from the bus and place it into its internal buffer register, eventually sending it to the peripheral.</li>
+			    <li><strong>Data Input Command:</strong> Interface receives data from the peripheral, places it in the buffer register, and then puts it onto the data lines for the processor to read.</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <span class="info-badge">CPU Communication</span>
+                        <span class="info-badge">Device Management</span>
+                        <span class="info-badge">Data Transfer</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(2)">
+                    <div class="section-number">2</div>
+                    <div class="section-title">I/O versus Memory Bus</div>
+                    <div class="toggle-icon" id="icon-2">▼</div>
+                </div>
+                <div class="section-content" id="content-2">
+                    <p>This topic distinguishes between bus structures for accessing peripheral interfaces versus main memory.</p>
+                    <div class="example-box">
+                        <h3>⚡Method 1: Independent Buses (I/O Processor Architecture)</h3>
+                        <ul>
+                            <li><span class="highlight">Dual Pathway:</span> Utilizes two entirely separate sets of data, address, and control buses—one dedicated to Memory and the other to I/O.</li>
+                            <li><span class="highlight">Specialized Hardware:</span> Features a dedicated I/O Processor (IOP), also known as a data channel, in addition to the CPU.)</li>
+                            <li><span class="highlight">Parallelism:</span> The IOP acts as an independent pathway, managing information transfer between external devices and internal memory without constantly involving the CPU.</li>
+			    <li><span class="highlight">Communication Flow:</span> The memory unit communicates with both the CPU and the IOP via the memory bus, while the IOP handles devices via the separate I/O bus.</li>
+                        </ul>
+                    </div>
+		    <div class="example-box">
+                        <h3>⚡Method 2: Common Bus with Separate Control Lines (Isolated I/O)</h3>
+                        <ul>
+                            <li><span class="highlight">Shared Wiring:</span> The physical data and address lines are shared between Memory and I/O components.</li>
+                            <li><span class="highlight">Distinct Commands:</span> Even though the "road" (bus) is the same, the system uses separate control lines for each. This means there are specific signals to distinguish between a "Memory Read/Write" and an "I/O Read/Write."</li>
+                        </ul>
+                    </div>
+		    <div class="example-box">
+                        <h3>⚡Method 3: Common Bus with Common Control Lines (Memory-Mapped I/O)</h3>
+                        <ul>
+                            <li><span class="highlight">Unified Architecture:</span> Both Memory and I/O share the same data, address, and control lines.</li>
+                            <li><span class="highlight">Address Space Integration:</span> In this setup, the CPU does not distinguish between a memory address and an I/O device address. They are treated as part of the same physical map, using the same set of read/write commands.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(3)">
+                    <div class="section-number">3</div>
+                    <div class="section-title">Isolated versus Memory-Mapped I/O</div>
+                    <div class="toggle-icon" id="icon-3">▼</div>
+                </div>
+                <div class="section-content" id="content-3">
+                    <p>Two primary methods for managing control and data signals for I/O modules:</p>
+                    <div class="example-box">
+                        <h3>🗺️ Comparison</h3>
+                        <div class="register-grid">
+                            <div class="register-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <div class="register-name">Isolated I/O</div>
+                                <div class="register-desc">🚦I/O and Memory have <strong>separate</strong> address spaces.</div>
+				<div class="register-desc">🚦Uses separate control lines (e.g., <span class="highlight">I/O Read/Write</span> vs. <span class="highlight">Memory Read/Write</span>).</div>
+				<div class="register-desc">🚦 Requires distinct <span class="highlight">INPUT</span> and <span class="highlight">OUTPUT</span> instructions.</div>
+				<div class="register-desc">🚦 The full memory address range remains available for RAM.</div>
+				<div class="register-desc">🚦 Limited to specific I/O-only instructions to manipulate I/O data.</div>
+				<div class="register-desc">🚦 The bus tells components if an address is for I/O or Memory via control lines.</div>
+                            </div>
+                            <div class="register-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <div class="register-name">Memory-Mapped I/O</div>
+                                <div class="register-desc">📍I/O and Memory share a <strong>single, common</strong> address space.</div>
+				<div class="register-desc">📍Uses the same set of <span class="highlight">Read/Write</span> signals for both I/O amd Memory.</div>
+				<div class="register-desc">📍Uses standard memory-reference instructions (e.g., <span class="highlight">LOAD</span>, <span class="highlight">STORE</span>).</div>
+				<div class="register-desc">📍I/O registers occupy memory addresses, reducing the range available for RAM.</div>
+				<div class="register-desc">📍Can use any memory-referencing instruction to manipulate I/O data.</div>
+				<div class="register-desc">📍The system treats an I/O interface register as if it were just another memory word.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(4)">
+                    <div class="section-number">4</div>
+                    <div class="section-title">Example of I/O Interface</div>
+                    <div class="toggle-icon" id="icon-4">▼</div>
+                </div>
+                <div class="section-content" id="content-4">
+                    <p>A practical implementation using the basic computer architecture from Unit 3:</p>
+                    <div class="register-grid">
+                        <div class="register-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <div class="register-name">INPR</div>
+                            <div class="register-desc">Input Register - Holds 8-bit character received from input device</div>
+                        </div>
+                        <div class="register-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                            <div class="register-name">OUTR</div>
+                            <div class="register-desc">Output Register - Holds 8-bit character for output device</div>
+                        </div>
+                    </div>
+                    
+                    <div class="example-box" style="margin-top: 20px;">
+                        <h3>🚩 Flag Flip-Flops</h3>
+                        <div class="register-grid">
+                            <div class="register-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <div class="register-name">FGI (Input Flag)</div>
+                                <div class="register-desc">
+                                    <strong>Set to 1:</strong> New input character available<br>
+                                    <strong>Cleared to 0:</strong> Character accepted by computer<br>
+                                    <em>Synchronizes fast CPU with slower input device</em>
+                                </div>
+                            </div>
+                            <div class="register-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <div class="register-name">FGO (Output Flag)</div>
+                                <div class="register-desc">
+                                    <strong>Set to 1:</strong> OUTR ready for new character<br>
+                                    <strong>Cleared to 0:</strong> Character accepted by output device<br>
+                                    <em>Controls output synchronization</em>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-box" style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h3 style="color: white;">🔄 Data Transfer Mechanism</h3>
+                        <p style="line-height: 1.8;">
+                            The interface allows <strong>serial data transfer</strong> between external terminals (keyboard/printer) and <strong>parallel internal registers</strong> (INPR/OUTR). This demonstrates the basic functional requirements of an I/O interface for data transfer and synchronization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="io_ports.html" style="text-decoration: none;" class="btn btn-primary">Start Learning I/O Interface Unit</a>
+                </div>
+	
+    </div>
+    <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    <script>
+        function toggleSection(num) {
+            const content = document.getElementById(`content-${num}`);
+            const icon = document.getElementById(`icon-${num}`);
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        // Add hover effects to register cards
+        const cards = document.querySelectorAll('.register-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) rotate(2deg)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+    </script>
+</body>
+</html>

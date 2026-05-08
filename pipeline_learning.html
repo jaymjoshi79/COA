@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline & Vector Processing - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.title {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .point {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #764ba2;
+            transition: all 0.3s ease;
+        }
+
+        .point:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .pipeline-demo {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .segment {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px 25px;
+            margin: 5px;
+            border-radius: 10px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .register {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .interactive-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .interactive-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .interactive-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .interactive-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #ffd89b, #19547b);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculator {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+	
+	 .pipeline-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(10, 1fr);
+            gap: 2px;
+            margin: 20px 0;
+        }
+        .header-cell {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+	 .task-cell {
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+        .task-cell:hover {
+            transform: scale(1.05);
+        }
+        .task-t1 { background: #3498db; color: white; }
+        .task-t2 { background: #e74c3c; color: white; }
+        .task-t3 { background: #2ecc71; color: white; }
+        .task-t4 { background: #f39c12; color: white; }
+        .task-t5 { background: #9b59b6; color: white; }
+        .task-t6 { background: #1abc9c; color: white; }
+        .empty-cell {
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+
+	.segment-label {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+	 .empty-cell {
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info-box li {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .visualization {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stage {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+			.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .stage h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .visualization { grid-template-columns: 1fr 1fr; }
+            .key-points { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+		  <span class="icon">🚀 </span>
+		    <span class="title">&nbsp; Pipeline Processing</span>
+	    </h1>
+            <p class="subtitle">Interactive Learning Module</p>
+        </header>
+
+        <div class="card">
+            <h2>📋 What is Pipelining?</h2>
+            <div class="definition-box">
+                <strong>Pipelining</strong> is a computing technique that utilizes parallel processing principles to improve execution speed by transforming a sequential process into sub-operations.
+            </div>
+
+            <div class="key-points">
+                <div class="point">
+                    <strong>⚡ Decomposition</strong><br>
+                    Sequential process broken into smaller sub-operations
+                </div>
+                <div class="point">
+                    <strong>🎯 Dedicated Segments</strong><br>
+                    Each sub-operation executed in special dedicated segment
+                </div>
+                <div class="point">
+                    <strong>🔄 Parallel Processing</strong><br>
+                    Multiple computations progress simultaneously in distinct segments
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏗️ Pipeline Structure</h2>
+            <div class="pipeline-demo">
+                <h3 style="color: white; margin-bottom: 20px;">Four Segment Pipeline</h3>
+                <center><img src="reg_stage.png" alt="Stage with Registers" width="1000px"></center>
+
+                <p style="margin-top: 20px; text-align: center;">
+                    Segments (S) process data • Registers (R) synchronized by clock
+                </p>
+            </div>
+        </div>
+	<div class="card">
+            <h2>📋 Pipeline Execution Diagram</h2>
+            <div class="pipeline-demo">
+		<h3 style="color: white; margin-bottom: 20px;">Four-Segment Pipeline Processing Six Tasks</h3>
+		 <div class="pipeline-grid">
+            <div class="header-cell">Segment</div>
+            <div class="header-cell">Clock 1</div>
+            <div class="header-cell">Clock 2</div>
+            <div class="header-cell">Clock 3</div>
+            <div class="header-cell">Clock 4</div>
+            <div class="header-cell">Clock 5</div>
+            <div class="header-cell">Clock 6</div>
+            <div class="header-cell">Clock 7</div>
+            <div class="header-cell">Clock 8</div>
+            <div class="header-cell">Clock 9</div>
+            <div class="header-cell">Clock 10</div>
+            
+            <!-- Segment 1 -->
+            <div class="segment-label">1</div>
+            <div class="task-cell task-t1">T₁</div>
+            <div class="task-cell task-t2">T₂</div>
+            <div class="task-cell task-t3">T₃</div>
+            <div class="task-cell task-t4">T₄</div>
+            <div class="task-cell task-t5">T₅</div>
+            <div class="task-cell task-t6">T₆</div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            
+            <!-- Segment 2 -->
+            <div class="segment-label">2</div>
+            <div class="empty-cell"></div>
+            <div class="task-cell task-t1">T₁</div>
+            <div class="task-cell task-t2">T₂</div>
+            <div class="task-cell task-t3">T₃</div>
+            <div class="task-cell task-t4">T₄</div>
+            <div class="task-cell task-t5">T₅</div>
+            <div class="task-cell task-t6">T₆</div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            
+            <!-- Segment 3 -->
+            <div class="segment-label">3</div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="task-cell task-t1">T₁</div>
+            <div class="task-cell task-t2">T₂</div>
+            <div class="task-cell task-t3">T₃</div>
+            <div class="task-cell task-t4">T₄</div>
+            <div class="task-cell task-t5">T₅</div>
+            <div class="task-cell task-t6">T₆</div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            
+            <!-- Segment 4 -->
+            <div class="segment-label">4</div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="empty-cell"></div>
+            <div class="task-cell task-t1">T₁</div>
+            <div class="task-cell task-t2">T₂</div>
+            <div class="task-cell task-t3">T₃</div>
+            <div class="task-cell task-t4">T₄</div>
+            <div class="task-cell task-t5">T₅</div>
+            <div class="task-cell task-t6">T₆</div>
+            <div class="empty-cell"></div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color task-t1"></div>
+                <span>Task T₁</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color task-t2"></div>
+                <span>Task T₂</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color task-t3"></div>
+                <span>Task T₃</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color task-t4"></div>
+                <span>Task T₄</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color task-t5"></div>
+                <span>Task T₅</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color task-t6"></div>
+                <span>Task T₆</span>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>Pipeline Characteristics:</h3>
+            <ul>
+                <li><strong>Clock 1:</strong> T₁ starts in segment 1</li>
+                <li><strong>Clock 2:</strong> T₁ moves to segment 2, T₂ starts in segment 1</li>
+                <li><strong>Clock 3:</strong> T₁ moves to segment 3, T₂ to segment 2, T₃ starts in segment 1</li>
+                <li><strong>Clock 4:</strong> T₁ completes (exits segment 4), pipeline continues filling</li>
+                <li><strong>Clock 5 onwards:</strong> Pipeline is full - one task completes every clock cycle</li>
+                <li><strong>Total time:</strong> 9 clock cycles to complete all 6 tasks</li>
+                <li><strong>Throughput:</strong> 1 task per clock cycle (after pipeline fills at clock 4)</li>
+            </ul>
+        </div>
+
+	    </div>
+	</div>
+
+        <div class="card">
+            <h2>🧮 Arithmetic Pipeline Example</h2>
+            <p style="margin-bottom: 20px;">Computing <strong>Aᵢ × Bᵢ + Cᵢ</strong> for i = 1, 2, 3, ..., 7</p>
+            
+            <div class="visualization">
+                <div class="stage">
+                    <h3>Stage 1</h3>
+                    <p><strong>Input</strong></p>
+                    <p>R1 ← Aᵢ<br>R2 ← Bᵢ</p>
+                </div>
+                <div class="stage">
+                    <h3>Stage 2</h3>
+                    <p><strong>Multiply</strong></p>
+                    <p>R3 ← R1 × R2<br>R4 ← Cᵢ</p>
+                </div>
+                <div class="stage">
+                    <h3>Stage 3</h3>
+                    <p><strong>Add</strong></p>
+                    <p>R5 ← R3 + R4</p>
+                </div>
+                <div class="stage">
+                    <h3>Output</h3>
+                    <p><strong>Result</strong></p>
+                    <p>Aᵢ × Bᵢ + Cᵢ</p>
+                </div>
+            </div>
+	    <center><img src="exmp_pipe.png" alt="Stage with Registers" width="600px"></center>
+            <table class="interactive-table">
+                <thead>
+                    <tr>
+                        <th>Clock Pulse</th>
+                        <th>Segment 1 (Input)</th>
+                        <th>Segment 2 (Multiply)</th>
+                        <th>Segment 3 (Add)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>A₁, B₁</td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>A₂, B₂</td>
+                        <td>A₁ × B₁, C₁</td>
+                        <td>—</td>
+                    </tr>
+                    <tr style="background: #48bb7820;">
+                        <td>3</td>
+                        <td>A₃, B₃</td>
+                        <td>A₂ × B₂, C₂</td>
+                        <td><strong>A₁ × B₁ + C₁ ✓</strong></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>A₄, B₄</td>
+                        <td>A₃ × B₃, C₃</td>
+                        <td>A₂ × B₂ + C₂</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>A₅, B₅</td>
+                        <td>A₄ × B₄, C₄</td>
+                        <td>A₃ × B₃ + C₃</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>A₆, B₆</td>
+                        <td>A₅ × B₅, C₅</td>
+                        <td>A₄ × B₄ + C₄</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>A₇, B₇</td>
+                        <td>A₆ × B₆, C₆</td>
+                        <td>A₅ × B₅ + C₅</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>—</td>
+                        <td>A₇ × B₇, C₇</td>
+                        <td>A₆ × B₆ + C₆</td>
+                    </tr>
+                    <tr style="background: #48bb7820;">
+                        <td>9</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td><strong>A₇ × B₇ + C₇ ✓</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>⚡ Speed Up Calculation</h2>
+            
+            <div class="formula-box">
+                S = n × tₙ / [(k + n - 1) × tₚ]
+            </div>
+
+            <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p><strong>Where:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>S</strong> = Speed Up factor</li>
+                    <li><strong>k</strong> = Number of segments in pipeline</li>
+                    <li><strong>n</strong> = Number of tasks</li>
+                    <li><strong>tₚ</strong> = Clock cycle time (pipeline)</li>
+                    <li><strong>tₙ</strong> = Time per task (non-pipeline)</li>
+                </ul>
+            </div>
+
+            <div class="calculator">
+                <h3 style="color: #667eea; margin-bottom: 20px;">🧮 Interactive Speed Up Calculator</h3>
+                
+                <div class="input-group">
+                    <label>Number of Segments (k):</label>
+                    <input type="number" id="segments" value="4" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>Number of Tasks (n):</label>
+                    <input type="number" id="tasks" value="7" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>Pipeline Clock Time (tₚ):</label>
+                    <input type="number" id="clockTime" value="1" min="0.1" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Non-Pipeline Time per Task (tₙ):</label>
+                    <input type="number" id="nonPipelineTime" value="4" min="0.1" step="0.1">
+                </div>
+
+                <button onclick="calculateSpeedUp()">Calculate Speed Up</button>
+
+                <div class="result" id="result"></div>
+            </div>
+
+            <div style="background: #fff5e1; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #f59e0b;">
+                <strong>📊 Key Insights:</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>When n ≫ k-1, Speed Up ≈ tₙ / tₚ</li>
+                    <li>If tₙ = k × tₚ, then Maximum Speed Up = k; where k is the number of segment in pipeline</li>
+                    <li>First task completes in k × tₚ time</li>
+                    <li>After pipeline fills, one result per clock cycle</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏢 Pipeline Organization Types</h2>
+            <div class="key-points">
+                <div class="point" style="border-left-color: #667eea;">
+                    <strong>1️⃣ Arithmetic Pipeline</strong><br>
+                    Specialized for arithmetic operations like multiplication, division, floating-point operations
+                </div>
+                <div class="point" style="border-left-color: #764ba2;">
+                    <strong>2️⃣ Instruction Pipeline</strong><br>
+                    Handles instruction fetch, decode, execute, and write-back stages
+                </div>
+            </div>
+        </div>
+    </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="arithmetic_pipeline.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Arithmetic Pipelining</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    <script>
+        function calculateSpeedUp() {
+            const k = parseFloat(document.getElementById('segments').value);
+            const n = parseFloat(document.getElementById('tasks').value);
+            const tp = parseFloat(document.getElementById('clockTime').value);
+            const tn = parseFloat(document.getElementById('nonPipelineTime').value);
+
+            const pipelineTime = (k + n - 1) * tp;
+            const nonPipelineTime = n * tn;
+            const speedUp = nonPipelineTime / pipelineTime;
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div style="margin-bottom: 10px;">⚡ Speed Up: <strong>${speedUp.toFixed(2)}x</strong></div>
+                <div style="font-size: 0.9em; opacity: 0.9;">
+                    Pipeline Time: ${pipelineTime.toFixed(2)} units<br>
+                    Non-Pipeline Time: ${nonPipelineTime.toFixed(2)} units<br>
+                    Efficiency: ${((speedUp / k) * 100).toFixed(1)}%
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        // Initialize with default calculation
+        window.onload = function() {
+            calculateSpeedUp();
+        };
+    </script>
+</body>
+</html>

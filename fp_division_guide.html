@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating-Point Division Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .step-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-card:hover {
+            transform: scale(1.05);
+        }
+
+        .step-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-step {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-left: 5px solid #0dcaf0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .binary-display {
+            font-family: 'Courier New', monospace;
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .flowchart {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px auto;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .flow-arrow {
+            color: #667eea;
+            font-size: 2em;
+            margin: 5px 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 Floating-Point Division</h1>
+        <p class="subtitle">An Interactive Guide to Understanding Floating-Point Arithmetic</p>
+
+        <div class="section">
+            <h2>📚 Overview</h2>
+            <p>Floating-point division is a complex operation that requires careful handling of mantissas, exponents, and special cases. Unlike multiplication, division requires a <span class="highlight">normalization step</span> after the operation, and the quotient is obtained through an iterative process.</p>
+            
+            <div class="info">
+                <strong>Key Difference from Other Operations:</strong> The quotient is obtained after the division, and a dividend alignment must be carried out as a normalization step before the actual division.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 The Five-Step Division Algorithm</h2>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Check for Zeros</div>
+                    <p>Verify that neither operand is zero to avoid illegal operations.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Initialize & Evaluate Sign</div>
+                    <p>Set up registers and determine the sign of the result using XOR.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Align the Dividend</div>
+                    <p>Normalize the dividend to ensure proper positioning.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Subtract the Exponents</div>
+                    <p>Calculate the result exponent by subtracting divisor from dividend exponent.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Divide the Mantissas</div>
+                    <p>Perform the iterative division process to obtain the quotient.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Division Process Flowchart</h2>
+            <center><img src="float_div.png" alt="Float Division Flowchart" width="600px"></center>
+        </div>
+
+        <div class="section">
+            <h2>💻 Interactive Division Calculator</h2>
+            <div class="interactive-demo">
+                <div class="input-group">
+                    <label for="dividend">Dividend (decimal):</label>
+                    <input type="number" id="dividend" value="12.5" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="divisor">Divisor (decimal):</label>
+                    <input type="number" id="divisor" value="2.5" step="0.01">
+                </div>
+                <button onclick="performDivision()">Calculate Division</button>
+                <div id="result" class="result-box" style="display:none;"></div>
+            </div>
+        </div>
+
+	
+        <div class="section">
+            <h2>⚠️ Special Cases & Important Notes</h2>
+            
+            <div class="warning">
+                <strong>Division by Zero:</strong> If the divisor is zero, the operation is illegal and must be terminated with an error message.
+            </div>
+
+            <div class="info">
+                <strong>Zero Dividend:</strong> If the dividend is zero (but divisor is not), the quotient is simply zero and the operation terminates immediately.
+            </div>
+
+            <div class="info">
+                <strong>Normalization Requirement:</strong> An alternative overflow procedure must be provided before division to shift the dividend to the right and increment the dividend exponent if necessary. This is unique to division operations.
+            </div>
+
+            <div class="info">
+                <strong>Result Location:</strong> After division, the mantissa quotient resides in Q (quotient register) and the remainder in A. The floating-point quotient is already normalized, and the exponent of the remainder is the same as the dividend's original exponent.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Fixed-Point vs Floating-Point Division</h2>
+            <p><strong>Fixed-Point:</strong> The divide-overflow check is similar to fixed-point operations, ensuring proper alignment for fraction division.</p>
+            
+            <p style="margin-top: 15px;"><strong>Floating-Point Specifics:</strong></p>
+            <ul style="margin-left: 30px; margin-top: 10px;">
+                <li style="margin: 10px 0;">✓ Requires exponent subtraction (not present in fixed-point)</li>
+                <li style="margin: 10px 0;">✓ Needs special overflow procedure before division begins</li>
+                <li style="margin: 10px 0;">✓ Result is automatically normalized</li>
+                <li style="margin: 10px 0;">✓ Dividend alignment is critical for proper operation</li>
+            </ul>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="bcd_adder_webpage.html" style="text-decoration: none;" class="btn btn-primary">BCD Adder</a>
+                </div>
+	
+        
+    </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    <script>
+        function performDivision() {
+            const dividend = parseFloat(document.getElementById('dividend').value);
+            const divisor = parseFloat(document.getElementById('divisor').value);
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.style.display = 'block';
+            resultDiv.classList.add('animate');
+
+            let steps = '<h3 style="color: #764ba2; margin-bottom: 15px;">Division Steps:</h3>';
+
+            // Step 1: Check for zeros
+            steps += '<div class="result-step"><strong>Step 1: Check for Zeros</strong><br>';
+            if (divisor === 0) {
+                steps += '❌ ERROR: Division by zero is illegal!</div>';
+                resultDiv.innerHTML = steps;
+                return;
+            } else if (dividend === 0) {
+                steps += '✓ Dividend is zero. Result = 0</div>';
+                resultDiv.innerHTML = steps;
+                return;
+            } else {
+                steps += `✓ Dividend = ${dividend}, Divisor = ${divisor} (both non-zero)</div>`;
+            }
+
+            // Step 2: Sign determination
+            const sign = (dividend < 0) !== (divisor < 0) ? '-' : '+';
+            steps += `<div class="result-step"><strong>Step 2: Sign Determination</strong><br>`;
+            steps += `Sign of result: ${sign} (using XOR logic)</div>`;
+
+            // Step 3: Get absolute values
+            const absDividend = Math.abs(dividend);
+            const absDivisor = Math.abs(divisor);
+
+            // Step 4: Exponent calculation
+            steps += `<div class="result-step"><strong>Step 3-4: Align Dividend & Subtract Exponents</strong><br>`;
+            steps += `Working with magnitudes: |${dividend}| ÷ |${divisor}|<br>`;
+            steps += `Exponents are adjusted during alignment process</div>`;
+
+            // Step 5: Mantissa division
+            const quotient = absDividend / absDivisor;
+            const finalResult = sign === '-' ? -quotient : quotient;
+
+            steps += `<div class="result-step"><strong>Step 5: Divide Mantissas</strong><br>`;
+            steps += `Quotient mantissa calculated through iterative process<br>`;
+            steps += `Result stored in Q register</div>`;
+
+            // Final result
+            steps += `<div class="result-step" style="background: #d1ecf1; border-left: 5px solid #0dcaf0;">`;
+            steps += `<strong>Final Result:</strong><br>`;
+            steps += `<span style="font-size: 1.5em; color: #667eea;">${dividend} ÷ ${divisor} = ${finalResult}</span><br>`;
+            steps += `<small>Quotient in Q, Remainder in A (not shown for decimal)</small></div>`;
+
+            resultDiv.innerHTML = steps;
+        }
+
+        // Add hover effects to step cards
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(1.1) rotate(2deg)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Multiprocessors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .nav-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .nav-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .nav-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .nav-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section-header h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+        }
+
+        .page-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .subsection {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .subsection:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .subsection h4 {
+            color: #764ba2;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .subsection .page {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .highlight-box strong {
+            color: #764ba2;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.2s ease;
+            z-index: 1000;
+        }
+
+        .key-concept {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="header">
+        <h1>⚡ Chapter 13: Multiprocessors</h1>
+        <p>Understanding Systems with Multiple Processing Units</p>
+    </div>
+
+    <div class="container">
+        <div class="nav-cards">
+            <div class="nav-card" onclick="scrollToSection('section1')">
+                <span class="icon">🖥️</span>
+                <h3>Context & Characteristics</h3>
+                <p>Basic characteristics of multiprocessor systems</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('section2')">
+                <span class="icon">🔗</span>
+                <h3>Interconnection</h3>
+                <p>How processors communicate with memory</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('section3')">
+                <span class="icon">⚖️</span>
+                <h3>Arbitration</h3>
+                <p>Managing shared resource access</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('section4')">
+                <span class="icon">🔄</span>
+                <h3>Communication</h3>
+                <p>Synchronization & data sharing</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('section5')">
+                <span class="icon">💾</span>
+                <h3>Cache Coherence</h3>
+                <p>Maintaining data consistency</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('section6')">
+                <span class="icon">🏗️</span>
+                <h3>Architecture</h3>
+                <p>Shared memory multiprocessors</p>
+            </div>
+        </div>
+
+        <div class="section" id="section1">
+            <div class="section-header">
+                <h2>I. Context and Characteristics</h2>
+                <span class="page-badge">Page 489</span>
+            </div>
+            <p>The concept of multiprocessing introduces systems that utilize multiple processing units to increase computational power. This foundational section establishes the basic characteristics that define multiprocessor systems.</p>
+            <div class="highlight-box">
+                <strong>Key Focus:</strong> Understanding how multiple processors work together to enhance system performance and handle complex computational tasks efficiently.
+            </div>
+        </div>
+
+        <div class="section" id="section2">
+            <div class="section-header">
+                <h2>II. Interconnection Structures</h2>
+                <span class="page-badge">Section 13-2</span>
+            </div>
+            <p>Various interconnection structures are essential for linking multiple processors, enabling communication between processors and memory units.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Structure Type</th>
+                        <th>Page</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Time-Shared Common Bus</strong></td>
+                        <td>491</td>
+                        <td>Simplest method where all processors share a single communication path to memory</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multiport Memory</strong></td>
+                        <td>493</td>
+                        <td>Memory units with multiple connection ports for simultaneous processor access</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Crossbar Switch</strong></td>
+                        <td>494</td>
+                        <td>Switching network providing dedicated paths between any processor and memory module</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multistage Switching Network</strong></td>
+                        <td>496</td>
+                        <td>Complex, scalable networks for larger multiprocessor systems</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hypercube Interconnection</strong></td>
+                        <td>498</td>
+                        <td>Specific topology for inter-processor connection in massively parallel processing</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <strong>Trade-offs:</strong> From simple shared buses to complex switching networks, each structure balances cost, scalability, and performance differently.
+            </div>
+        </div>
+
+        <div class="section" id="section3">
+            <div class="section-header">
+                <h2>III. Inter-processor Arbitration</h2>
+                <span class="page-badge">Page 500</span>
+            </div>
+            <p>When processors share resources like a common bus, a mechanism is required to decide which processor controls the shared resource at any given time.</p>
+            
+            <div class="subsection">
+                <h4><span class="page">p. 500</span> System Bus</h4>
+                <p>Defines the shared communication line and the basic context for arbitration.</p>
+            </div>
+
+            <div class="subsection">
+                <h4><span class="page">p. 502</span> Serial Arbitration Procedure</h4>
+                <p>Sequential method where processors request access one after another.</p>
+            </div>
+
+            <div class="subsection">
+                <h4><span class="page">p. 503</span> Parallel Arbitration Logic</h4>
+                <p>Faster method using combinational logic to resolve bus contention quickly.</p>
+            </div>
+
+            <div class="subsection">
+                <h4><span class="page">p. 505</span> Dynamic Arbitration Algorithms</h4>
+                <p>Algorithms allowing priority changes based on fairness, usage, or necessity.</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Core Concepts:</strong>
+                <span class="key-concept">Priority Handling</span>
+                <span class="key-concept">Fair Access</span>
+                <span class="key-concept">Conflict Resolution</span>
+            </div>
+        </div>
+
+        <div class="section" id="section4">
+            <div class="section-header">
+                <h2>IV. Communication & Synchronization</h2>
+                <span class="page-badge">Page 506</span>
+            </div>
+            <p>For multiple independent processors to execute tasks cooperatively, they must share data and coordinate operations effectively.</p>
+            
+            <div class="subsection">
+                <h4><span class="page">p. 507</span> Interprocessor Synchronization</h4>
+                <p>Mechanisms to enforce correct sequencing of processes when sharing resources.</p>
+            </div>
+
+            <div class="subsection">
+                <h4><span class="page">p. 508</span> Mutual Exclusion with a Semaphore</h4>
+                <p>Software/hardware primitive ensuring only one processor accesses critical shared resources at a time.</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Why It Matters:</strong> Without proper synchronization, multiple processors could corrupt shared data or create race conditions, leading to unpredictable system behavior.
+            </div>
+        </div>
+
+        <div class="section" id="section5">
+            <div class="section-header">
+                <h2>V. Cache Coherence</h2>
+                <span class="page-badge">Page 509</span>
+            </div>
+            <p>When multiple processors use local cache memory for speed, maintaining consistency across caches becomes a critical challenge.</p>
+            
+            <div class="subsection">
+                <h4><span class="page">p. 509</span> Conditions for Incoherence</h4>
+                <p>Specific situations (e.g., sharing writable data) that lead to stale data in local caches.</p>
+            </div>
+
+            <div class="subsection">
+                <h4><span class="page">p. 510</span> Solutions to Cache Coherence</h4>
+                <p>Hardware or protocol methods to maintain consistency across all local caches.</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>The Problem:</strong> When multiple caches hold copies of the same memory block, updating one copy creates inconsistencies. This is the paramount challenge in tightly coupled multiprocessor systems.
+                <br><br>
+                <span class="key-concept">Write-Through</span>
+                <span class="key-concept">Write-Back</span>
+                <span class="key-concept">Snooping Protocols</span>
+                <span class="key-concept">Directory-Based</span>
+            </div>
+        </div>
+
+        <div class="section" id="section6">
+            <div class="section-header">
+                <h2>VI. Shared Memory Multiprocessors</h2>
+                <span class="page-badge">Implicit Focus</span>
+            </div>
+            <p>While not a distinct numbered section, the entire chapter focuses on this architectural type through its various topics.</p>
+            
+            <div class="highlight-box">
+                <strong>Architectural Characteristics:</strong>
+                <ul style="margin-top: 1rem; margin-left: 1.5rem;">
+                    <li style="margin: 0.5rem 0;">Interconnection structures focus on accessing common memory resources</li>
+                    <li style="margin: 0.5rem 0;">Arbitration arises from contention for shared resources</li>
+                    <li style="margin: 0.5rem 0;">Cache coherence is the paramount challenge in tightly coupled systems</li>
+                    <li style="margin: 0.5rem 0;">Multiple CPUs share a central memory pool with local caches for speed</li>
+                </ul>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 10px; margin-top: 2rem; text-align: center;">
+                <h3 style="margin-bottom: 1rem;">🎓 Chapter Summary</h3>
+                <p>Chapter 13 provides a comprehensive overview of multiprocessor systems, covering fundamental concepts from basic characteristics to advanced topics like cache coherence. Understanding these principles is essential for designing and working with modern parallel computing systems.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        ↑
+    </div>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll function
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Progress bar and back-to-top button
+        window.addEventListener('scroll', () => {
+            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (window.scrollY / windowHeight) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+
+            const backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // Add smooth hover effects to subsections
+        document.querySelectorAll('.subsection').forEach(sub => {
+            sub.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 5px 15px rgba(102, 126, 234, 0.2)';
+            });
+            sub.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

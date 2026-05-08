@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Control Instructions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            color: #6366f1;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#333;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+
+        .tab:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            padding: 20px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            border-color: #f59e0b;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .card h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .card p {
+            color: #78350f;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-box {
+            padding: 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box strong {
+            color: #1e40af;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-on {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-off {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Program Control</h1>
+            <div class="subtitle">Mastering the Flow of Program Execution</div>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2><span class="icon"></span>Fundamentals of Program Control</h2>
+                <p>Program control instructions are unique because their execution can <span class="highlight">change the Program Counter (PC)</span>, thereby altering the flow of control. This capability enables <span class="highlight">branching to different program segments</span> and provides powerful control over execution paths.</p>
+                
+                <div class="info-box">
+                    <strong>Key Concept:</strong> Without control instructions, execution proceeds sequentially, with the PC holding the address of the next instruction in sequence.
+                </div>
+
+                <h3 style="color: #8b5cf6; margin-top: 30px;">Common Program Control Instructions</h3>
+                <table>
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Mnemonic</th>
+                    </tr>
+                    <tr>
+                        <td>Branch</td>
+                        <td><strong>BR</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Jump</td>
+                        <td><strong>JMP</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Skip</td>
+                        <td><strong>SKP</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Call</td>
+                        <td><strong>CALL</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Return</td>
+                        <td><strong>RET</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Compare (by subtraction)</td>
+                        <td><strong>CMP</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Test (by ANDing)</td>
+                        <td><strong>TST</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon"></span>Status Bits & Conditional Branching</h2>
+                <p>Conditional program flow relies on checking specific conditions stored in a <span class="highlight">Status Register</span>. The ALU output sets or resets condition flags based on operation results.</p>
+		<center><img src="status_bit.png" alt="Circuit Diagram of Status bit" width="600px"></center>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3><span class="status-indicator status-on"></span>V - Overflow</h3>
+                        <p>Indicates arithmetic overflow occurred</p>
+                    </div>
+                    <div class="card">
+                        <h3><span class="status-indicator status-on"></span>Z - Zero</h3>
+                        <p>Result of operation is zero</p>
+                    </div>
+                    <div class="card">
+                        <h3><span class="status-indicator status-off"></span>S - Sign</h3>
+                        <p>Indicates sign of the result</p>
+                    </div>
+                    <div class="card">
+                        <h3><span class="status-indicator status-on"></span>C - Carry</h3>
+                        <p>Carry out from MSB occurred</p>
+                    </div>
+                </div>
+		
+                <h3 style="color: #8b5cf6; margin-top: 30px;">Conditional Branch Instructions</h3>
+                <table>
+                    <tr>
+                        <th>Mnemonic</th>
+                        <th>Branch Condition</th>
+                        <th>Tested Condition</th>
+                    </tr>
+                    <tr>
+                        <td><strong>BZ</strong></td>
+                        <td>Branch if zero</td>
+                        <td>Z = 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BNZ</strong></td>
+                        <td>Branch if not zero</td>
+                        <td>Z = 0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BC</strong></td>
+                        <td>Branch if carry</td>
+                        <td>C = 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BNC</strong></td>
+                        <td>Branch if no carry</td>
+                        <td>C = 0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BP</strong></td>
+                        <td>Branch if plus</td>
+                        <td>S = 0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BM</strong></td>
+                        <td>Branch if minus</td>
+                        <td>S = 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BV</strong></td>
+                        <td>Branch if overflow</td>
+                        <td>V = 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BNV</strong></td>
+                        <td>Branch if no overflow</td>
+                        <td>V = 0</td>
+                    </tr>
+		    <tr>
+        		<th colspan="3"><center>Unsigned Compare Condition A - B</center></th>
+    		    </tr>
+		    <tr>
+                        <td><strong>BHI</strong></td>
+                        <td>Branch if higher</td>
+                        <td>A > B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BHE</strong></td>
+                        <td>Branch if higher or equal</td>
+                        <td>A &ge; B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BLO</strong></td>
+                        <td>Branch if lower</td>
+                        <td>A < B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BLOE</strong></td>
+                        <td>Branch if lower or equal</td>
+                        <td>A &le; B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BE</strong></td>
+                        <td>Branch if equal</td>
+                        <td>A = B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BNE</strong></td>
+                        <td>Branch if not equal</td>
+                        <td>A &ne; B</td>
+                    </tr>
+		     <tr>
+        		<th colspan="3"><center>Signed Compare Condition A - B</center></th>
+    		    </tr>
+		    <tr>
+                        <td><strong>BGT</strong></td>
+                        <td>Branch if greater than</td>
+                        <td>A > B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BGE</strong></td>
+                        <td>Branch if greater or equal</td>
+                        <td>A &ge; B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BLT</strong></td>
+                        <td>Branch if less than</td>
+                        <td>A < B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BLE</strong></td>
+                        <td>Branch if less or equal</td>
+                        <td>A &le; B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BE</strong></td>
+                        <td>Branch if equal</td>
+                        <td>A = B</td>
+                    </tr>
+		    <tr>
+                        <td><strong>BNE</strong></td>
+                        <td>Branch if not equal</td>
+                        <td>A &ne; B</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon"></span>Subroutine Call & Return</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('call')">Call Process</button>
+                    <button class="tab" onclick="showTab('storage')">Return Address Storage</button>
+                    <button class="tab" onclick="showTab('stack')">Stack Operations</button>
+                </div>
+
+                <div id="call" class="tab-content active">
+                    <p>Subroutines enable <span class="highlight">modular programming</span>, allowing code segments to be executed multiple times from different program points.</p>
+                    
+                    <div class="info-box">
+                        <strong>Two Critical Processes:</strong>
+                        <ol style="margin-left: 20px; margin-top: 10px; color: #1e40af;">
+                            <li><strong>Saving the Return Address:</strong> Store the PC content in temporary memory</li>
+                            <li><strong>Transferring Control:</strong> Load PC with subroutine's entry address</li>
+                        </ol>
+                    </div>
+
+                    <p style="margin-top: 20px;">Alternative names for CALL instruction:</p>
+                    <ul style="margin-left: 30px; color: #555; line-height: 2;">
+                        <li>Jump to Subroutine</li>
+                        <li>Branch to Subroutine</li>
+                        <li>Branch and Save Return Address</li>
+                    </ul>
+                </div>
+
+                <div id="storage" class="tab-content">
+                    <h3 style="color: #8b5cf6; margin-bottom: 20px;">Methods for Storing Return Address</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h3>📍 First Location</h3>
+                            <p>Store in the first memory location of the subroutine</p>
+                        </div>
+                        <div class="card">
+                            <h3>📌 Fixed Location</h3>
+                            <p>Use a fixed memory location related to subroutine</p>
+                        </div>
+                        <div class="card">
+                            <h3>💾 Processor Register</h3>
+                            <p>Store in a dedicated processor register</p>
+                        </div>
+                        <div class="card">
+                            <h3>📚 Stack Memory</h3>
+                            <p>Push onto stack memory (most common)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stack" class="tab-content">
+                    <h3 style="color: #8b5cf6; margin-bottom: 20px;">Stack-based Operations</h3>
+                    <p>When using stack memory, operations involve the <span class="highlight">Stack Pointer (SP)</span>:</p>
+                    
+                    <table>
+                        <tr>
+                            <th>Instruction</th>
+                            <th>Micro-operations</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><strong>CALL</strong></td>
+                            <td>
+                                <div class="code-block">
+SP ← SP - 1<br>
+M[SP] ← PC<br>
+PC ← effective address
+                                </div>
+                            </td>
+                            <td>Decrement SP, push return address, load subroutine address</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RETURN</strong></td>
+                            <td>
+                                <div class="code-block">
+PC ← M[SP]<br>
+SP ← SP + 1
+                                </div>
+                            </td>
+                            <td>Pop return address into PC, increment SP</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon"></span>Program Interrupts</h2>
+                <p>A program interrupt is a mechanism to handle <span class="highlight">unforeseen events</span> or <span class="highlight">concurrent external actions</span> by temporarily diverting the CPU from its current execution path.</p>
+
+                <div class="info-box">
+                    <strong>Key Point:</strong> The Interrupt Service Routine (ISR) address is usually determined by hardware, not by the instruction's address field.
+                </div>
+
+                <h3 style="color: #8b5cf6; margin-top: 30px;">CPU State Information (Context Saving)</h3>
+                <p>When an interrupt occurs, the following must be saved:</p>
+                <div class="card-grid">
+                    <div class="card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                        <h3>1️⃣ Program Counter</h3>
+                        <p>Current PC content</p>
+                    </div>
+                    <div class="card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                        <h3>2️⃣ Processor Registers</h3>
+                        <p>All register contents</p>
+                    </div>
+                    <div class="card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                        <h3>3️⃣ Status Condition (PSW)</h3>
+                        <p>Processor status word</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #8b5cf6; margin-top: 30px;">CPU Operating Modes</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="padding: 25px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; border-left: 4px solid #16a34a;">
+                        <h3 style="color: #15803d; margin-bottom: 10px;">👤 User Mode</h3>
+                        <p style="color: #166534; margin: 0;">Normal program execution</p>
+                    </div>
+                    <div style="padding: 25px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
+                        <h3 style="color: #92400e; margin-bottom: 10px;">⚡ Supervisor Mode</h3>
+                        <p style="color: #78350f; margin: 0;">Privileged operations allowed</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #8b5cf6; margin-top: 30px;">Types of Interrupts</h3>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Examples</th>
+                    </tr>
+                    <tr>
+                        <td><strong>External Interrupts</strong></td>
+                        <td>Initiated by external devices</td>
+                        <td>I/O devices, timers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Internal Interrupts (Traps)</strong></td>
+                        <td>Illegal or erroneous instruction use</td>
+                        <td>Division by zero, illegal opcode</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Software Interrupts</strong></td>
+                        <td>Initiated by specific instruction</td>
+                        <td>System calls, mode switching</td>
+                    </tr>
+                </table>
+            </div>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="risc_architecture_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning RISC</a>
+                </div>
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Transfer - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #2d3748;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 50%, #fef7ff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>') repeat;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        .key-concepts {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .concept-chip {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .concept-chip:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        nav {
+            background: #f8fafc;
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(248, 250, 252, 0.95);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            background: linear-gradient(135deg, transparent, transparent);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
+        }
+
+        main {
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-number {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.8rem;
+            box-shadow: 0 12px 28px rgba(59, 130, 246, 0.3);
+            position: relative;
+        }
+
+        .section-number::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            z-index: -1;
+            opacity: 0.3;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .section h2 {
+            font-size: 3rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 25px 25px 0 0;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #3b82f6;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .register-visual {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 3px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            position: relative;
+            font-family: 'Courier New', monospace;
+        }
+
+        .register-visual::before {
+            content: 'Register';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #60a5fa;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .register-container {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 3rem 0;
+        }
+
+        .register-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 3px solid #3b82f6;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            min-width: 180px;
+            transition: all 0.4s ease;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        .register-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .register-label {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+            color: #374151;
+            font-weight: bold;
+        }
+
+        .transfer-arrow {
+            font-size: 3rem;
+            color: #f59e0b;
+            font-weight: bold;
+            animation: transferPulse 2s infinite;
+            position: relative;
+        }
+
+        @keyframes transferPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; color: #dc2626; }
+        }
+
+        .bit-representation {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .bit {
+            width: 45px;
+            height: 45px;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .bit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .bit-label {
+            font-size: 0.8rem;
+            text-align: center;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        .interactive-demo {
+            background: white;
+            border-radius: 25px;
+            padding: 3rem;
+            margin: 2.5rem 0;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .interactive-demo::before {
+            content: '🎯 Interactive Demo';
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .demo-title {
+            color: #3b82f6;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2.5rem 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+        }
+
+        .rtl-notation {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 6px solid #f59e0b;
+            padding: 2rem;
+            border-radius: 0 20px 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            margin: 2rem 0;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+        }
+
+        .rtl-notation::before {
+            content: 'RTL Expression';
+            position: absolute;
+            top: -12px;
+            left: 25px;
+            background: #f59e0b;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .symbol-table {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 2px solid #f1f5f9;
+        }
+
+        .symbol-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 2fr;
+            gap: 2rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .symbol-row:last-child {
+            border-bottom: none;
+        }
+
+        .symbol {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: center;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-radius: 12px;
+        }
+
+        .symbol-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        .symbol-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 6px solid #10b981;
+            padding: 2.5rem;
+            border-radius: 0 20px 20px 0;
+            margin: 2.5rem 0;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1);
+        }
+
+        .highlight-box::before {
+            content: '💡 Key Insight';
+            position: absolute;
+            top: -12px;
+            left: 25px;
+            background: #10b981;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .timing-diagram {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 2px solid #cbd5e1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timing-diagram::before {
+            content: 'Timing Diagram';
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: #64748b;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .clock-signal {
+            height: 60px;
+            background: repeating-linear-gradient(
+                90deg,
+                #3b82f6 0px,
+                #3b82f6 30px,
+                #60a5fa 30px,
+                #60a5fa 60px
+            );
+            border-radius: 8px;
+            position: relative;
+            animation: clockPulse 2s linear infinite;
+        }
+
+        @keyframes clockPulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            100% { opacity: 0.7; }
+        }
+
+        .example-transfer {
+            background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%);
+            border: 2px solid #a855f7;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .example-transfer::before {
+            content: 'Live Example';
+            position: absolute;
+            top: -12px;
+            left: 25px;
+            background: #a855f7;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: statusBlink 2s infinite;
+        }
+
+        .status-active {
+            background: #10b981;
+        }
+
+        .status-inactive {
+            background: #94a3b8;
+        }
+
+        @keyframes statusBlink {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            .section h2 { font-size: 2.2rem; }
+            main { padding: 2rem 1rem; }
+            .nav-links { justify-content: center; }
+            .register-container { flex-direction: column; gap: 1.5rem; }
+            .symbol-row { grid-template-columns: 1fr; gap: 1rem; text-align: center; }
+            .control-panel { flex-direction: column; align-items: center; }
+        }
+
+        footer {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="hero-content">
+                <h1>Register Transfer</h1>
+                <p class="subtitle">Understanding Binary Information Movement in Digital Computers</p>
+                <div class="key-concepts">
+                    <span class="concept-chip">Register Naming</span>
+                    <span class="concept-chip">Transfer Operations</span>
+                    <span class="concept-chip">Control Functions</span>
+                    <span class="concept-chip">RTL Symbols</span>
+                </div>
+            </div>
+        </header>
+
+        <nav>
+            <div class="nav-container">
+                <div class="nav-links">
+                    <a href="#registers" class="nav-link">What are Registers?</a>
+                    <a href="#concept" class="nav-link">Transfer Concept</a>
+                    <a href="#control" class="nav-link">Control Functions</a>
+                    <a href="#symbols" class="nav-link">RTL Symbols</a>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <section id="registers" class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2>What are Registers?</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Register Designation and Representation</h3>
+                    <p><strong>Computer registers</strong> are designated by <strong>capital letters</strong>, sometimes followed by numerals, to indicate their function.</p>
+                    
+                    <div class="register-container">
+                        <div class="register-box">
+                            <div class="register-label">MAR</div>
+                            <div style="font-size: 0.9rem; color: #64748b;">Memory Address Register</div>
+                        </div>
+                        <div class="register-box">
+                            <div class="register-label">PC</div>
+                            <div style="font-size: 0.9rem; color: #64748b;">Program Counter</div>
+                        </div>
+                        <div class="register-box">
+                            <div class="register-label">IR</div>
+                            <div style="font-size: 0.9rem; color: #64748b;">Instruction Register</div>
+                        </div>
+                        <div class="register-box">
+                            <div class="register-label">R1</div>
+                            <div style="font-size: 0.9rem; color: #64748b;">General Purpose</div>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Key Effects of Transfer:</strong>
+                        <ul style="margin-top: 1rem; list-style-type: none; padding-left: 0;">
+                            <li>✅ The content of the <strong>source register (R1) remains unchanged</strong></li>
+                            <li>🔄 The <strong>previous content of destination register (R2) is replaced</strong></li>
+                            <li>⚡ Transfer requires <strong>parallel load capability</strong> in destination register</li>
+                        </ul>
+                    </div>
+                </div>
+		<div class="card">
+                    <h3>Register Bit Structure</h3>
+                    <p>Individual bits within a register can be shown by dividing the rectangle into small boxes, numbered from 0 upwards.</p>
+                    
+                    <div class="register-visual">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <strong>16-bit Register R2 (bits 0-15)</strong>
+                        </div>
+                        <div class="bit-representation">
+                            <div>
+                                <div class="bit">1</div>
+                                <div class="bit-label">15</div>
+                            </div>
+                            <div>
+                                <div class="bit">0</div>
+                                <div class="bit-label">14</div>
+                            </div>
+                            <div>
+                                <div class="bit">1</div>
+                                <div class="bit-label">13</div>
+                            </div>
+                            <div>
+                                <div class="bit">1</div>
+                                <div class="bit-label">12</div>
+                            </div>
+                            <div style="color: #64748b;">...</div>
+                            <div>
+                                <div class="bit">0</div>
+                                <div class="bit-label">3</div>
+                            </div>
+                            <div>
+                                <div class="bit">1</div>
+                                <div class="bit-label">2</div>
+                            </div>
+                            <div>
+                                <div class="bit">0</div>
+                                <div class="bit-label">1</div>
+                            </div>
+                            <div>
+                                <div class="bit">1</div>
+                                <div class="bit-label">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+		<div class="interactive-demo">
+                        <div class="demo-title">Register Parts Notation</div>
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <p>Parts of a register can be denoted using <strong>parentheses</strong>:</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                            <div class="example-transfer">
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div class="rtl-notation">R2(0-7) or R2(L)</div>
+                                    <p>Low-order byte of register R2</p>
+                                </div>
+                            </div>
+                            <div class="example-transfer">
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div class="rtl-notation">PC(8-15) or PC(H)</div>
+                                    <p>High-order byte of Program Counter</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card">
+                    <h3>Hardware Requirements</h3>
+                    <p>To implement register transfer, specific hardware components are essential:</p>
+                    
+                    <div class="timing-diagram">
+                        <div style="margin-bottom: 1.5rem;">
+                            <strong>Hardware Implementation Requirements:</strong>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; border-left: 4px solid #3b82f6;">
+                                <strong>Circuit Paths</strong><br>
+                                Available circuits from outputs of source register to inputs of destination register
+                            </div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; border-left: 4px solid #10b981;">
+                                <strong>Parallel Load</strong><br>
+                                Destination register must have parallel load capability
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+	    <section id="concept" class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2>The Concept of Register Transfer</h2>
+                </div>
+
+                <div class="card">
+                    <h3>What is Register Transfer?</h3>
+                    <p>A <strong>register transfer</strong> is the <strong>transfer of binary information from one register to another</strong>.</p>
+                    
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Register Transfer Demonstration</div>
+                        <div class="register-container">
+                            <div class="register-box" id="dest-reg">
+                                <div class="register-label">R2 (Destination)</div>
+                                <div class="register-value" id="r2-content">00000000</div>
+                                <div style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">
+                                    <span class="status-indicator status-inactive" id="r2-status"></span>
+                                    <span id="r2-status-text">Previous content replaced</span>
+                                </div>
+                            </div>
+                            
+                            <div class="transfer-arrow" id="transfer-arrow">←</div>
+                            <div class="register-box" id="source-reg">
+                                <div class="register-label">R1 (Source)</div>
+                                <div class="register-value" id="r1-content">10110101</div>
+                                <div style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">
+                                    <span class="status-indicator status-active"></span>Content unchanged
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="rtl-notation" id="rtl-display">
+                            R2 ← R1
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="executeTransfer()">Execute Transfer</button>
+                            <button class="btn btn-secondary" onclick="resetRegisters()">Reset Registers</button>
+                            <button class="btn btn-success" onclick="generateNewData()">New Data</button>
+                        </div>
+                        
+                        <div id="transfer-log" style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 12px; font-family: monospace; display: none;"></div>
+                    </div>
+
+                    <div class="highlight-box">
+    <strong>Key Points of Register Transfer:</strong>
+    <ul style="margin-top: 1rem;">
+        <li>🔹 Transfers binary data from source register (R1) to destination register (R2).</li>
+        <li>🔹 The source register content remains unchanged after the transfer.</li>
+        <li>🔹 The destination register content is overwritten with the source data.</li>
+        <li>🔹 Transfers occur in synchronization with a clock pulse.</li>
+        <li>🔹 Useful in executing arithmetic, logic, and control operations in a CPU.</li>
+    </ul>
+</div>
+</section>
+            <section id="control" class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2>Control Function for Register Transfer</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Conditional Transfer Operations</h3>
+                    <p>Register transfers often occur only under a <strong>predetermined control condition</strong>.</p>
+                    
+                    <div class="interactive-demo">
+                        <div class="demo-title">Control Function Demonstration</div>
+                        
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <div class="rtl-notation" id="control-rtl">
+                                P: R2 ← R1
+                            </div>
+                            <p style="margin-top: 1rem;"><em>"If P = 1, then transfer the content of R1 to R2"</em></p>
+                        </div>
+                        
+                        <div class="register-container">
+                            <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 3px solid #f59e0b; border-radius: 20px; padding: 2rem; text-align: center;">
+                                <div style="font-weight: bold; color: #92400e; margin-bottom: 1rem; font-size: 1.3rem;">Control Function P</div>
+                                <div style="font-family: monospace; font-size: 2rem; font-weight: bold; color: #92400e;" id="control-value">0</div>
+                                <div style="font-size: 0.9rem; color: #92400e; margin-top: 0.5rem;">
+                                    <span class="status-indicator" id="control-status"></span>
+                                    <span id="control-status-text">Transfer Disabled</span>
+                                </div>
+                            </div>
+                            
+                            <div class="register-box">
+                                <div class="register-label">R2</div>
+                                <div class="register-value" id="ctrl-r2">01001001</div>
+                            </div>
+                            
+                            <div class="transfer-arrow" id="ctrl-arrow" style="opacity: 0.3;">←</div>
+                            <div class="register-box">
+                                <div class="register-label">R1</div>
+                                <div class="register-value" id="ctrl-r1">11010110</div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="toggleControlFunction()">Toggle P (0/1)</button>
+                            <button class="btn btn-secondary" onclick="attemptControlledTransfer()">Attempt Transfer</button>
+                            <button class="btn btn-success" onclick="resetControlDemo()">Reset</button>
+                        </div>
+                        
+                        <div class="timing-diagram">
+                            <div style="margin-bottom: 1rem;"><strong>Clock Synchronization:</strong></div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span>Clock Signal:</span>
+                                <div class="clock-signal" style="flex: 1; height: 40px;"></div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: #64748b;">
+                                Transfer occurs on <strong>single clock edge</strong> when control function is active (P=1)
+                            </p>
+                        </div>
+
+<pre style="background-color: #000000; color: #ffffff; padding: 1rem; border: 1px solid #ccc; border-radius: 10px; font-family: monospace;">
+Block Diagram
+                               +----------------+ 
+                               | Control Circuit| 
+                               +----------------+ 
+                                        |P
+                                        |
+                                        |
+                                        ↓<small>Load</small>
+                                    +-------+
+                +--------+          |       |←-------- Clock
+                |   R1   |---------→|   R2  |
+                +--------+    n     +-------+
+
+Timing Diagram
+                  t        t+1
+Clock:   ┌───┐    ┌───┐    ┌───┐    ┌───┐
+         │   │    ↑   │    ↑   │    │   │
+  ───────┘   └────┘   └────┘   └────┘   └───
+
+
+                  ┌────────┐
+                  │        │
+Load:─────────────┘        └──────
+     "Transfer occurs here"↑
+</pre>
+
+
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Control Function Properties:</strong>
+                        <ul style="margin-top: 1rem;">
+                            <li><strong>Boolean Variable:</strong> P can be either 1 or 0</li>
+                            <li><strong>Timing:</strong> Transfer occurs during single clock edge</li>
+                            <li><strong>Condition:</strong> Transfer only happens when P = 1</li>
+                            <li><strong>Synchronization:</strong> Typically on positive clock transition</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="symbols" class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2>Basic Symbols for Register Transfers</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Register Transfer Language (RTL) Symbols</h3>
+                    <p>Table 4-1 provides a summary of basic symbols used in Register Transfer Language:</p>
+                    
+                    <div class="symbol-table">
+                        <div class="symbol-row">
+                            <div class="symbol">MAR,R2</div>
+                            <div class="symbol-name">Letters & Numerals</div>
+                            <div class="symbol-description">Denote a register (Memory Address Register, Register 2)</div>
+                        </div>
+                        
+                        <div class="symbol-row">
+                            <div class="symbol">( )</div>
+                            <div class="symbol-name">Parentheses</div>
+                            <div class="symbol-description">Denote a part of a register (e.g., R2(0-7) for bits 0-7, R2(L) for low byte)</div>
+                        </div>
+                        
+                        <div class="symbol-row">
+                            <div class="symbol">←</div>
+                            <div class="symbol-name">Arrow</div>
+                            <div class="symbol-description">Denotes the transfer of information (R2 ← R1 means transfer R1 to R2)</div>
+                        </div>
+                        
+                        <div class="symbol-row">
+                            <div class="symbol">,</div>
+                            <div class="symbol-name">Comma</div>
+                            <div class="symbol-description">Separates simultaneous micro-operations (R2 ← R1, R1 ← R2)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Simultaneous Operations</h3>
+                    <p>The comma separates two or more micro-operations that occur <strong>simultaneously</strong>, typically initiated by one common clock pulse.</p>
+                    
+                    <div class="interactive-demo">
+                        <div class="demo-title">Simultaneous Transfer Demo</div>
+                        
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <div class="rtl-notation" id="simultaneous-rtl">
+                                R2 ← R1, R1 ← R2
+                            </div>
+                            <p><em>Register Exchange Operation</em></p>
+                        </div>
+                        
+                        <div class="register-container">
+                            <div class="register-box" id="sim-r1">
+                                <div class="register-label">R1</div>
+                                <div class="register-value" id="sim-r1-val">10101010</div>
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <div class="transfer-arrow">⇄</div>
+                                <div style="font-size: 0.9rem; color: #64748b;">Simultaneous</div>
+                            </div>
+                            
+                            <div class="register-box" id="sim-r2">
+                                <div class="register-label">R2</div>
+                                <div class="register-value" id="sim-r2-val">01010101</div>
+                            </div>
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="executeSimultaneousTransfer()">Execute Exchange</button>
+                            <button class="btn btn-secondary" onclick="resetSimultaneous()">Reset</button>
+                            <button class="btn btn-success" onclick="randomizeSimultaneous()">Random Values</button>
+                        </div>
+                        
+                        <div class="highlight-box">
+                            <strong>Edge-Triggered Flip-Flops:</strong> Simultaneous operations are possible with registers using edge-triggered flip-flops, which capture input values at the clock edge.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>RTL Expression Examples</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <div class="example-transfer">
+                            <div class="rtl-notation">PC ← PC + 1</div>
+                            <p><strong>Program Counter Increment</strong><br>Increment program counter by 1</p>
+                        </div>
+                        
+                        <div class="example-transfer">
+                            <div class="rtl-notation">MAR ← IR(0-11)</div>
+                            <p><strong>Address Loading</strong><br>Load address from instruction register bits 0-11</p>
+                        </div>
+                        
+                        <div class="example-transfer">
+                            <div class="rtl-notation">T₂: DR ← M[AR]</div>
+                            <p><strong>Memory Read</strong><br>Read memory at address AR into DR during time T₂</p>
+                        </div>
+                        
+                        <div class="example-transfer">
+                            <div class="rtl-notation">Load: R1 ← R2, R3 ← 0</div>
+                            <p><strong>Multiple Operations</strong><br>Load R2 into R1 and clear R3 when Load signal is active</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="bus_memory_transfers.html" class="btn btn-primary">Start Learning Bus and Memory Transfer</a>
+                </div>
+
+        </main>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        // Navigation and scroll animations
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const targetId = entry.target.id;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + targetId) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Register Transfer Functions
+        function executeTransfer() {
+            const r1Value = document.getElementById('r1-content').textContent;
+            const r2Element = document.getElementById('r2-content');
+            const logElement = document.getElementById('transfer-log');
+            
+            // Animate transfer
+            document.getElementById('transfer-arrow').style.color = '#dc2626';
+            document.getElementById('transfer-arrow').style.transform = 'scale(1.2)';
+            
+            setTimeout(() => {
+                r2Element.textContent = r1Value;
+                document.getElementById('r2-status').className = 'status-indicator status-active';
+                document.getElementById('r2-status-text').textContent = 'Content updated!';
+                
+                // Show log
+                logElement.style.display = 'block';
+                logElement.innerHTML = `
+                    <strong>Transfer Executed:</strong><br>
+                    R1 content: ${r1Value} (unchanged)<br>
+                    R2 content: ${r1Value} (updated)<br>
+                    <em>Transfer completed at clock edge</em>
+                `;
+                
+                // Reset arrow
+                setTimeout(() => {
+                    document.getElementById('transfer-arrow').style.color = '#f59e0b';
+                    document.getElementById('transfer-arrow').style.transform = 'scale(1)';
+                }, 500);
+            }, 300);
+        }
+
+        function resetRegisters() {
+            document.getElementById('r1-content').textContent = '10110101';
+            document.getElementById('r2-content').textContent = '00000000';
+            document.getElementById('r2-status').className = 'status-indicator status-inactive';
+            document.getElementById('r2-status-text').textContent = 'Previous content replaced';
+            document.getElementById('transfer-log').style.display = 'none';
+        }
+
+        function generateNewData() {
+            const randomBinary = () => {
+                let binary = '';
+                for (let i = 0; i < 8; i++) {
+                    binary += Math.floor(Math.random() * 2);
+                }
+                return binary;
+            };
+            
+            document.getElementById('r1-content').textContent = randomBinary();
+            document.getElementById('r2-content').textContent = randomBinary();
+            document.getElementById('transfer-log').style.display = 'none';
+        }
+
+        // Control Function Demo
+        let controlFunctionActive = false;
+
+        function toggleControlFunction() {
+            controlFunctionActive = !controlFunctionActive;
+            const controlValue = document.getElementById('control-value');
+            const controlStatus = document.getElementById('control-status');
+            const controlStatusText = document.getElementById('control-status-text');
+            const arrow = document.getElementById('ctrl-arrow');
+            
+            if (controlFunctionActive) {
+                controlValue.textContent = '1';
+                controlStatus.className = 'status-indicator status-active';
+                controlStatusText.textContent = 'Transfer Enabled';
+                arrow.style.opacity = '1';
+                arrow.style.color = '#10b981';
+            } else {
+                controlValue.textContent = '0';
+                controlStatus.className = 'status-indicator status-inactive';
+                controlStatusText.textContent = 'Transfer Disabled';
+                arrow.style.opacity = '0.3';
+                arrow.style.color = '#f59e0b';
+            }
+        }
+
+        function attemptControlledTransfer() {
+            if (controlFunctionActive) {
+                const r1Value = document.getElementById('ctrl-r1').textContent;
+                document.getElementById('ctrl-r2').textContent = r1Value;
+                
+                // Visual feedback
+                const r2Element = document.getElementById('ctrl-r2').parentElement;
+                r2Element.style.transform = 'scale(1.05)';
+                r2Element.style.background = 'linear-gradient(135deg, #dcfce7, #bbf7d0)';
+                
+                setTimeout(() => {
+                    r2Element.style.transform = 'scale(1)';
+                    r2Element.style.background = 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+                }, 600);
+            } else {
+                // Show error feedback
+                const arrow = document.getElementById('ctrl-arrow');
+                arrow.style.color = '#dc2626';
+                arrow.style.transform = 'scale(1.2)';
+                
+                setTimeout(() => {
+                    arrow.style.color = '#f59e0b';
+                    arrow.style.transform = 'scale(1)';
+                }, 500);
+            }
+        }
+
+        function resetControlDemo() {
+            controlFunctionActive = false;
+            document.getElementById('control-value').textContent = '0';
+            document.getElementById('control-status').className = 'status-indicator status-inactive';
+            document.getElementById('control-status-text').textContent = 'Transfer Disabled';
+            document.getElementById('ctrl-arrow').style.opacity = '0.3';
+            document.getElementById('ctrl-r1').textContent = '11010110';
+            document.getElementById('ctrl-r2').textContent = '01001001';
+        }
+
+        // Simultaneous Transfer Demo
+        function executeSimultaneousTransfer() {
+            const r1Value = document.getElementById('sim-r1-val').textContent;
+            const r2Value = document.getElementById('sim-r2-val').textContent;
+            
+            // Simultaneous exchange
+            document.getElementById('sim-r1-val').textContent = r2Value;
+            document.getElementById('sim-r2-val').textContent = r1Value;
+            
+            // Visual feedback
+            const r1Element = document.getElementById('sim-r1');
+            const r2Element = document.getElementById('sim-r2');
+            
+            r1Element.style.transform = 'scale(1.05)';
+            r2Element.style.transform = 'scale(1.05)';
+            r1Element.style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+            r2Element.style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+            
+            setTimeout(() => {
+                r1Element.style.transform = 'scale(1)';
+                r2Element.style.transform = 'scale(1)';
+                r1Element.style.background = 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+                r2Element.style.background = 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+            }, 600);
+        }
+
+        function resetSimultaneous() {
+            document.getElementById('sim-r1-val').textContent = '10101010';
+            document.getElementById('sim-r2-val').textContent = '01010101';
+        }
+
+        function randomizeSimultaneous() {
+            const randomBinary = () => {
+                let binary = '';
+                for (let i = 0; i < 8; i++) {
+                    binary += Math.floor(Math.random() * 2);
+                }
+                return binary;
+            };
+            
+            document.getElementById('sim-r1-val').textContent = randomBinary();
+            document.getElementById('sim-r2-val').textContent = randomBinary();
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add initial animation delays to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>">
+                        

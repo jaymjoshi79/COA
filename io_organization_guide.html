@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input-Output Organization - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 3em;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background: white;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+
+        .card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .interactive-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px dashed #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interactive-box:hover {
+            background: #e9ecef;
+            border-style: solid;
+        }
+
+        .interactive-box.expanded {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-style: solid;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table tr:hover {
+            background: #f5f7fa;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .flow-item {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .flow-item:hover {
+            transform: scale(1.1);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 5px;
+        }
+
+        .key-point {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .result {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Input-Output Organization</h1>
+            <p class="subtitle">Master the Art of Computer I/O Systems</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('interface')">I/O Interface</button>
+            <button class="tab-btn" onclick="showTab('async')">Async Transfer</button>
+            <button class="tab-btn" onclick="showTab('modes')">Transfer Modes</button>
+            <button class="tab-btn" onclick="showTab('interrupt')">Priority Interrupt</button>
+            <button class="tab-btn" onclick="showTab('dma')">DMA</button>
+            <button class="tab-btn" onclick="showTab('iop')">IOP</button>
+            <button class="tab-btn" onclick="showTab('serial')">Serial Comm</button>
+            <button class="tab-btn" onclick="showTab('quiz')">Quiz</button>
+        </div>
+
+        <div id="interface" class="content-section active">
+            <h2>🔌 Input-Output Interface</h2>
+            
+            <div class="card">
+                <h3>What is I/O Interface?</h3>
+                <p>The I/O interface provides a method for transferring information between internal storage (memory/CPU) and external I/O devices. It resolves the differences between the computer and peripheral devices.</p>
+            </div>
+
+            <div class="key-point">
+                <strong>💡 Key Concept:</strong> I/O interface acts as a bridge between the CPU and peripheral devices, handling timing, data format, and control signal differences.
+            </div>
+
+            <h3>Functions of I/O Interface</h3>
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>1. Data Buffer 📦</strong>
+                <div style="display:none; margin-top:10px;">
+                    Temporarily stores data being transferred between the CPU and peripherals to compensate for speed differences.
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>2. Error Detection 🔍</strong>
+                <div style="display:none; margin-top:10px;">
+                    Detects and reports errors during data transmission using parity bits, checksums, or CRC.
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>3. Signal Conversion 🔄</strong>
+                <div style="display:none; margin-top:10px;">
+                    Converts signals between digital (CPU) and analog (some peripherals) formats when necessary.
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>4. Control & Timing ⏱️</strong>
+                <div style="display:none; margin-top:10px;">
+                    Coordinates timing and control signals between CPU and peripherals with different operating speeds.
+                </div>
+            </div>
+
+            <div class="diagram">
+                <h3>I/O Interface Architecture</h3>
+                <div style="margin: 20px 0;">
+                    <div class="flow-item">CPU</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">I/O Interface</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">Peripheral</div>
+                </div>
+                <p style="margin-top: 20px; color: #666;">Data flows through the interface which handles all communication complexities</p>
+            </div>
+
+            <h3>Components of I/O Interface</h3>
+            <ul>
+                <li><span class="highlight">Data Register</span> - Holds data being transferred</li>
+                <li><span class="highlight">Status Register</span> - Contains status information about the device</li>
+                <li><span class="highlight">Control Register</span> - Receives control commands from CPU</li>
+                <li><span class="highlight">Address Decoder</span> - Selects the appropriate device</li>
+            </ul>
+        </div>
+
+        <div id="async" class="content-section">
+            <h2>🔄 Asynchronous Data Transfer</h2>
+            
+            <div class="card">
+                <h3>Understanding Asynchronous Transfer</h3>
+                <p>Asynchronous data transfer allows two independent units to communicate without using a common clock. Each unit operates at its own speed, and synchronization is achieved through control signals.</p>
+            </div>
+
+            <h3>Methods of Asynchronous Transfer</h3>
+
+            <div class="card">
+                <h3>1. Strobe Control</h3>
+                <p>Uses a single control line (strobe signal) to indicate when data is valid.</p>
+                <div class="info-badge">Simple</div>
+                <div class="info-badge">One-way</div>
+                <div class="info-badge">Fast</div>
+                
+                <h4 style="margin-top: 15px;">Types:</h4>
+                <ul>
+                    <li><strong>Source-Initiated:</strong> Source sends data and activates strobe</li>
+                    <li><strong>Destination-Initiated:</strong> Destination requests data using strobe</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>2. Handshaking</h3>
+                <p>Uses two control signals for reliable bidirectional communication between devices.</p>
+                <div class="info-badge">Reliable</div>
+                <div class="info-badge">Two-way</div>
+                <div class="info-badge">Flexible</div>
+
+                <div class="diagram">
+                    <h4>Handshaking Sequence</h4>
+                    <div style="text-align: left; max-width: 600px; margin: 20px auto;">
+                        <p><strong>Step 1:</strong> Source places data on data bus</p>
+                        <p><strong>Step 2:</strong> Source activates Data Valid signal</p>
+                        <p><strong>Step 3:</strong> Destination reads data</p>
+                        <p><strong>Step 4:</strong> Destination activates Data Accepted signal</p>
+                        <p><strong>Step 5:</strong> Source removes data and deactivates Data Valid</p>
+                        <p><strong>Step 6:</strong> Destination deactivates Data Accepted</p>
+                    </div>
+                </div>
+		
+
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Feature</th>
+                    <th>Strobe Control</th>
+                    <th>Handshaking</th>
+                </tr>
+                <tr>
+                    <td>Control Lines</td>
+                    <td>1</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Reliability</td>
+                    <td>Moderate</td>
+                    <td>High</td>
+                </tr>
+                <tr>
+                    <td>Speed</td>
+                    <td>Faster</td>
+                    <td>Slower</td>
+                </tr>
+                <tr>
+                    <td>Acknowledgment</td>
+                    <td>No</td>
+                    <td>Yes</td>
+                </tr>
+            </table>
+
+            <div class="key-point">
+                <strong>💡 Why Asynchronous?</strong> Asynchronous transfer is essential when devices operate at different speeds or when timing cannot be precisely synchronized across the system.
+            </div>
+        </div>
+
+        <div id="modes" class="content-section">
+            <h2>🚀 Modes of Data Transfer</h2>
+
+            <div class="card">
+                <h3>1. Programmed I/O</h3>
+                <p>The CPU is totally responsible for data transfer. It continuously checks the status of the I/O device.</p>
+                
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>CPU monitors device status continuously (polling)</li>
+                    <li>CPU transfers each data item</li>
+                    <li>Simple to implement but inefficient</li>
+                    <li>CPU time is wasted waiting for devices</li>
+                </ul>
+
+                <div class="diagram">
+                    <h4>Programmed I/O Flow</h4>
+                    <div style="margin: 20px 0;">
+                        <div class="flow-item">CPU</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Check Status</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Transfer Data</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Repeat</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>2. Interrupt-Initiated I/O</h3>
+                <p>The device notifies the CPU when it's ready via an interrupt signal. The CPU can perform other tasks until interrupted.</p>
+                
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>No need for continuous polling</li>
+                    <li>CPU can execute other programs</li>
+                    <li>More efficient than programmed I/O</li>
+                    <li>Requires interrupt handling mechanism</li>
+                </ul>
+
+                <div class="info-badge">Efficient</div>
+                <div class="info-badge">Event-Driven</div>
+                <div class="info-badge">Multitasking</div>
+            </div>
+
+            <div class="card">
+                <h3>3. Direct Memory Access (DMA)</h3>
+                <p>Transfers large blocks of data directly between memory and I/O device without CPU intervention.</p>
+                
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>Fastest data transfer method</li>
+                    <li>DMA controller manages the transfer</li>
+                    <li>CPU is free to perform other tasks</li>
+                    <li>Ideal for bulk data transfers</li>
+                </ul>
+
+                <div class="info-badge">High Speed</div>
+                <div class="info-badge">Block Transfer</div>
+                <div class="info-badge">CPU Independent</div>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Mode</th>
+                    <th>CPU Involvement</th>
+                    <th>Speed</th>
+                    <th>Best For</th>
+                </tr>
+                <tr>
+                    <td>Programmed I/O</td>
+                    <td>High (100%)</td>
+                    <td>Slow</td>
+                    <td>Simple devices, small data</td>
+                </tr>
+                <tr>
+                    <td>Interrupt I/O</td>
+                    <td>Medium</td>
+                    <td>Moderate</td>
+                    <td>Interactive devices</td>
+                </tr>
+                <tr>
+                    <td>DMA</td>
+                    <td>Low (minimal)</td>
+                    <td>Fast</td>
+                    <td>Bulk data transfer</td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="interrupt" class="content-section">
+            <h2>⚡ Priority Interrupt</h2>
+
+            <div class="card">
+                <h3>What is Priority Interrupt?</h3>
+                <p>A priority interrupt system handles multiple interrupt requests by assigning priorities to different devices. When multiple interrupts occur simultaneously, the system serves the highest priority request first.</p>
+            </div>
+
+            <div class="key-point">
+                <strong>💡 Key Concept:</strong> Priority systems ensure critical devices get immediate attention while less critical devices wait their turn.
+            </div>
+
+            <h3>Priority Interrupt Methods</h3>
+
+            <div class="card">
+                <h3>1. Polling (Software)</h3>
+                <p>CPU checks each device in sequence according to priority order.</p>
+                <ul>
+                    <li>Simple to implement</li>
+                    <li>Flexible priority assignment</li>
+                    <li>Slower response time</li>
+                    <li>CPU cycles wasted in checking</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>2. Daisy Chain (Hardware)</h3>
+                <p>Devices are connected in series. Interrupt acknowledge signal passes through devices in priority order.</p>
+                <ul>
+                    <li>Fast response</li>
+                    <li>Minimal hardware cost</li>
+                    <li>Fixed priority based on position</li>
+                    <li>Single interrupt line</li>
+                </ul>
+
+                <div class="diagram">
+                    <h4>Daisy Chain Configuration</h4>
+                    <div style="margin: 20px 0;">
+                        <div class="flow-item">CPU</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Device 1 (Highest)</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Device 2</div>
+                        <span class="arrow">→</span>
+                        <div class="flow-item">Device 3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3. Parallel Priority (Hardware)</h3>
+                <p>Each device has its own interrupt line. Priority logic determines which request to serve.</p>
+                <ul>
+                    <li>Fastest method</li>
+                    <li>Individual interrupt lines</li>
+                    <li>Complex hardware</li>
+                    <li>Most flexible priority control</li>
+                </ul>
+                <div class="info-badge">Fastest</div>
+                <div class="info-badge">Most Expensive</div>
+            </div>
+
+            <h3>Interrupt Service Routine (ISR)</h3>
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>Steps in Interrupt Handling 🔧</strong>
+                <div style="display:none; margin-top:10px;">
+                    <ol>
+                        <li>Save current program state (PC, registers)</li>
+                        <li>Identify interrupt source</li>
+                        <li>Jump to appropriate ISR</li>
+                        <li>Execute ISR (handle the interrupt)</li>
+                        <li>Restore program state</li>
+                        <li>Return to interrupted program</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <strong>⚠️ Important:</strong> Nested interrupts occur when a higher priority interrupt interrupts the ISR of a lower priority interrupt.
+            </div>
+        </div>
+
+        <div id="dma" class="content-section">
+            <h2>💾 Direct Memory Access (DMA)</h2>
+
+            <div class="card">
+                <h3>What is DMA?</h3>
+                <p>DMA is a method that allows I/O devices to transfer data directly to/from memory without CPU intervention. A DMA controller manages the entire transfer process.</p>
+            </div>
+
+            <div class="diagram">
+                <h3>DMA Transfer Architecture</h3>
+                <div style="margin: 20px 0;">
+                    <div class="flow-item">I/O Device</div>
+                    <span class="arrow">↔</span>
+                    <div class="flow-item">DMA Controller</div>
+                    <span class="arrow">↔</span>
+                    <div class="flow-item">Memory</div>
+                </div>
+                <p style="color: #666; margin-top: 15px;">CPU only initializes the transfer; DMA handles the rest</p>
+            </div>
+
+            <h3>DMA Controller Registers</h3>
+            <div class="card">
+                <ul>
+                    <li><span class="highlight">Address Register:</span> Holds memory address for transfer</li>
+                    <li><span class="highlight">Word Count Register:</span> Number of words to transfer</li>
+                    <li><span class="highlight">Control Register:</span> Mode of transfer (read/write)</li>
+                    <li><span class="highlight">Status Register:</span> Indicates transfer status</li>
+                </ul>
+            </div>
+
+            <h3>DMA Transfer Modes</h3>
+
+            <div class="card">
+                <h3>1. Burst Mode (Block Transfer)</h3>
+                <p>DMA controller takes over system bus and transfers entire block of data in one burst.</p>
+                <ul>
+                    <li>Fastest transfer method</li>
+                    <li>CPU is halted during transfer</li>
+                    <li>Ideal for high-speed devices</li>
+                </ul>
+                <div class="info-badge">Fastest</div>
+                <div class="info-badge">CPU Blocked</div>
+            </div>
+
+            <div class="card">
+                <h3>2. Cycle Stealing Mode</h3>
+                <p>DMA controller transfers one word at a time, stealing a bus cycle when needed.</p>
+                <ul>
+                    <li>CPU can continue execution</li>
+                    <li>Slightly slower than burst mode</li>
+                    <li>Minimal CPU disruption</li>
+                </ul>
+                <div class="info-badge">Balanced</div>
+                <div class="info-badge">CPU Friendly</div>
+            </div>
+
+            <div class="card">
+                <h3>3. Transparent Mode</h3>
+                <p>DMA transfers only when CPU is not using the bus.</p>
+                <ul>
+                    <li>No CPU cycle stealing</li>
+                    <li>Slowest DMA mode</li>
+                    <li>Zero impact on CPU</li>
+                </ul>
+                <div class="info-badge">Slowest</div>
+                <div class="info-badge">Zero CPU Impact</div>
+            </div>
+
+            <h3>DMA Transfer Steps</h3>
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>Click to see DMA process flow 📋</strong>
+                <div style="display:none; margin-top:10px;">
+                    <ol>
+                        <li><strong>Initialization:</strong> CPU programs DMA controller with address, count, and control</li>
+                        <li><strong>Request:</strong> I/O device requests DMA transfer</li>
+                        <li><strong>Grant:</strong> DMA controller requests bus from CPU</li>
+                        <li><strong>Transfer:</strong> DMA manages data transfer directly</li>
+                        <li><strong>Complete:</strong> DMA sends interrupt to CPU when done</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <strong>💡 Advantage:</strong> DMA frees the CPU to perform other tasks, resulting in significant performance improvement for bulk data transfers.
+            </div>
+        </div>
+
+        <div id="iop" class="content-section">
+            <h2>🖥️ Input-Output Processor (IOP)</h2>
+
+            <div class="card">
+                <h3>What is an IOP?</h3>
+                <p>An Input-Output Processor (IOP) is a specialized processor designed to handle all I/O operations independently. It has its own instruction set and can execute complex I/O programs.</p>
+            </div>
+
+            <div class="key-point">
+                <strong>💡 Evolution:</strong> IOP represents the highest level of I/O sophistication: Programmed I/O → Interrupt I/O → DMA → IOP
+            </div>
+
+            <h3>IOP vs CPU</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspect</th>
+                    <th>CPU</th>
+                    <th>IOP</th>
+                </tr>
+                <tr>
+                    <td>Primary Function</td>
+                    <td>General computation</td>
+                    <td>I/O operations only</td>
+                </tr>
+                <tr>
+                    <td>Instructions</td>
+                    <td>General purpose</td>
+                    <td>I/O specific</td>
+                </tr>
+                <tr>
+                    <td>Memory Access</td>
+                    <td>Full access</td>
+                    <td>Shared with CPU</td>
+                </tr>
+                <tr>
+                    <td>Operation</td>
+                    <td>Independent</td>
+                    <td>Receives commands from CPU</td>
+                </tr>
+            </table>
+
+            <h3>Types of IOP</h3>
+
+            <div class="card">
+                <h3>1. Channel</h3>
+                <p>A simplified IOP that can execute limited I/O programs stored in memory.</p>
+                <ul>
+                    <li>Operates using channel programs</li>
+                    <li>Manages multiple devices</li>
+                    <li>Common in mainframe computers</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>2. I/O Module</h3>
+                <p>More sophisticated processor with its own local memory and instruction set.</p>
+                <ul>
+                    <li>Can execute complex I/O tasks</li>
+                    <li>Has private memory for I/O tables</li>
+                    <li>Reduces CPU workload significantly</li>
+                </ul>
+            </div>
+
+            <h3>CPU-IOP Communication</h3>
+            
+            <div class="diagram">
+                <h4>Communication Flow</h4>
+                <div style="margin: 20px 0;">
+                    <div class="flow-item">CPU</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">Memory</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">IOP</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">I/O Devices</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Communication Methods</h3>
+                
+                <h4>1. Memory-Mapped Communication</h4>
+                <ul>
+                    <li>CPU and IOP communicate through shared memory</li>
+                    <li>CPU writes commands to memory locations</li>
+                    <li>IOP reads commands and writes status back</li>
+                    <li>Mailbox system for message passing</li>
+                </ul>
+
+                <h4 style="margin-top: 20px;">2. Interrupt Communication</h4>
+                <ul>
+                    <li>IOP interrupts CPU when task completes</li>
+                    <li>CPU can interrupt IOP with new commands</li>
+                    <li>Enables asynchronous operation</li>
+                </ul>
+            </div>
+
+            <h3>IOP Instruction Format</h3>
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>Typical IOP Instructions 📝</strong>
+                <div style="display:none; margin-top:10px;">
+                    <ul>
+                        <li><strong>Read/Write:</strong> Transfer data between device and memory</li>
+                        <li><strong>Sense:</strong> Check device status</li>
+                        <li><strong>Jump:</strong> Branch based on conditions</li>
+                        <li><strong>Control:</strong> Send control signals to devices</li>
+                        <li><strong>Transfer in Channel:</strong> Move data within channel</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <strong>⚡ Performance Boost:</strong> IOPs can handle complex I/O operations including data formatting, error checking, and device management without CPU involvement.
+            </div>
+        </div>
+
+        <div id="serial" class="content-section">
+            <h2>📡 Serial Communication</h2>
+
+            <div class="card">
+                <h3>What is Serial Communication?</h3>
+                <p>Serial communication transmits data one bit at a time over a single channel or wire. It's widely used for long-distance communication and connecting peripheral devices.</p>
+            </div>
+
+            <h3>Serial vs Parallel Communication</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>Feature</th>
+                    <th>Serial</th>
+                    <th>Parallel</th>
+                </tr>
+                <tr>
+                    <td>Data Lines</td>
+                    <td>1 or 2</td>
+                    <td>8, 16, 32+</td>
+                </tr>
+                <tr>
+                    <td>Speed (short distance)</td>
+                    <td>Slower</td>
+                    <td>Faster</td>
+                </tr>
+                <tr>
+                    <td>Cost</td>
+                    <td>Low</td>
+                    <td>High</td>
+                </tr>
+                <tr>
+                    <td>Distance</td>
+                    <td>Long</td>
+                    <td>Short</td>
+                </tr>
+                <tr>
+                    <td>Crosstalk</td>
+                    <td>Minimal</td>
+                    <td>Significant</td>
+                </tr>
+                <tr>
+                    <td>Use Case</td>
+                    <td>Networks, peripherals</td>
+                    <td>Internal buses</td>
+                </tr>
+            </table>
+
+            <h3>Types of Serial Communication</h3>
+
+            <div class="card">
+                <h3>1. Synchronous Serial Communication</h3>
+                <p>Data is transmitted with a clock signal. Both sender and receiver share the same clock.</p>
+                
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>Requires clock synchronization</li>
+                    <li>Faster and more efficient</li>
+                    <li>Used for high-speed applications</li>
+                    <li>Examples: SPI, I²C, SATA</li>
+                </ul>
+                <div class="info-badge">Fast</div>
+                <div class="info-badge">Clock Required</div>
+                <div class="info-badge">High Efficiency</div>
+            </div>
+
+            <div class="card">
+                <h3>2. Asynchronous Serial Communication</h3>
+                <p>Data is transmitted without a clock signal. Uses start and stop bits for synchronization.</p>
+                
+                <h4>Characteristics:</h4>
+                <ul>
+                    <li>No clock signal needed</li>
+                    <li>Uses start and stop bits</li>
+                    <li>Flexible but less efficient</li>
+                    <li>Examples: UART, RS-232, USB</li>
+                </ul>
+                <div class="info-badge">Simple</div>
+                <div class="info-badge">No Clock</div>
+                <div class="info-badge">Flexible</div>
+
+                <div class="diagram">
+                    <h4>Asynchronous Data Frame</h4>
+                    <div style="margin: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        <p><strong>Frame Structure:</strong></p>
+                        <div style="background: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                            [Start Bit (1)] [Data Bits (5-9)] [Parity Bit (0-1)] [Stop Bits (1-2)]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Serial Communication Parameters</h3>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>1. Baud Rate ⚡</strong>
+                <div style="display:none; margin-top:10px;">
+                    <p>Number of signal changes per second. Common rates: 9600, 19200, 38400, 57600, 115200 bps.</p>
+                    <p><strong>Note:</strong> Baud rate must match between sender and receiver!</p>
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>2. Data Bits 📊</strong>
+                <div style="display:none; margin-top:10px;">
+                    <p>Number of bits in each data packet (typically 5, 6, 7, or 8 bits). Most common is 8 bits.</p>
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>3. Parity Bit 🔍</strong>
+                <div style="display:none; margin-top:10px;">
+                    <p>Used for error detection. Types:</p>
+                    <ul>
+                        <li><strong>Even Parity:</strong> Makes total 1s even</li>
+                        <li><strong>Odd Parity:</strong> Makes total 1s odd</li>
+                        <li><strong>None:</strong> No parity checking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="interactive-box" onclick="toggleExpand(this)">
+                <strong>4. Stop Bits ⏸️</strong>
+                <div style="display:none; margin-top:10px;">
+                    <p>Indicates end of transmission (1, 1.5, or 2 bits). Provides time for receiver to prepare for next byte.</p>
+                </div>
+            </div>
+
+            <h3>Serial Communication Standards</h3>
+
+            <div class="card">
+                <h4>RS-232</h4>
+                <ul>
+                    <li>Old but still widely used standard</li>
+                    <li>Point-to-point communication</li>
+                    <li>Maximum distance: ~15 meters</li>
+                    <li>Voltage levels: ±3V to ±15V</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4>USB (Universal Serial Bus)</h4>
+                <ul>
+                    <li>Modern, high-speed serial standard</li>
+                    <li>Plug-and-play capability</li>
+                    <li>Supports multiple devices (up to 127)</li>
+                    <li>Provides power to devices</li>
+                    <li>Versions: USB 1.1, 2.0, 3.0, 3.1, 4.0</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4>UART (Universal Asynchronous Receiver-Transmitter)</h4>
+                <ul>
+                    <li>Hardware device for asynchronous serial communication</li>
+                    <li>Converts parallel data to serial and vice versa</li>
+                    <li>Widely used in embedded systems</li>
+                    <li>Full-duplex communication</li>
+                </ul>
+            </div>
+
+            <div class="key-point">
+                <strong>💡 Modern Trend:</strong> Despite being "slower," serial communication dominates modern computing due to lower cost, longer distance capability, and higher speeds at modern frequencies.
+            </div>
+        </div>
+
+        <div id="quiz" class="content-section">
+            <h2>🎯 Test Your Knowledge</h2>
+
+            <div class="quiz-container">
+                <h3>Question 1: Which mode of transfer is fastest?</h3>
+                <button class="quiz-btn" onclick="checkAnswer(1, 'DMA', this)">DMA</button>
+                <button class="quiz-btn" onclick="checkAnswer(1, 'Programmed I/O', this)">Programmed I/O</button>
+                <button class="quiz-btn" onclick="checkAnswer(1, 'Interrupt I/O', this)">Interrupt I/O</button>
+                <div id="result1"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Question 2: What does IOP stand for?</h3>
+                <button class="quiz-btn" onclick="checkAnswer(2, 'Input-Output Processor', this)">Input-Output Processor</button>
+                <button class="quiz-btn" onclick="checkAnswer(2, 'Interrupt Operation Protocol', this)">Interrupt Operation Protocol</button>
+                <button class="quiz-btn" onclick="checkAnswer(2, 'Internal Output Port', this)">Internal Output Port</button>
+                <div id="result2"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Question 3: Asynchronous transfer uses how many control signals in handshaking?</h3>
+                <button class="quiz-btn" onclick="checkAnswer(3, '2', this)">2</button>
+                <button class="quiz-btn" onclick="checkAnswer(3, '1', this)">1</button>
+                <button class="quiz-btn" onclick="checkAnswer(3, '3', this)">3</button>
+                <div id="result3"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Question 4: Which DMA mode causes minimal CPU disruption?</h3>
+                <button class="quiz-btn" onclick="checkAnswer(4, 'Cycle Stealing', this)">Cycle Stealing</button>
+                <button class="quiz-btn" onclick="checkAnswer(4, 'Burst Mode', this)">Burst Mode</button>
+                <button class="quiz-btn" onclick="checkAnswer(4, 'Transparent Mode', this)">Transparent Mode</button>
+                <div id="result4"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Question 5: Serial communication is better than parallel for:</h3>
+                <button class="quiz-btn" onclick="checkAnswer(5, 'Long distance', this)">Long distance</button>
+                <button class="quiz-btn" onclick="checkAnswer(5, 'Short distance', this)">Short distance</button>
+                <button class="quiz-btn" onclick="checkAnswer(5, 'High cost needed', this)">High cost needed</button>
+                <div id="result5"></div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Question 6: In priority interrupt, the fastest method is:</h3>
+                <button class="quiz-btn" onclick="checkAnswer(6, 'Parallel Priority', this)">Parallel Priority</button>
+                <button class="quiz-btn" onclick="checkAnswer(6, 'Polling', this)">Polling</button>
+                <button class="quiz-btn" onclick="checkAnswer(6, 'Daisy Chain', this)">Daisy Chain</button>
+                <div id="result6"></div>
+            </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="io_interface_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning I/O Interface</a>
+                </div>
+        </div>
+	
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const sections = document.querySelectorAll('.content-section');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleExpand(element) {
+            const content = element.querySelector('div');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                element.classList.add('expanded');
+            } else {
+                content.style.display = 'none';
+                element.classList.remove('expanded');
+            }
+        }
+
+        const answers = {
+            1: 'DMA',
+            2: 'Input-Output Processor',
+            3: '2',
+            4: 'Cycle Stealing',
+            5: 'Long distance',
+            6: 'Parallel Priority'
+        };
+
+        function checkAnswer(questionNum, answer, button) {
+            const resultDiv = document.getElementById('result' + questionNum);
+            const buttons = button.parentElement.querySelectorAll('.quiz-btn');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (answer === answers[questionNum]) {
+                resultDiv.innerHTML = '<div class="result correct">✓ Correct! Well done!</div>';
+            } else {
+                resultDiv.innerHTML = `<div class="result incorrect">✗ Incorrect. The correct answer is: ${answers[questionNum]}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>                

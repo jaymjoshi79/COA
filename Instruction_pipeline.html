@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instruction Pipeline - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Pipeline Visualizer */
+        .pipeline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.6s ease 0.4s both;
+        }
+
+        .pipeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pipeline-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .pipeline-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .cycle-display {
+            padding: 0.6rem 1.2rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+        }
+
+        /* Pipeline Type Selector */
+        .pipeline-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pipeline-btn {
+            padding: 0.7rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .pipeline-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .pipeline-btn:hover:not(.active) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Pipeline Table */
+        .pipeline-table-wrapper {
+            overflow-x: auto;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        th:first-child {
+            min-width: 120px;
+        }
+
+        th:not(:first-child) {
+            text-align: center;
+            min-width: 50px;
+        }
+
+        td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        td:first-child {
+            font-weight: 600;
+            color: #1e293b;
+            font-family: 'Courier New', monospace;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .stage-cell {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .stage-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .stage-inactive {
+            background: #e9ecff;
+            color: #667eea;
+        }
+
+        /* Stage Legend */
+        .stage-legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            background: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .legend-label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-right: 0.3rem;
+        }
+
+        .legend-desc {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        /* Content Sections */
+        .sections-grid {
+            display: grid;
+            gap: 1.5rem;
+            animation: fadeInUp 0.6s ease 0.6s both;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transition: all 0.3s ease;
+        }
+
+        .section-header:hover {
+            background: linear-gradient(135deg, #e9ecff 0%, #dce1ff 100%);
+        }
+
+        .section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            font-size: 1.5rem;
+            color: #94a3b8;
+        }
+
+        .chevron.rotate {
+            transform: rotate(90deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .section-content.active {
+            max-height: 2000px;
+        }
+
+        .section-body {
+            padding: 2rem;
+        }
+
+        .info-box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+	.highlight {
+            background: #eef4ff;
+            padding: 10px;
+            border-left: 4px solid #4a6cf7;
+            margin: 15px 0;
+        }
+        ul {
+            margin-left: 20px;
+        }
+
+        .info-box.primary {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%);
+            border-color: #667eea;
+        }
+
+        .info-box.success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: #10b981;
+        }
+
+        .info-box.warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #f59e0b;
+        }
+
+        .info-box.danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #ef4444;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .conflict-type {
+            display: flex;
+            align-items: start;
+            gap: 0.8rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .conflict-badge {
+            min-width: 50px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            margin: 0.3rem 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .pipeline-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-icon">⚡</div>
+            <h1>Instruction Pipeline</h1>
+            <p class="subtitle">Master the concepts of instruction pipelining with interactive visualizations and detailed explanations</p>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">💾</div>
+                <div class="stat-value">2-4</div>
+                <div class="stat-label">Pipeline Segments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">⚡</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Types of Conflicts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">⏱️</div>
+                <div class="stat-value">↑</div>
+                <div class="stat-label">Performance Boost</div>
+            </div>
+        </div>
+
+        <!-- Pipeline Visualizer -->
+        <div class="pipeline-container">
+            <div class="pipeline-header">
+                <h2 class="pipeline-title">🎯 Interactive Pipeline Visualization</h2>
+                <div class="pipeline-controls">
+                    <button class="btn" onclick="prevCycle()">← Prev</button>
+                    <div class="cycle-display">Cycle: <span id="cycleNum">0</span></div>
+                    <button class="btn" onclick="nextCycle()">Next →</button>
+                    <button class="btn btn-primary" onclick="resetCycle()">Reset</button>
+                </div>
+            </div>
+
+            <div class="pipeline-selector">
+                <button class="pipeline-btn active" onclick="setPipeline('basic')">2-Segment Pipeline</button>
+                <button class="pipeline-btn" onclick="setPipeline('four')">4-Segment Pipeline</button>
+                <button class="pipeline-btn" onclick="setPipeline('risc')">3-Segment RISC</button>
+            </div>
+
+            <div class="pipeline-table-wrapper">
+                <table id="pipelineTable">
+                    <thead>
+                        <tr>
+                            <th>Instruction</th>
+                            <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pipelineBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="stage-legend" id="stageLegend">
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div class="sections-grid">
+            <!-- Introduction -->
+            <div class="section-card">
+                <div class="section-header" onclick="toggleSection('intro')">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">🎓</div>
+                        <h3 class="section-title">Introduction to Pipelining</h3>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+                <div class="section-content" id="intro">
+                    <div class="section-body">
+                        <p>Instruction Pipelining is a fundamental technique in modern processor design that dramatically improves performance by allowing multiple instructions to execute concurrently.</p>
+                        
+                        <div class="info-box primary">
+                            <h4 style="margin-bottom: 0.5rem; font-weight: bold;">🔑 Key Concept</h4>
+                            <p>Pipelining decomposes instruction execution into sub-operations, with each sub-operation executed in a dedicated segment. This allows several computations to progress simultaneously through different pipeline stages.</p>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="info-box success">
+                                <h4 style="margin-bottom: 0.5rem; font-weight: bold;">✅ Benefits</h4>
+                                <ul style="margin-left: 1.5rem;">
+                                    <li>Increased instruction throughput</li>
+                                    <li>Better CPU utilization</li>
+                                    <li>Improved overall performance</li>
+                                    <li>Concurrent execution of multiple instructions</li>
+                                </ul>
+                            </div>
+                            <div class="info-box warning">
+                                <h4 style="margin-bottom: 0.5rem; font-weight: bold;">⚠️ Challenges</h4>
+                                <ul style="margin-left: 1.5rem;">
+                                    <li>Pipeline conflicts and hazards</li>
+                                    <li>Data dependencies between instructions</li>
+                                    <li>Branch prediction complexities</li>
+                                    <li>Resource allocation conflicts</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Four-Segment Pipeline -->
+            <div class="section-card">
+                <div class="section-header" onclick="toggleSection('segments')">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">⚙️</div>
+                        <h3 class="section-title">Four-Segment Pipeline Structure</h3>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+                <div class="section-content" id="segments">
+                    <div class="section-body">
+                        <p>The most common instruction pipeline model uses four segments, each handling a specific phase of instruction execution.</p>
+                        
+                        <div class="grid-2">
+                            <div class="feature-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">1️⃣</div>
+                                <h4 style="font-weight: bold; margin-bottom: 0.5rem;">FI - Fetch Instruction</h4>
+                                <p style="color: #64748b; font-size: 0.9rem;">Retrieve the next instruction from memory using the program counter (PC).</p>
+                            </div>
+                            <div class="feature-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">2️⃣</div>
+                                <h4 style="font-weight: bold; margin-bottom: 0.5rem;">DA - Decode & Address</h4>
+                                <p style="color: #64748b; font-size: 0.9rem;">Decode the instruction and calculate the effective memory address for operands.</p>
+                            </div>
+                            <div class="feature-card" style="background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">3️⃣</div>
+                                <h4 style="font-weight: bold; margin-bottom: 0.5rem;">FO - Fetch Operand</h4>
+                                <p style="color: #64748b; font-size: 0.9rem;">Retrieve the required operand from memory or registers.</p>
+                            </div>
+                            <div class="feature-card" style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">4️⃣</div>
+                                <h4 style="font-weight: bold; margin-bottom: 0.5rem;">EI - Execute Instruction</h4>
+                                <p style="color: #64748b; font-size: 0.9rem;">Execute the instruction operation and write results back to registers or memory.</p>
+                            </div>
+                        </div>
+		<center><img src="flow_inst_pipe.png" alt="Flow diagram of instruction pipeline" width="500px"></center>
+		<div class="highlight">
+        	<strong>Pipeline Overlap:</strong>
+        	<ul>
+            		<li>Up to four suboperations in the instruction cycle can overlap.</li>
+            		<li>Up to four different instructions can be processed simultaneously.</li>
+        	</ul>
+    		</div>
+			<div class="grid-2">
+                            <div class="info-box success">
+                                <h4 style="margin-bottom: 0.5rem; font-weight: bold;">✅ program control instruction</h4>
+                                <ul style="margin-left: 1.5rem;">
+                                    <li>Pending operations in the last two segments are completed.</li>
+                                    <li>Instruction buffer is cleared.</li>
+                                    <li>Pipeline restarts from the new address stored in the program counter.</li>
+                                    
+                                </ul>
+                            </div>
+                            <div class="info-box warning">
+                                <h4 style="margin-bottom: 0.5rem; font-weight: bold;">⚠️ Interrupt request</h4>
+                                <ul style="margin-left: 1.5rem;">
+                                    <li>The pipeline is emptied.</li>
+        			    <li>Execution starts again from a new instruction address.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+   
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Conflicts -->
+            <div class="section-card">
+                <div class="section-header" onclick="toggleSection('conflicts')">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">⚠️</div>
+                        <h3 class="section-title">Pipeline Conflicts & Hazards</h3>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+                <div class="section-content" id="conflicts">
+                    <div class="section-body">
+                        <p>Pipeline conflicts occur when instructions cannot execute in the desired sequence. There are three main types:</p>
+                        
+                        <div class="info-box danger">
+                            <h4 style="font-weight: bold; margin-bottom: 1rem;">1. 🔧 Resource Conflicts (Structural Hazards)</h4>
+                            <p style="margin-bottom: 0.5rem;">Multiple instructions compete for the same hardware resource simultaneously.</p>
+                            <p style="font-size: 0.9rem; color: #64748b;"><strong>Example:</strong> Two instructions need to access memory at the same time, but only one memory port is available.</p>
+                        </div>
+
+                        <div class="info-box warning">
+                            <h4 style="font-weight: bold; margin-bottom: 1rem;">2. 📊 Data Dependencies (Data Hazards)</h4>
+                            <p style="margin-bottom: 1rem;">An instruction requires results from a previous instruction still in the pipeline.</p>
+                            
+                            <div class="conflict-type">
+                                <div class="conflict-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">RAW</div>
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 0.3rem;">Read-After-Write</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">Instruction B tries to read a register before instruction A has written to it.</div>
+                                </div>
+                            </div>
+                            <div class="conflict-type">
+                                <div class="conflict-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">WAR</div>
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 0.3rem;">Write-After-Read</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">Instruction B tries to write to a register before instruction A has read from it.</div>
+                                </div>
+                            </div>
+                            <div class="conflict-type">
+                                <div class="conflict-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">WAW</div>
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 0.3rem;">Write-After-Write</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">Two instructions try to write to the same register in the wrong order.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b;">
+                            <h4 style="font-weight: bold; margin-bottom: 0.5rem;">3. 🔀 Branch Difficulties (Control Hazards)</h4>
+                            <p style="margin-bottom: 0.5rem;">Branch instructions change execution flow, potentially invalidating fetched instructions.</p>
+                            <p style="font-size: 0.9rem; color: #64748b;"><strong>Example:</strong> Instructions after a conditional branch are fetched before the branch condition is evaluated, leading to potential pipeline flushes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solutions -->
+            <div class="section-card">
+                <div class="section-header" onclick="toggleSection('solutions')">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">✅</div>
+                        <h3 class="section-title">Handling Pipeline Conflicts</h3>
+                    </div>
+                    <span class="chevron">›</span>
+                </div>
+                <div class="section-content" id="solutions">
+                    <div class="section-body">
+                        <div class="grid-2">
+                            <div class="info-box success">
+                                <h4 style="font-weight: bold; margin-bottom: 1rem;">⚡ Data Dependency Solutions</h4>
+                                <div class="feature-card">
+                                    <h5 style="font-weight: bold; margin-bottom: 0.5rem;">Forwarding / Bypassing</h5>
+                                    <p style="font-size: 0.85rem; color: #64748b;">Execute instruction after branch regardless of outcome (delay slot). Compiler must fill the slot wisely.</p>
+                                </div>
+                                <div class="feature-card" style="margin-top: 0.5rem;">
+                                    <h5 style="font-weight: bold; margin-bottom: 0.5rem;">Branch Prediction</h5>
+                                    <p style="font-size: 0.85rem; color: #64748b;">Predict branch outcome to minimize pipeline stalls. Modern CPUs achieve 95%+ accuracy.</p>
+                                </div>
+                                <div class="feature-card" style="margin-top: 0.5rem;">
+                                    <h5 style="font-weight: bold; margin-bottom: 0.5rem;">Branch Target Buffer</h5>
+                                    <p style="font-size: 0.85rem; color: #64748b;">Cache storing target addresses of previous branches for faster prediction and fetching.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-box" style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border-color: #a855f7;">
+                            <h4 style="font-weight: bold; margin-bottom: 1rem;">💡 Delayed Branch Example</h4>
+                            <div class="code-block">
+                                <div class="code-line">1. <span style="color: #60a5fa;">BRANCH</span> if condition then goto label</div>
+                                <div class="code-line">2. <span style="color: #34d399;">ADD R1, R2</span> ← Delay slot (always executes)</div>
+                                <div class="code-line">3. label: <span style="color: #a78bfa;">LOAD R3</span></div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">The ADD instruction executes before the branch decision is made, keeping the pipeline busy and avoiding a stall cycle.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="risc_pipeline_webpage.html" style="text-decoration: none;" class="btn btn-primary">Start Learning RISC Pipeline</a>
+                </div>
+        </div>
+
+        <footer>
+            <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;"><p>© Dr. Jay M. Joshi</p></a>
+        </footer>
+    </div>
+
+    <script>
+        let currentCycle = 0;
+        let currentPipeline = 'basic';
+
+        const pipelineConfigs = {
+            basic: {
+                stages: ['FI', 'EX'],
+                stageNames: ['Fetch Instruction', 'Execute'],
+                instructions: ['Instruction 1', 'Instruction 2', 'Instruction 3', 'Instruction 4']
+            },
+            four: {
+                stages: ['FI', 'DA', 'FO', 'EI'],
+                stageNames: ['Fetch Instruction', 'Decode & Address', 'Fetch Operand', 'Execute Instruction'],
+                instructions: ['Instruction 1', 'Instruction 2', 'Instruction 3', 'Instruction 4']
+            },
+            risc: {
+                stages: ['I', 'A', 'E'],
+                stageNames: ['Instruction Fetch', 'ALU Operation', 'Execute'],
+                instructions: ['LOAD R1', 'LOAD R2', 'NOP', 'ADD R1+R2', 'STORE R3']
+            }
+        };
+
+        function setPipeline(type) {
+            currentPipeline = type;
+            currentCycle = 0;
+            document.querySelectorAll('.pipeline-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updatePipeline();
+        }
+
+        function nextCycle() {
+            currentCycle++;
+            document.getElementById('cycleNum').textContent = currentCycle;
+            updatePipeline();
+        }
+
+        function prevCycle() {
+            if (currentCycle > 0) {
+                currentCycle--;
+                document.getElementById('cycleNum').textContent = currentCycle;
+                updatePipeline();
+            }
+        }
+
+        function resetCycle() {
+            currentCycle = 0;
+            document.getElementById('cycleNum').textContent = currentCycle;
+            updatePipeline();
+        }
+
+        function updatePipeline() {
+            const config = pipelineConfigs[currentPipeline];
+            const tbody = document.getElementById('pipelineBody');
+            tbody.innerHTML = '';
+
+            config.instructions.forEach((inst, instIdx) => {
+                const row = document.createElement('tr');
+                const instCell = document.createElement('td');
+                instCell.textContent = inst;
+                row.appendChild(instCell);
+
+                for (let cycle = 0; cycle < 10; cycle++) {
+                    const cell = document.createElement('td');
+                    cell.style.textAlign = 'center';
+                    
+                    const stageIdx = cycle - instIdx;
+                    const isActive = stageIdx >= 0 && stageIdx < config.stages.length && cycle <= currentCycle;
+                    const isCurrent = cycle === currentCycle && isActive;
+
+                    if (isActive) {
+                        const stageDiv = document.createElement('div');
+                        stageDiv.className = isCurrent ? 'stage-cell stage-active' : 'stage-cell stage-inactive';
+                        stageDiv.textContent = config.stages[stageIdx];
+                        cell.appendChild(stageDiv);
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                tbody.appendChild(row);
+            });
+
+            updateLegend();
+        }
+
+        function updateLegend() {
+            const config = pipelineConfigs[currentPipeline];
+            const legend = document.getElementById('stageLegend');
+            legend.innerHTML = '';
+
+            config.stages.forEach((stage, idx) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-dot"></div>
+                    <span class="legend-label">${stage}</span>
+                    <span class="legend-desc">${config.stageNames[idx]}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
+        function toggleSection(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+            const chevron = header.querySelector('.chevron');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                chevron.classList.remove('rotate');
+            } else {
+                // Close all sections
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.querySelectorAll('.chevron').forEach(chev => {
+                    chev.classList.remove('rotate');
+                });
+                
+                // Open clicked section
+                content.classList.add('active');
+                chevron.classList.add('rotate');
+            }
+        }
+
+        // Initialize
+        updatePipeline();
+    </script>
+</body>
+</html>

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5.4 Timing and Control - Computer Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            font-weight: 300;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content {
+            padding: 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,248,255,0.8) 100%);
+            border-left: 5px solid #4facfe;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h3 {
+            color: #34495e;
+            font-size: 1.5rem;
+            margin: 25px 0 15px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 2px;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+            font-weight: 500;
+        }
+	 .highlight1 {
+      background: #eef2ff;
+      color: #1e40af;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid #4facfe;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .comparison-card h4 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .icon.clock { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .icon.cpu { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .icon.memory { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .icon.control { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        .timing-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .timing-signals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .signal {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .signal:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .instruction-cycle {
+    display: grid;
+    /* Enforce a 2-column layout for the 2x2 structure */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.cycle-step {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cycle-step::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+}
+
+
+        .cycle-step:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #4facfe;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	 .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#333;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .interactive-button {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .interactive-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .code-block {
+    background: #2d3748;
+    color: #e2e8f0;
+    /* Use a generous top padding to make space for the floating header */
+    padding: 20px;
+    padding-top: 35px; /* Ensures space for the 'Control Logic' label */
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    margin: 20px 0;
+    overflow-x: auto;
+    position: relative;
+    /* Explicitly set text to left-align */
+    text-align: left; 
+}
+
+.code-block::before {
+    content: 'Control Logic';
+    position: absolute;
+    /* Position the header correctly within the new top padding space */
+    top: 5px; 
+    left: 20px;
+    background: #4facfe;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+/* Optional: Style the description text */
+.code-block .description {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-family: sans-serif; /* Use a non-monospace font for the description */
+    color: #a0aec0;
+}
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .instruction-cycle {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="fade-in">Timing and Control</h1>
+            <p class="subtitle fade-in">Orchestrating Computer Operations</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2><span class="icon clock">⏰</span>Introduction to Timing and Control</h2>
+                <div class="highlight">
+                    Timing and control are fundamental to computer operation, providing the <strong>synchronization and command signals</strong> necessary for all components to function in harmony.
+                </div>
+                <p>The control unit, a critical part of the CPU, is responsible for initiating the sequence of micro-operations that execute instructions. All timing in the basic computer is regulated by a <strong>master clock generator</strong> that produces clock pulses applied to all flip-flops and registers throughout the system.</p>
+                <button class="interactive-button" onclick="highlightClockComponents()">🔍 Highlight Clock Components</button>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon control">⚙️</span>Control Unit Implementations</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4><span class="icon cpu">🔧</span>Hardwired Control Unit</h4>
+                        <ul>
+                            <li><strong>Implementation:</strong> Uses combinational logic circuits (AND, OR, NOT gates) and sequential logic circuits (flip-flops)</li>
+                            <li><strong>Flexibility:</strong> Less flexible - behavior fixed by physical wiring</li>
+                            <li><strong>Modifications:</strong> Require physical alterations to circuitry</li>
+                        </ul>
+                        <button class="interactive-button" onclick="showHardwiredDetails()">Learn More</button>
+                    </div>
+                    <div class="comparison-card">
+                        <h4><span class="icon memory">💾</span>Microprogrammed Control Unit</h4>
+                        <ul>
+                            <li><strong>Implementation:</strong> Uses microcode stored in special control memory (ROM)</li>
+                            <li><strong>Flexibility:</strong> More flexible - behavior can be modified through software</li>
+                            <li><strong>Modifications:</strong> Easy updates by changing microcode without hardware changes</li>
+                        </ul>
+                        <button class="interactive-button" onclick="showMicroprogrammedDetails()">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon cpu">🖥️</span>Hardwired Control Unit</h2>
+		<center><img src = "hard_control_unit.png" alt="Bus Transfer" width="500px"></center>
+                <p>A typical hardwired control unit includes several key components working together:</p>
+                <ul>
+                    <li><strong>Instruction Register (IR):</strong> Holds the current instruction being executed</li>
+                    <li><strong>3x8 Operation Decoder:</strong> Decodes the 3-bit opcode (bits 12-14) into 8 outputs (D0 to D7)</li>
+                    <li><strong>4x16 Timing Decoder:</strong> Decodes the 4-bit sequence counter output</li>
+                    <li><strong>4-bit Sequence Counter (SC):</strong> Generates 16 timing signals (T0 through T15)</li>
+                    <li><strong>Control Logic Gates:</strong> Combine decoder outputs to generate specific control signals</li>
+                </ul>
+
+                <div class="timing-diagram">
+                    <h3>Timing Signals</h3>
+                    <div class="timing-signals">
+                        <div class="signal">T0</div>
+                        <div class="signal">T1</div>
+                        <div class="signal">T2</div>
+                        <div class="signal">T3</div>
+                        <div class="signal">T4</div>
+                        <div class="signal">T5</div>
+                        <div class="signal">...</div>
+                        <div class="signal">T15</div>
+                    </div>
+                    <p>Click on timing signals to see their functions in the instruction cycle!</p>
+                </div>
+            </div>
+
+	    <div class="section">
+                <h2><span class="icon cpu">🧩</span>Clearing of Sequence Counter (SC)</h2>
+		<center><img src = "con_timing_sig.png" alt="Bus Transfer" width="500px"></center>
+                <p>Understanding how <strong>D₃T₄ = 1</strong> clears the counter in a digital timing sequence</p>
+		<p>
+      In a control timing circuit, specific combinations of decoder outputs and timing pulses determine how
+      the sequence counter (<span class="highlight1">SC</span>) progresses or resets. When the control function
+      <span class="highlight1">D₃T₄ = 1</span> becomes active, it triggers the clear operation on SC.
+    </p>
+
+    <div class="info-card">
+      <strong>Step 1:</strong> The output <span class="highlight1">D₃</span> from the operation decoder
+      becomes active at the end of timing signal <span class="highlight1">T₂</span>.
+    </div>
+
+    <div class="info-card">
+      <strong>Step 2:</strong> When <span class="highlight1">T₄</span> becomes active, the AND gate implementing
+      <span class="highlight1">D₃T₄</span> outputs a high signal.
+    </div>
+
+    <div class="info-card">
+      <strong>Step 3:</strong> This high signal is applied to the <span class="highlight1">CLR</span> input of the
+      sequence counter <span class="highlight1">SC</span>, preparing it for a reset.
+    </div>
+
+    <div class="info-card">
+      <strong>Step 4:</strong> On the next positive clock edge (marked <span class="highlight1">T₄</span>),
+      the counter is cleared to <span class="highlight1">0</span>.
+    </div>
+
+    <div class="info-card">
+      <strong>Step 5:</strong> The clearing causes the timing signal <span class="highlight1">T₀</span> to activate,
+      instead of <span class="highlight1">T₅</span> that would have appeared if SC had been incremented.
+    </div>
+
+            </div>
+            <div class="section">
+                <h2><span class="icon clock">🔄</span>Instruction Cycle Phases</h2>
+                <div class="instruction-cycle">
+                    <div class="cycle-step">
+                        <div class="step-number">1</div>
+                        <h4>Fetch Instruction</h4>
+                        <div class="code-block">
+T<sub>0</sub>: AR ← PC<br>
+T<sub>1</sub>: IR ← M[AR],<br>&nbsp;&nbsp;&nbsp; PC ← PC + 1
+                        </div>
+                        <p style="text-align: left;">Transfer PC to Address Register, then fetch instruction from memory and increment PC</p>
+                    </div>
+                    <div class="cycle-step">
+                        <div class="step-number">2</div>
+                        <h4>Decode Instruction</h4>
+                        <div class="code-block">
+T<sub>2</sub>: D<sub>0</sub>,...,D<sub>7</sub> ← Decode IR(12-14)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;AR ← IR(0-11)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;I ← IR(15)<br>
+                        </div>
+                        <p style="text-align: left;">Decode opcode, transfer address bits to AR, and set mode bit</p>
+                    </div>
+                    <div class="cycle-step">
+                        <div class="step-number">3</div>
+                        <h4>Effective Address</h4>
+                        <div class="code-block">
+T<sub>3</sub>: AR ← M[AR] (if indirect)
+                        </div>
+                        <p style="text-align: left;">Read effective address if indirect addressing is used</p>
+                    </div>
+                    <div class="cycle-step">
+                        <div class="step-number">4</div>
+                        <h4>Execute Operation</h4>
+                        <div class="code-block">
+T<sub>4</sub>-T<sub>15</sub>: Execute based on 
+        decoded instruction
+                        </div>
+                        <p style="text-align: left;">Perform the actual operation specified by the instruction</p>
+                    </div>
+                </div>
+                <button class="interactive-button" onclick="animateInstructionCycle()">🎬 Animate Cycle</button>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon control">🎛️</span>Control Logic Outputs</h2>
+                <p>The control logic circuit generates various outputs to manage computer components:</p>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>Register Control</h4>
+                        <p>Signals to load, increment, or clear registers (AR, PC, DR, AC, IR, TR, etc.)</p>
+                        <div class="code-block">LD(AR) = R'T<sub>0</sub> + R'T<sub>2</sub> + D'<sub>7</sub> I T<sub>3</sub></div>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>Memory Control</h4>
+                        <p>Read and Write signals for memory operations</p>
+                        <div class="code-block">Read = R'T<sub>1</sub> + D'<sub>7</sub>I T<sub>3</sub> + (D<sub>0</sub>+D<sub>1</sub>+D<sub>2</sub>+D<sub>6</sub>)T<sub>4</sub></div>
+                    </div>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>Bus Control</h4>
+                        <p>Selection signals (S<sub>2</sub>, S<sub>1</sub>, S<sub>0</sub>) for common bus</p>
+                        <div class="code-block">S<sub>1</sub> = D<sub>4</sub>T<sub>4</sub> + D<sub>5</sub>T<sub>5</sub></div>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>ALU Control</h4>
+                        <p>Signals for arithmetic and logic operations</p>
+                        <div class="code-block">D<sub>0</sub>T<sub>5</sub>: AND operation with DR into AC</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon memory">📋</span>Microprogrammed Control</h2>
+                <div class="highlight">
+                    More complex systems use microprogrammed control where control signals are generated by <strong>microinstructions</strong> stored in dedicated control memory.
+                </div>
+                <h3>Key Components:</h3>
+                <ul>
+                    <li><strong>Microprogram Sequencer:</strong> Determines address sequence for control memory</li>
+                    <li><strong>Control Address Register (CAR):</strong> Holds current microinstruction address</li>
+                    <li><strong>Address Sequencing:</strong> Supports incrementing, branching, mapping, and subroutines</li>
+                    <li><strong>Microinstruction Format:</strong> Fields for micro-operations (F1, F2, F3), conditions (CD), branches (BR), and addresses (AD)</li>
+                </ul>
+                <button class="interactive-button" onclick="showMicroprogramFlow()">🔄 Show Microprogram Flow</button>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="instruction_cycle_webpage.html" class="btn btn-primary">
+        Start Instruction Cycle
+    </a>
+</div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // Interactive functions
+        function highlightClockComponents() {
+            document.querySelectorAll('.icon.clock').forEach(icon => {
+                icon.classList.add('pulse');
+                setTimeout(() => icon.classList.remove('pulse'), 3000);
+            });
+            
+            alert('🕐 Master Clock Generator highlighted! The clock synchronizes all operations in the computer system.');
+        }
+
+        function showHardwiredDetails() {
+            const details = `
+🔧 Hardwired Control Unit Details:
+
+• Fast execution due to direct hardware implementation
+• Fixed control logic using gates and flip-flops  
+• Difficult to modify or debug
+• Used in simple, specialized processors
+• Lower cost for mass production
+
+Example: Basic computer with fixed instruction set
+            `;
+            alert(details);
+        }
+
+        function showMicroprogrammedDetails() {
+            const details = `
+💾 Microprogrammed Control Unit Details:
+
+• Flexible - easy to add new instructions
+• Uses microcode stored in ROM/RAM
+• Slower than hardwired due to memory access
+• Easier to design and debug
+• Higher cost but more versatile
+
+Example: Complex processors with extensive instruction sets
+            `;
+            alert(details);
+        }
+
+        function animateInstructionCycle() {
+            const steps = document.querySelectorAll('.cycle-step');
+            steps.forEach((step, index) => {
+                step.style.transform = 'scale(0.95)';
+                step.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    step.style.transform = 'scale(1.05)';
+                    step.style.opacity = '1';
+                    step.style.boxShadow = '0 20px 50px rgba(79, 172, 254, 0.3)';
+                    
+                    setTimeout(() => {
+                        step.style.transform = 'scale(1)';
+                        step.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                    }, 500);
+                }, index * 300);
+            });
+        }
+
+        function showMicroprogramFlow() {
+            const flow = `
+🔄 Microprogram Execution Flow:
+
+1. CAR contains address of next microinstruction
+2. Microinstruction fetched from control memory
+3. Micro-operations field specifies actions
+4. Condition field checked for branching
+5. Next address determined by sequencer
+6. Process repeats until instruction complete
+
+This provides ultimate flexibility in control design!
+            `;
+            alert(flow);
+        }
+
+        // Interactive timing signals
+        document.querySelectorAll('.signal').forEach((signal, index) => {
+            signal.addEventListener('click', () => {
+                const timing = signal.textContent;
+                const descriptions = {
+                    'T0': 'AR ← PC (Transfer Program Counter to Address Register)',
+                    'T1': 'IR ← M[AR], PC ← PC + 1 (Fetch instruction, increment PC)',
+                    'T2': 'Decode instruction and set up addressing',
+                    'T3': 'Handle indirect addressing if needed',
+                    'T4': 'Begin instruction execution phase',
+                    'T5': 'Continue execution or complete simple operations',
+                    '...': 'T6-T14: Extended execution for complex instructions',
+                    'T15': 'Final timing state, prepare for next cycle'
+                };
+                
+                alert(`⏰ ${timing}: ${descriptions[timing] || 'Timing signal for instruction execution'}`);
+            });
+        });
+
+        // Add some dynamic effects
+        setInterval(() => {
+            const signals = document.querySelectorAll('.signal');
+            const randomSignal = signals[Math.floor(Math.random() * signals.length)];
+            randomSignal.style.transform = 'scale(1.1)';
+            randomSignal.style.boxShadow = '0 5px 20px rgba(102, 126, 234, 0.6)';
+            
+            setTimeout(() => {
+                randomSignal.style.transform = 'scale(1)';
+                randomSignal.style.boxShadow = 'none';
+            }, 1000);
+        }, 3000);
+    </script>
+</body>
+</html>

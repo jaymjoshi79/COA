@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Memory - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            animation: fadeInDown 1s ease;
+        }
+
+        header h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .content-section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-left: 5px solid #764ba2;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.6em;
+            margin: 30px 0 15px 0;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .interactive-card {
+            background: #f8f9fa;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .interactive-card:hover {
+            background: #fff;
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .interactive-card h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .mapping-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .mapping-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .mapping-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .mapping-card h4 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .key-point {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .key-point:hover {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .key-point-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .toggle-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .toggle-content.active {
+            max-height: 1000px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+	
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+            
+            .content-section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ Cache Memory</h1>
+        <p>Fast, Small, and Essential: Understanding Computer Cache Architecture</p>
+    </header>
+
+    <div class="container">
+        <div class="content-section">
+            <h2>What is Cache Memory?</h2>
+            <div class="highlight-box">
+                <p><strong>Cache memory is a small, fast memory placed between the CPU and main memory.</strong> It exploits the principle of locality of reference, significantly reducing average memory access time and improving overall system performance.</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">5-10×</div>
+                    <p>Faster than Main Memory</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">80-90%</div>
+                    <p>Typical Hit Rate</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">512-32K</div>
+                    <p>Words Capacity Range</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Locality of Reference</h2>
+            <p>Analysis of typical programs reveals two key patterns that make cache memory effective:</p>
+            
+            <div class="key-points">
+                <div class="key-point">
+                    <div class="key-point-icon">📍</div>
+                    <h4>Temporal Locality</h4>
+                    <p>Recently accessed memory locations are likely to be accessed again soon</p>
+                </div>
+                <div class="key-point">
+                    <div class="key-point-icon">📊</div>
+                    <h4>Spatial Locality</h4>
+                    <p>Memory locations near recently accessed locations are likely to be accessed</p>
+                </div>
+                <div class="key-point">
+                    <div class="key-point-icon">🔄</div>
+                    <h4>Loop Behavior</h4>
+                    <p>Program loops repeatedly access the same instructions and data</p>
+                </div>
+                <div class="key-point">
+                    <div class="key-point-icon">📈</div>
+                    <h4>90-10 Rule</h4>
+                    <p>Programs spend 90% of time executing only 10% of code</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>⚙️ How Cache Works</h2>
+            
+            <div class="interactive-card" onclick="toggleContent('cache-operation')">
+                <h4>🔍 Basic Cache Operation ▼</h4>
+                <div id="cache-operation" class="toggle-content">
+                    <p style="margin-top: 15px;"><strong>When the CPU needs data:</strong></p>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>CPU sends address</strong> to check if word is in cache</li>
+                        <li><strong>Cache Hit:</strong> Word found in cache → data sent to CPU immediately</li>
+                        <li><strong>Cache Miss:</strong> Word not in cache → main memory accessed, entire block transferred to cache</li>
+                        <li><strong>Block Transfer:</strong> Multiple words transferred together to exploit spatial locality</li>
+                    </ol>
+                    <div class="highlight-box" style="margin-top: 15px;">
+                        <p><strong>Average Access Time = Cache Time × Hit Rate + Main Memory Time × Miss Rate</strong></p>
+                        <p style="margin-top: 10px;">Example: With 10ns cache, 1000ns main memory, and 90% hit rate:<br>
+                        Average = 10×0.9 + 1000×0.1 = 109ns (much better than 1000ns!)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-card" onclick="toggleContent('block-size')">
+                <h4>📦 Block Size & Transfer ▼</h4>
+                <div id="block-size" class="toggle-content">
+                    <p style="margin-top: 15px;">Cache memory stores blocks of words rather than individual words. Block sizes vary from one word to about 16 words. When a miss occurs, the entire block containing the requested word is transferred from main memory to cache.</p>
+                    <p style="margin-top: 10px;"><strong>Why blocks?</strong> This exploits spatial locality - if you need one word, you'll likely need nearby words too!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🗺️ Cache Mapping Techniques</h2>
+            <p>Three primary methods organize how main memory addresses map to cache locations:</p>
+            
+            <div class="mapping-types">
+                <div class="mapping-card">
+                    <h4>1. Associative Mapping</h4>
+                    <p><strong>Most Flexible</strong></p>
+                    <p style="margin-top: 15px;">• Any block can go anywhere in cache<br>
+                    • Full address stored as tag<br>
+                    • All tags searched simultaneously<br>
+                    • Highest hit rate<br>
+                    • Most expensive hardware</p>
+                </div>
+                
+                <div class="mapping-card">
+                    <h4>2. Direct Mapping</h4>
+                    <p><strong>Simplest & Fastest</strong></p>
+                    <p style="margin-top: 15px;">• Each block has exactly one cache location<br>
+                    • Address = Tag + Index + Word<br>
+                    • Fast and simple<br>
+                    • Lower hit rate<br>
+                    • Conflicts if same index needed</p>
+                </div>
+                
+                <div class="mapping-card">
+                    <h4>3. Set-Associative</h4>
+                    <p><strong>Best Compromise</strong></p>
+                    <p style="margin-top: 15px;">• Cache divided into sets<br>
+                    • Block can go in any location within set<br>
+                    • Combines benefits of both methods<br>
+                    • 2-way, 4-way, 8-way common<br>
+                    • Balanced cost and performance</p>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 30px;">
+                <h3>Address Structure Comparison</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Mapping Type</th>
+                        <th>Address Components</th>
+                        <th>Search Method</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Associative</strong></td>
+                        <td>Tag (full) + Word</td>
+                        <td>Search all tags in parallel</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Direct</strong></td>
+                        <td>Tag + Index + Word</td>
+                        <td>Direct index lookup, compare one tag</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Set-Associative</strong></td>
+                        <td>Tag + Set Index + Word</td>
+                        <td>Index to set, search tags within set</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>✍️ Cache Write Operations</h2>
+            
+            <div class="interactive-card" onclick="toggleContent('write-through')">
+                <h4>📝 Write-Through ▼</h4>
+                <div id="write-through" class="toggle-content">
+                    <p style="margin-top: 15px;"><strong>Updates both cache and main memory simultaneously</strong></p>
+                    <p style="margin-top: 10px;"><strong>Advantages:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Main memory always has valid data</li>
+                        <li>Simplifies I/O operations</li>
+                        <li>No data loss if system fails</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Disadvantage:</strong> Slower because every write waits for main memory</p>
+                </div>
+            </div>
+
+            <div class="interactive-card" onclick="toggleContent('write-back')">
+                <h4>⚡ Write-Back ▼</h4>
+                <div id="write-back" class="toggle-content">
+                    <p style="margin-top: 15px;"><strong>Updates only cache initially, writes to memory only when block is replaced</strong></p>
+                    <p style="margin-top: 10px;"><strong>Advantages:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Faster - no waiting for main memory</li>
+                        <li>Multiple writes to same location only write once to memory</li>
+                        <li>Used in typical programs (10-30% of references are writes)</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Implementation:</strong> Uses "valid bit" to track if cache block has been modified</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🔄 Replacement Algorithms</h2>
+            <p>When cache is full and a new block is needed, which block should be replaced?</p>
+            
+            <div class="key-points">
+                <div class="key-point">
+                    <div class="key-point-icon">🎲</div>
+                    <h4>Random</h4>
+                    <p>Simplest method - randomly select a block to replace</p>
+                </div>
+                <div class="key-point">
+                    <div class="key-point-icon">🥇</div>
+                    <h4>FIFO</h4>
+                    <p>First In, First Out - replace oldest block in cache</p>
+                </div>
+                <div class="key-point">
+                    <div class="key-point-icon">⏰</div>
+                    <h4>LRU</h4>
+                    <p>Least Recently Used - most common, best performance</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>LRU Performance:</strong> Selects the item that has been unused for the longest time. Both FIFO and LRU algorithms provide similar hit rates, with LRU having a slight advantage as set size increases.</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🚀 Cache Initialization</h2>
+            <div class="interactive-card" onclick="toggleContent('initialization')">
+                <h4>⚙️ Power-On Initialization ▼</h4>
+                <div id="initialization" class="toggle-content">
+                    <p style="margin-top: 15px;">When power is applied to the computer or when programs are loaded:</p>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li>Cache is empty and considered invalid</li>
+                        <li>Valid bits set to indicate no valid data</li>
+                        <li>First loads from main memory transfer blocks to cache</li>
+                        <li>Valid bits updated as blocks are loaded</li>
+                        <li>Subsequent accesses can hit cache</li>
+                    </ol>
+                    <div class="highlight-box" style="margin-top: 15px;">
+                        <p><strong>Important:</strong> The introduction of a new word automatically replaces invalid data. Thus initialization conditions are restored during normal operation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📊 Performance Example</h2>
+            <div class="highlight-box">
+                <h3>Real-World Scenario</h3>
+                <p><strong>System Configuration:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Cache access time: 10 nanoseconds</li>
+                    <li>Main memory access time: 1000 nanoseconds</li>
+                    <li>Hit ratio: 90% (typical for well-designed cache)</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Performance Calculation:</strong></p>
+                <p>Average access time = (0.9 × 10ns) + (0.1 × 1000ns) = 9ns + 100ns = 109ns</p>
+                <p style="margin-top: 10px;"><strong>Result:</strong> Nearly 10× faster than accessing main memory directly! This is why cache is crucial for modern computer performance.</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Key Takeaways</h2>
+            <div class="key-points">
+                <div class="key-point">
+                    <h4>Speed Hierarchy</h4>
+                    <p>Cache sits between fast CPU and slower main memory, providing optimal balance</p>
+                </div>
+                <div class="key-point">
+                    <h4>Locality Principle</h4>
+                    <p>Programs naturally exhibit temporal and spatial locality, making cache effective</p>
+                </div>
+                <div class="key-point">
+                    <h4>Mapping Trade-offs</h4>
+                    <p>Associative = flexible, Direct = fast, Set-Associative = balanced compromise</p>
+                </div>
+                <div class="key-point">
+                    <h4>Write Strategies</h4>
+                    <p>Write-through = safer, Write-back = faster for typical workloads</p>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="virtual_memory_webpage.html" style="text-decoration: none;" class="btn btn-primary">Virtual Memory</a>
+                
+        </div>
+    </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+    <footer>
+        <p>© Dr. Jay M. Joshi</p>
+    </footer>
+
+    <script>
+        function toggleContent(id) {
+            const content = document.getElementById(id);
+            content.classList.toggle('active');
+        }
+
+        // Add smooth scroll animation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add intersection observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

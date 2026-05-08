@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Computer Description - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        nav a:hover, nav a.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .section h3 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            color: #34495e;
+        }
+
+        .flowchart-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            color: white;
+        }
+
+        .flowchart-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-card:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .step-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+
+
+        .computer-state {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .register {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .register:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .register-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Register Transfer';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Computer Architecture</div>
+                <nav>
+                    <ul>
+                        <li><a href="#overview" class="active">Overview</a></li>
+                        <li><a href="#flowchart">Flowchart</a></li>
+                        <li><a href="#register">Register Transfer</a></li>
+                        <li><a href="#demo">Interactive Demo</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h1>Complete Computer Description</h1>
+                <p>Explore the holistic view of computer functionality through interactive flowcharts, register transfers, and real-time simulations</p>
+            </section>
+
+            <section id="overview" class="section fade-in">
+                <h2>System Overview</h2>
+                <p>A computer's operation can be understood through two primary representations that work together to provide a complete picture of its functionality:</p>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🔄 Flowchart Representation</h4>
+                        <p>Visual sequence of operations showing the instruction cycle, interrupt handling, and control flow through different execution phases.</p>
+                    </div>
+                    <div class="card">
+                        <h4>📝 Register Transfer Statements</h4>
+                        <p>Concise symbolic notation that describes all control functions and microoperations in a tabular format for precise implementation.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Computer Initialization</h3>
+                    <p>The computer begins operation by initializing key components:</p>
+                    <div class="computer-state">
+                        <div class="register">
+                            <div class="register-name">SC (Sequence Counter)</div>
+                            <div class="register-value" id="sc-value">0</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">IEN (Interrupt Enable)</div>
+                            <div class="register-value" id="ien-value">0</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">R (Interrupt Request)</div>
+                            <div class="register-value" id="r-value">0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="flowchart" class="section fade-in">
+                <h2>Instruction Cycle Flowchart</h2>
+                
+                <div class="flowchart-container">
+                    <h3 style="color: white; text-align: center; margin-bottom: 2rem;">Complete Computer Operation Flow</h3>
+                    
+                    <div class="flowchart-steps">
+                        <div class="step-card" onclick="highlightStep('interrupt-check')">
+                            <div class="step-title">1. Interrupt Check</div>
+                            <div class="step-description">Check R flip-flop: If R=1, enter interrupt cycle; If R=0, continue with instruction cycle</div>
+                        </div>
+                        
+                        <div class="step-card" onclick="highlightStep('interrupt-cycle')">
+                            <div class="step-title">2. Interrupt Cycle (R=1)</div>
+                            <div class="step-description">
+                                RT<sub>0</sub>: AR ← 0, TR ← PC<br>
+                                RT<sub>1</sub>: M[AR] ← TR, PC ← 0<br>
+                                RT<sub>2</sub>: PC ← PC + 1, IEN ← 0, R ← 0, SC ← 0
+                            </div>
+                        </div>
+                        
+                        <div class="step-card" onclick="highlightStep('fetch-decode')">
+                            <div class="step-title">3. Fetch & Decode (R=0)</div>
+                            <div class="step-description">
+                                T<sub>0</sub>: AR ← PC<br>
+                                T<sub>1</sub>: IR ← M[AR], PC ← PC + 1<br>
+                                T<sub>2</sub>: AR ← IR(0-11), I ← IR(15), <br>D<sub>0</sub>...D<sub>7</sub> ← Decode IR(12-14)
+                            </div>
+                        </div>
+                        
+                        <div class="step-card" onclick="highlightStep('memory-ref')">
+                            <div class="step-title">4. Memory-Reference (D<sub>7</sub>=0)</div>
+                            <div class="step-description">Handle indirect addressing if I=1, then execute AND, ADD, LDA, STA, BUN, BSA, or ISZ instructions</div>
+                        </div>
+                        
+                        <div class="step-card" onclick="highlightStep('register-ref')">
+                            <div class="step-title">5. Register-Reference (D<sub>7</sub>=1, I=0)</div>
+                            <div class="step-description">Execute CLA, CLE, CMA, CIR, INC, HLT instructions during D7I'T3, then SC ← 0</div>
+                        </div>
+                        
+                        <div class="step-card" onclick="highlightStep('io-ref')">
+                            <div class="step-title">6. Input-Output (D<sub>7</sub>=1, I=1)</div>
+                            <div class="step-description">Execute INP, OUT, SKI, SKO, ION, IOF instructions during D7IT3, then SC ← 0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="register" class="section fade-in">
+                <h2>Register Transfer Statements</h2>
+                <p>The complete computer operation can be precisely described using register transfer notation. This symbolic representation provides all necessary information for designing the computer's logic circuits.</p>
+
+                <h3>Key Advantages</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🎯 Precision</h4>
+                        <p>Exact specification of microoperations and control functions for unambiguous hardware implementation</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔧 Design Ready</h4>
+                        <p>Boolean functions derived directly from control statements enable logic circuit design</p>
+                    </div>
+                </div>
+
+                <h3>Sample Register Transfer Operations</h3>
+                <div class="code-block">
+                    <div class="highlight">Fetch Cycle:</div>
+                    T0: AR ← PC<br>
+                    T1: IR ← M[AR], PC ← PC + 1<br>
+                    T2: AR ← IR(0-11), I ← IR(15)
+                    
+                    <div class="highlight">Interrupt Cycle:</div>
+                    RT0: AR ← 0, TR ← PC<br>
+                    RT1: M[AR] ← TR, PC ← 0<br>
+                    RT2: PC ← PC + 1, IEN ← 0, R ← 0, SC ← 0
+                    
+                    <div class="highlight">Memory Reference (AND):</div>
+                    D0T4: DR ← M[AR]<br>
+                    D0T5: AC ← AC ∧ DR, SC ← 0
+                </div>
+            </section>
+
+            <section id="demo" class="section fade-in">
+                <h2>Interactive Computer Simulation</h2>
+                
+                <div class="interactive-demo">
+                    <h3>Simulate Computer Operations</h3>
+                    <p>Experience how the computer processes different types of operations in real-time</p>
+                    
+                    <div class="demo-controls">
+                        <button class="btn primary" onclick="simulateInstruction()">Execute Instruction</button>
+                        <button class="btn" onclick="triggerInterrupt()">Trigger Interrupt</button>
+                        <button class="btn" onclick="resetComputer()">Reset System</button>
+                    </div>
+                    
+                    <div class="computer-state">
+                        <div class="register">
+                            <div class="register-name">PC (Program Counter)</div>
+                            <div class="register-value" id="pc-value">100</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">AR (Address Register)</div>
+                            <div class="register-value" id="ar-value">000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">IR (Instruction Register)</div>
+                            <div class="register-value" id="ir-value">0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">AC (Accumulator)</div>
+                            <div class="register-value" id="ac-value">0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">TR (Temp Register)</div>
+                            <div class="register-value" id="tr-value">0000</div>
+                        </div>
+                        <div class="register">
+                            <div class="register-name">Current State</div>
+                            <div class="register-value" id="state-value">T0</div>
+                        </div>
+                    </div>
+                    
+                    <div id="operation-log" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; text-align: left; height: 150px; overflow-y: auto;">
+                        <div>System initialized. Ready for operations.</div>
+                    </div>
+                </div>
+            </section>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="basic_computer_design.html" class="btn btn-primary">Start Learning Design of Basic Computer</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+        </div>
+    </main>
+
+    <script>
+        // Computer simulation state
+        let computerState = {
+            PC: 100,
+            AR: 0,
+            IR: 0,
+            AC: 0,
+            TR: 0,
+            SC: 0,
+            IEN: 0,
+            R: 0,
+            currentPhase: 'T0'
+        };
+
+        // Update display values
+        function updateDisplay() {
+            document.getElementById('pc-value').textContent = computerState.PC.toString().padStart(3, '0');
+            document.getElementById('ar-value').textContent = computerState.AR.toString().padStart(3, '0');
+            document.getElementById('ir-value').textContent = computerState.IR.toString(16).padStart(4, '0').toUpperCase();
+            document.getElementById('ac-value').textContent = computerState.AC.toString(16).padStart(4, '0').toUpperCase();
+            document.getElementById('tr-value').textContent = computerState.TR.toString(16).padStart(4, '0').toUpperCase();
+            document.getElementById('sc-value').textContent = computerState.SC;
+            document.getElementById('ien-value').textContent = computerState.IEN;
+            document.getElementById('r-value').textContent = computerState.R;
+            document.getElementById('state-value').textContent = computerState.currentPhase;
+        }
+
+        function logOperation(message) {
+            const log = document.getElementById('operation-log');
+            const div = document.createElement('div');
+            div.textContent = `[${computerState.currentPhase}] ${message}`;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function simulateInstruction() {
+            if (computerState.R === 1) {
+                // Interrupt cycle
+                switch(computerState.currentPhase) {
+                    case 'RT0':
+                        computerState.AR = 0;
+                        computerState.TR = computerState.PC;
+                        computerState.currentPhase = 'RT1';
+                        logOperation(`AR ← 0, TR ← PC (${computerState.TR})`);
+                        break;
+                    case 'RT1':
+                        computerState.PC = 0;
+                        computerState.currentPhase = 'RT2';
+                        logOperation(`M[AR] ← TR, PC ← 0`);
+                        break;
+                    case 'RT2':
+                        computerState.PC = 1;
+                        computerState.IEN = 0;
+                        computerState.R = 0;
+                        computerState.SC = 0;
+                        computerState.currentPhase = 'T0';
+                        logOperation(`PC ← 1, IEN ← 0, R ← 0, SC ← 0`);
+                        break;
+                }
+            } else {
+                // Normal instruction cycle
+                switch(computerState.currentPhase) {
+                    case 'T0':
+                        computerState.AR = computerState.PC;
+                        computerState.currentPhase = 'T1';
+                        logOperation(`AR ← PC (${computerState.PC})`);
+                        break;
+                    case 'T1':
+                        computerState.IR = Math.floor(Math.random() * 65536); // Random instruction
+                        computerState.PC += 1;
+                        computerState.currentPhase = 'T2';
+                        logOperation(`IR ← M[AR], PC ← PC + 1 (${computerState.PC})`);
+                        break;
+                    case 'T2':
+                        computerState.AR = computerState.IR & 0x0FFF; // Lower 12 bits
+                        computerState.currentPhase = 'Execute';
+                        logOperation(`AR ← IR(0-11), Decode instruction`);
+                        break;
+                    case 'Execute':
+                        // Simulate execution
+                        computerState.AC = (computerState.AC + Math.floor(Math.random() * 100)) & 0xFFFF;
+                        computerState.SC = 0;
+                        computerState.currentPhase = 'T0';
+                        logOperation(`Instruction executed, SC ← 0`);
+                        break;
+                }
+            }
+            updateDisplay();
+        }
+
+        function triggerInterrupt() {
+            computerState.R = 1;
+            computerState.currentPhase = 'RT0';
+            logOperation(`Interrupt triggered! R ← 1`);
+            updateDisplay();
+        }
+
+        function resetComputer() {
+            computerState = {
+                PC: 100,
+                AR: 0,
+                IR: 0,
+                AC: 0,
+                TR: 0,
+                SC: 0,
+                IEN: 0,
+                R: 0,
+                currentPhase: 'T0'
+            };
+            document.getElementById('operation-log').innerHTML = '<div>System reset. Ready for operations.</div>';
+            updateDisplay();
+        }
+
+        function highlightStep(stepType) {
+            // Remove previous highlights
+            document.querySelectorAll('.step-card').forEach(card => {
+                card.style.background = 'rgba(255, 255, 255, 0.15)';
+            });
+            
+            // Highlight clicked step
+            event.target.closest('.step-card').style.background = 'rgba(255, 255, 255, 0.3)';
+            
+            // Add pulse animation to related registers
+            setTimeout(() => {
+                event.target.closest('.step-card').style.background = 'rgba(255, 255, 255, 0.15)';
+            }, 2000);
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
+                
+                // Update active nav
+                document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Initialize display
+        updateDisplay();
+
+        // Add scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // Auto-simulation mode
+        let autoMode = false;
+        setInterval(() => {
+            if (autoMode) {
+                simulateInstruction();
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

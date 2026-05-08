@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Processing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f0f4ff 0%, #e8e4ff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        #processor-diagram {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .functional-units {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .unit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .unit-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#667eea;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .taxonomy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .taxonomy-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .taxonomy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .taxonomy-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .taxonomy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .taxonomy-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .taxonomy-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .note-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #fdcb6e;
+        }
+
+        .note-box strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .interactive-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .interactive-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .challenge-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .taxonomy-grid, .functional-units {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .arrow {
+            stroke: #667eea;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .box {
+            stroke: #667eea;
+            stroke-width: 2;
+            fill: white;
+        }
+
+        .register-box {
+            stroke: #764ba2;
+            stroke-width: 3;
+            fill: #f0f4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Parallel Processing</h1>
+            <p class="subtitle">Pipeline and Vector Processing</p>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>Definition and Purpose</h2>
+                <div class="highlight">
+                    <p><strong>Parallel processing</strong> is a computing technique where <strong>multiple calculations or processes are carried out simultaneously</strong>.</p>
+                    <p>This approach aims to significantly <strong>improve the speed and efficiency of executing tasks</strong>. It is particularly effective for complex problems that can be broken down into smaller, independent parts.</p>
+                </div>
+                
+                <h3>Challenges in Parallel Processing</h3>
+                <p>While parallel processing leads to significant performance improvements, it also introduces several challenges:</p>
+                <ul>
+                    <li>Synchronization between processes</li>
+                    <li>Managing shared resources</li>
+                    <li>Ensuring that tasks are divided and coordinated effectively</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Processor Organization with Multiple Functional Units</h2>
+                <p>A system designed for parallel execution may feature a <strong>processor with multiple functional units</strong>. This architecture includes processor registers whose output is routed to various specialized units.</p>
+
+                <div class="diagram-container">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Processor with Multiple Functional Units</h3>
+                    <center><img src="parallel.png" alt="Format with Mode" width="500px"></center>
+                </div>
+
+                <h3>Functional Units</h3>
+                <div class="functional-units">
+                    <div class="unit-card">Adder-subtractor</div>
+                    <div class="unit-card">Integer multiply</div>
+                    <div class="unit-card">Logic unit</div>
+                    <div class="unit-card">Shift unit</div>
+                    <div class="unit-card">Incrementer</div>
+                    <div class="unit-card">Floating-point add-subtract</div>
+                    <div class="unit-card">Floating-point multiply</div>
+                    <div class="unit-card">Floating-point divide</div>
+                </div>
+                <p>The results from these functional units typically loop back to the processor registers.</p>
+            </div>
+
+            <div class="section">
+                <h2>Classification of Parallel Processing (Flynn's Taxonomy)</h2>
+                <p>Parallel processing systems can be classified in various ways. One widely recognized way to consider the organization of a computer system is by the number of instructions and data items manipulated simultaneously, as proposed by <strong>M. J. Flynn</strong>.</p>
+                
+                <div class="highlight">
+                    <p>The fundamental sequence of operation is to fetch an instruction from memory and execute it.</p>
+                    <p><strong>Key concepts:</strong></p>
+                    <ul>
+                        <li><strong>Instruction Stream:</strong> The sequence of instructions fetched from memory</li>
+                        <li><strong>Data Stream:</strong> The operations performed on the data within the processor</li>
+                    </ul>
+                </div>
+
+                <p>Parallel processing can occur in the instruction stream, in the data stream, or both.</p>
+
+                <h3>Flynn's Four Categories</h3>
+                <div class="taxonomy-grid">
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-title">SISD</div>
+                        <div class="taxonomy-desc">Single Instruction, Single Data<br><br>Traditional sequential processor executing one instruction on one data element at a time.</div>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-title">SIMD</div>
+                        <div class="taxonomy-desc">Single Instruction, Multiple Data<br><br>Same instruction executed on multiple data elements simultaneously. Vector processing follows this principle.</div>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-title">MISD</div>
+                        <div class="taxonomy-desc">Multiple Instruction, Single Data<br><br>Multiple instructions operate on the same data stream. Rare in practice.</div>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-title">MIMD</div>
+                        <div class="taxonomy-desc">Multiple Instruction, Multiple Data<br><br>Multiple processors execute different instructions on different data independently.</div>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <strong>Note on SIMD:</strong>
+                    <strong>Vector processing</strong> is related to the SIMD (Single Instruction, Multiple Data) principle, as a single vector instruction operates on multiple data elements simultaneously. SIMD extensions (like SSE and AVX in x86 processors) are examples of modern processors incorporating vector processing principles.
+                </div>
+            </div>
+
+            <div class="section challenge-section">
+                <h2 style="color: white;">Interactive Challenge</h2>
+                <p>Test your understanding of parallel processing concepts!</p>
+                <button class="interactive-btn" onclick="showQuiz()">Start Quiz</button>
+                <div id="quiz-result" style="margin-top: 20px; font-size: 1.1em;"></div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="pipeline_learning.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Pipelining</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Add interactivity to functional unit cards
+        document.querySelectorAll('.unit-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                setTimeout(() => {
+                    this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }, 300);
+            });
+        });
+
+        // Add interactivity to taxonomy cards
+        document.querySelectorAll('.taxonomy-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const allCards = document.querySelectorAll('.taxonomy-card');
+                allCards.forEach(c => c.style.border = '2px solid #667eea');
+                this.style.border = '3px solid #764ba2';
+            });
+        });
+
+        // Simple quiz functionality
+        let quizShown = false;
+        function showQuiz() {
+            const quizResult = document.getElementById('quiz-result');
+            
+            if (!quizShown) {
+                quizResult.innerHTML = `
+                    <div style="background: white; padding: 20px; border-radius: 10px; color: #333;">
+                        <p style="font-weight: bold; margin-bottom: 15px;">Which Flynn's taxonomy category best describes vector processing?</p>
+                        <button class="interactive-btn" onclick="checkAnswer('wrong')">SISD</button>
+                        <button class="interactive-btn" onclick="checkAnswer('correct')">SIMD</button>
+                        <button class="interactive-btn" onclick="checkAnswer('wrong')">MISD</button>
+                        <button class="interactive-btn" onclick="checkAnswer('wrong')">MIMD</button>
+                    </div>
+                `;
+                quizShown = true;
+            } else {
+                quizResult.innerHTML = '';
+                quizShown = false;
+            }
+        }
+
+        function checkAnswer(result) {
+            const quizResult = document.getElementById('quiz-result');
+            if (result === 'correct') {
+                quizResult.innerHTML = `
+                    <div style="background: #00b894; padding: 20px; border-radius: 10px; color: white;">
+                        <p style="font-size: 1.2em;">✓ Correct! SIMD (Single Instruction, Multiple Data) is the category that describes vector processing, where a single instruction operates on multiple data elements simultaneously.</p>
+                        <button class="interactive-btn" onclick="showQuiz()" style="margin-top: 15px;">Try Another Question</button>
+                    </div>
+                `;
+            } else {
+                quizResult.innerHTML = `
+                    <div style="background: #d63031; padding: 20px; border-radius: 10px; color: white;">
+                        <p style="font-size: 1.2em;">✗ Not quite. Think about how vector processing executes one instruction on multiple data elements at the same time.</p>
+                        <button class="interactive-btn" onclick="showQuiz()" style="margin-top: 15px;">Try Again</button>
+                    </div>
+                `;
+            }
+            quizShown = false;
+        }
+
+        // SVG animation on hover
+        document.querySelectorAll('#processor-diagram .box').forEach(box => {
+            box.addEventListener('mouseenter', function() {
+                this.style.fill = '#f0f4ff';
+                this.style.transition = 'fill 0.3s ease';
+            });
+            box.addEventListener('mouseleave', function() {
+                this.style.fill = 'white';
+            });
+        });
+    </script>
+</body>
+</html>

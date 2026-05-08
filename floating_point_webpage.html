@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating-Point Arithmetic Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .intro-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .intro-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            box-shadow: 0 8px 20px rgba(252, 182, 159, 0.3);
+        }
+
+        .operations-container {
+            margin-top: 3rem;
+        }
+
+        .operation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .operation-card:hover {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .operation-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .operation-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .add-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .mult-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .div-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .operation-card h2 {
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+
+        .steps-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .steps-list li {
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .steps-list li:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .steps-list li::before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            font-weight: 600;
+        }
+
+        .demo-button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container fade-in">
+        <header>
+            <h1>⚡ Floating-Point Arithmetic Operations</h1>
+            <p class="subtitle">Computer Arithmetic</p>
+        </header>
+
+        <div class="intro-card">
+            <h2 style="margin-bottom: 1rem; font-size: 1.8rem;">📘 Overview</h2>
+            <p>It explores the hardware implementation of arithmetic operations for floating-point binary numbers. These operations are more complex and slower than fixed-point computations, often requiring specialized subroutines when dedicated hardware isn't available.</p>
+        </div>
+
+        <h2 style="color: #2d3748; margin: 2rem 0 1rem;">🔢 Floating-Point Structure</h2>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>Mantissa</h3>
+                <p>A signed, fixed-point number representing the significant digits of the value.</p>
+            </div>
+            <div class="info-card">
+                <h3>Exponent</h3>
+                <p>Designates the position of the decimal (or binary) point in the number.</p>
+            </div>
+            <div class="info-card">
+                <h3>Normalization</h3>
+                <p>Ensures maximum precision by making the most significant digit nonzero.</p>
+            </div>
+        </div>
+
+        <div class="formula-box">
+            m × r<sup>e</sup>
+            <div style="font-size: 0.9rem; margin-top: 0.5rem; font-weight: normal;">
+                where <strong>m</strong> = mantissa, <strong>r</strong> = radix (2 for binary), <strong>e</strong> = exponent
+            </div>
+        </div>
+
+        <div class="operations-container">
+            <h2 style="color: #2d3748; margin-bottom: 1.5rem;">🎯 Arithmetic Operations</h2>
+
+            <div class="operation-card">
+                <div class="operation-header">
+                    <div class="operation-icon add-icon">+</div>
+                    <h2>Addition & Subtraction</h2>
+                </div>
+                <p style="margin-bottom: 1rem; color: #4a5568;">The most complex floating-point operations requiring exponent alignment:</p>
+                <ul class="steps-list">
+                    <li><span class="highlight">Compare</span> the exponents of both operands</li>
+                    <li><span class="highlight">Shift</span> the mantissa of the smaller number (denormalization)</li>
+                    <li><span class="highlight">Align</span> exponents until they are equal</li>
+                    <li><span class="highlight">Perform</span> fixed-point addition/subtraction on mantissas</li>
+                    <li><span class="highlight">Normalize</span> the result by adjusting mantissa and exponent</li>
+                </ul>
+            </div>
+
+            <div class="operation-card">
+                <div class="operation-header">
+                    <div class="operation-icon mult-icon">×</div>
+                    <h2>Multiplication</h2>
+                </div>
+                <p style="margin-bottom: 1rem; color: #4a5568;">Simpler alignment requirements than addition:</p>
+                <ul class="steps-list">
+                    <li><span class="highlight">Add</span> the exponents together</li>
+                    <li><span class="highlight">Multiply</span> the mantissas</li>
+                    <li><span class="highlight">Determine</span> the sign of the result</li>
+                    <li><span class="highlight">Normalize</span> the final product</li>
+                </ul>
+            </div>
+
+            <div class="operation-card">
+                <div class="operation-header">
+                    <div class="operation-icon div-icon">÷</div>
+                    <h2>Division</h2>
+                </div>
+                <p style="margin-bottom: 1rem; color: #4a5568;">Similar to multiplication with reciprocal operations:</p>
+                <ul class="steps-list">
+                    <li><span class="highlight">Subtract</span> the divisor's exponent from dividend's</li>
+                    <li><span class="highlight">Divide</span> the mantissas</li>
+                    <li><span class="highlight">Determine</span> the sign of the quotient</li>
+                    <li><span class="highlight">Normalize</span> the final quotient</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="interactive-demo">
+            <h2 style="color: #2d3748; margin-bottom: 1rem;">🎮 Interactive Demo</h2>
+            <p style="margin-bottom: 1rem; color: #4a5568;">Explore the complexity differences between operations:</p>
+            <button class="demo-button" onclick="showOperation('add')">Addition Demo</button>
+            <button class="demo-button" onclick="showOperation('mult')">Multiplication Demo</button>
+            <button class="demo-button" onclick="showOperation('div')">Division Demo</button>
+            <div class="result-display" id="result">Click a button to see operation details!</div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="floating_point_registers.html" style="text-decoration: none;" class="btn btn-primary">Register Configuration</a>
+                </div>
+
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            © Dr. Jay M. Joshi
+        </footer>
+    </div>
+
+    <script>
+        const operations = {
+            add: {
+                title: "Addition/Subtraction",
+                steps: 5,
+                complexity: "High",
+                reason: "Requires exponent alignment and multiple shifting operations"
+            },
+            mult: {
+                title: "Multiplication",
+                steps: 4,
+                complexity: "Medium",
+                reason: "Simpler: just add exponents and multiply mantissas"
+            },
+            div: {
+                title: "Division",
+                steps: 4,
+                complexity: "Medium",
+                reason: "Similar to multiplication: subtract exponents and divide mantissas"
+            }
+        };
+
+        function showOperation(type) {
+            const op = operations[type];
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div>
+                    <strong>${op.title}</strong><br>
+                    Steps Required: ${op.steps} | Complexity: ${op.complexity}<br>
+                    <em>${op.reason}</em>
+                </div>
+            `;
+            resultDiv.style.animation = 'none';
+            setTimeout(() => {
+                resultDiv.style.animation = 'fadeIn 0.5s ease-out';
+            }, 10);
+        }
+
+        document.querySelectorAll('.info-card, .operation-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.animation = 'none';
+                setTimeout(() => {
+                    this.style.animation = 'fadeIn 0.6s ease-out';
+                }, 10);
+            });
+        });
+    </script>
+</body>
+</html>

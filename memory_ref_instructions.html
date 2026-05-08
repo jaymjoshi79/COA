@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory-Reference Instructions | Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        header:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        .nav-pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 40px 0;
+        }
+
+        .nav-pill {
+            padding: 12px 25px;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            color: #555;
+        }
+
+        .nav-pill:hover, .nav-pill.active {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .instruction-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instruction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .instruction-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .instruction-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-code {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .instruction-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .purpose {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .microops {
+            margin: 20px 0;
+        }
+
+        .microop {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #fafbfc;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .microop:hover {
+            background: #f0f2ff;
+            transform: translateX(10px);
+        }
+
+        .microop-step {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .microop-code {
+    font-family: 'Courier New', monospace;
+    background: #e8ecf4;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 15px;
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap; /* Add this line */
+}
+
+        .characteristics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .characteristic-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .characteristic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .characteristic-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .interactive-demo {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .register-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .register {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e6ff;
+            transition: all 0.3s ease;
+        }
+
+        .register.highlight {
+            border-color: #667eea;
+            background: #e8ecf4;
+            transform: scale(1.05);
+        }
+
+        .register-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#333;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            background: #f8f9ff;
+            border: 2px solid #e0e6ff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            background: #e8ecf4;
+            border-color: #667eea;
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .quiz-option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            h1 { font-size: 2.2em; }
+            .instruction-grid { grid-template-columns: 1fr; }
+            .nav-pills { flex-direction: column; align-items: center; }
+            .demo-controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory-Reference Instructions</h1>
+            <p class="subtitle">Interactive Guide to Computer Architecture Fundamentals</p>
+        </header>
+
+        <nav class="nav-pills">
+            <button class="nav-pill active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-pill" onclick="showSection('characteristics')">Characteristics</button>
+            <button class="nav-pill" onclick="showSection('instructions')">Instructions</button>
+            <button class="nav-pill" onclick="showSection('simulator')">Simulator</button>
+            <button class="nav-pill" onclick="showSection('quiz')">Quiz</button>
+        </nav>
+
+        <div id="overview" class="content-section active">
+            <div class="interactive-demo">
+                <h2>🎯 What are Memory-Reference Instructions?</h2>
+                <p>Memory-Reference Instructions are computer instructions that require an operand from memory to perform their operations. They are identified when the operation code (opcode) in bits 12-14 of the Instruction Register corresponds to codes D0 through D6.</p>
+                
+                <div class="characteristics-grid">
+                    <div class="characteristic-card">
+                        <div class="characteristic-title">
+                            <div class="icon">7</div>
+                            Instruction Count
+                        </div>
+                        <p>The basic computer supports exactly <strong>7 memory-reference instructions</strong>, each with a unique opcode from D0 to D6.</p>
+                    </div>
+                    
+                    <div class="characteristic-card">
+                        <div class="characteristic-title">
+                            <div class="icon">⚡</div>
+                            Execution Phases
+                        </div>
+                        <p>Instructions execute during timing signals <strong>T4, T5, and sometimes T6</strong> after the addressing phase is complete.</p>
+                    </div>
+                    
+                    <div class="characteristic-card">
+                        <div class="characteristic-title">
+                            <div class="icon">🔄</div>
+                            Cycle Reset
+                        </div>
+                        <p>After execution, the Sequence Counter (SC) is cleared to 0, returning to the <strong>fetch phase</strong> for the next instruction.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="characteristics" class="content-section">
+            <div class="characteristics-grid">
+                <div class="characteristic-card">
+                    <div class="characteristic-title">
+                        <div class="icon">📍</div>
+                        Effective Address
+                    </div>
+                    <p><strong>Direct Addressing (I=0):</strong> The address part of the instruction (bits 0-11) is already in AR by T2.</p>
+                    <p><strong>Indirect Addressing (I=1):</strong> The effective address is fetched from memory at AR during T3.</p>
+                </div>
+                
+                <div class="characteristic-card">
+                    <div class="characteristic-title">
+                        <div class="icon">⏱️</div>
+                        Execution Phase
+                    </div>
+                    <p>Microoperations typically occur during timing signals <strong>T4 and T5</strong> (and sometimes T6 for complex operations like ISZ).</p>
+                </div>
+                
+                <div class="characteristic-card">
+                    <div class="characteristic-title">
+                        <div class="icon">🔄</div>
+                        Cycle Completion
+                    </div>
+                    <p>Upon completion, <strong>SC ← 0</strong> signals the control unit to return to the fetch phase (T0) for the next instruction.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="instructions" class="content-section">
+            <div class="instruction-grid">
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D<sub>0</sub></div>
+                        <div class="instruction-name">AND</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Performs bit-wise AND logic operation between AC and memory word.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T<sub>4</sub></div>
+                            <div class="microop-code">DR ← M[AR]</div>
+                            <div>Read operand from memory</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T<sub>5</sub></div>
+                            <div class="microop-code">AC ← AC ∧ DR, <br>SC ← 0</div>
+                            <div>AND operation and reset counter</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D<sub>1</sub></div>
+                        <div class="instruction-name">ADD</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Adds memory word to AC, stores carry in E flip-flop.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T<sub>4</sub></div>
+                            <div class="microop-code">DR ← M[AR]</div>
+                            <div>Read operand from memory</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T<sub>5</sub></div>
+                            <div class="microop-code">AC ← AC + DR,<br> E ← Cout,<br> SC ← 0</div>
+                            <div>Addition with carry handling</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D<sub>2</sub></div>
+                        <div class="instruction-name">LDA</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Load memory word into Accumulator.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T<sub>4</sub></div>
+                            <div class="microop-code">DR ← M[AR]</div>
+                            <div>Read data from memory</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T<sub>5</sub></div>
+                            <div class="microop-code">AC ← DR,<br> SC ← 0</div>
+                            <div>Transfer to AC and reset</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D<sub>3</sub></div>
+                        <div class="instruction-name">STA</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Store AC content into memory location.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T<sub>4</sub></div>
+                            <div class="microop-code">M[AR] ← AC,<br> SC ← 0</div>
+                            <div>Write AC to memory and reset</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D<sub>4</sub></div>
+                        <div class="instruction-name">BUN</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Unconditional branch to new program location.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T<sub>4</sub></div>
+                            <div class="microop-code">PC ← AR,<br> SC ← 0</div>
+                            <div>Jump to effective address</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D5</div>
+                        <div class="instruction-name">BSA</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Branch and Save return Address for subroutine calls.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T4</div>
+                            <div class="microop-code">M[AR] ← PC,<br> AR ← AR + 1</div>
+                            <div>Save return address</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T5</div>
+                            <div class="microop-code">PC ← AR,<br> SC ← 0</div>
+                            <div>Branch to subroutine</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-title">
+                        <div class="instruction-code">D6</div>
+                        <div class="instruction-name">ISZ</div>
+                    </div>
+                    <div class="purpose">
+                        <strong>Purpose:</strong> Increment memory word and skip next instruction if zero.
+                    </div>
+                    <div class="microops">
+                        <div class="microop">
+                            <div class="microop-step">T4</div>
+                            <div class="microop-code">DR ← M[AR]</div>
+                            <div>Read memory word</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T5</div>
+                            <div class="microop-code">DR ← DR + 1</div>
+                            <div>Increment the value</div>
+                        </div>
+                        <div class="microop">
+                            <div class="microop-step">T6</div>
+                            <div class="microop-code">M[AR] ← DR,<br> if (DR = 0) then<br>&nbsp; (PC ← PC + 1),<br> SC ← 0</div>
+                            
+                        </div>
+			<div>Store back and conditionally skip</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="simulator" class="content-section">
+            <div class="interactive-demo">
+                <h2>🖥️ Instruction Execution Simulator</h2>
+                <p>Select an instruction to see how it executes step by step:</p>
+                
+                <div class="demo-controls">
+                    <button class="demo-button" onclick="simulateInstruction('AND')">Simulate AND</button>
+                    <button class="demo-button" onclick="simulateInstruction('ADD')">Simulate ADD</button>
+                    <button class="demo-button" onclick="simulateInstruction('LDA')">Simulate LDA</button>
+                    <button class="demo-button" onclick="simulateInstruction('STA')">Simulate STA</button>
+                    <button class="demo-button" onclick="simulateInstruction('BUN')">Simulate BUN</button>
+                    <button class="demo-button" onclick="simulateInstruction('BSA')">Simulate BSA</button>
+                    <button class="demo-button" onclick="simulateInstruction('ISZ')">Simulate ISZ</button>
+                </div>
+
+                <div class="register-display">
+                    <div class="register" id="reg-ac">
+                        <div class="register-name">AC</div>
+                        <div class="register-value" id="ac-value">0000</div>
+                    </div>
+                    <div class="register" id="reg-dr">
+                        <div class="register-name">DR</div>
+                        <div class="register-value" id="dr-value">0000</div>
+                    </div>
+                    <div class="register" id="reg-ar">
+                        <div class="register-name">AR</div>
+                        <div class="register-value" id="ar-value">0100</div>
+                    </div>
+                    <div class="register" id="reg-pc">
+                        <div class="register-name">PC</div>
+                        <div class="register-value" id="pc-value">0021</div>
+                    </div>
+                    <div class="register" id="reg-e">
+                        <div class="register-name">E</div>
+                        <div class="register-value" id="e-value">0</div>
+                    </div>
+                    <div class="register" id="reg-sc">
+                        <div class="register-name">SC</div>
+                        <div class="register-value" id="sc-value">0</div>
+                    </div>
+                </div>
+
+                <div id="simulation-log" style="background: #f8f9ff; padding: 20px; border-radius: 10px; margin-top: 20px; font-family: 'Courier New', monospace;">
+                    <strong>Simulation Log:</strong><br>
+                    Select an instruction to begin simulation...
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz" class="content-section">
+            <div class="quiz-section">
+                <h2>🧠 Test Your Knowledge</h2>
+                
+                <div id="question1" class="quiz-question">
+                    1. Which instruction performs a bitwise AND operation between the AC and memory?
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">ADD (D1)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">AND (D0)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">LDA (D2)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">ISZ (D6)</div>
+                </div>
+
+                <div id="question2" class="quiz-question">
+                    2. What happens to the carry output during an ADD instruction?
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">It's ignored</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">It's stored in the E flip-flop</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">It's stored in the AC</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">It's stored in the DR</div>
+                </div>
+
+                <div id="question3" class="quiz-question">
+                    3. Which instruction is specifically designed for subroutine calls?
+                </div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">BUN (D4)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">BSA (D5)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">ISZ (D6)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">STA (D3)</div>
+                </div>
+            </div>
+		<div class="topic-actions">
+    <a href="bsa_instruction_page.html" class="btn btn-primary">
+        Start BSA: Branch and Save Return Address
+    </a>
+</div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all nav pills
+            const navPills = document.querySelectorAll('.nav-pill');
+            navPills.forEach(pill => pill.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked nav pill
+            event.target.classList.add('active');
+        }
+
+        function simulateInstruction(instruction) {
+            const log = document.getElementById('simulation-log');
+            const registers = ['reg-ac', 'reg-dr', 'reg-ar', 'reg-pc', 'reg-e', 'reg-sc'];
+            
+            // Clear previous highlights
+            registers.forEach(reg => {
+                document.getElementById(reg).classList.remove('highlight');
+            });
+            
+            let logText = `<strong>Simulating ${instruction} Instruction:</strong><br><br>`;
+            
+            // Reset simulation values
+            document.getElementById('ac-value').textContent = '0005';
+            document.getElementById('dr-value').textContent = '0000';
+            document.getElementById('ar-value').textContent = '0100';
+            document.getElementById('pc-value').textContent = '0021';
+            document.getElementById('e-value').textContent = '0';
+            document.getElementById('sc-value').textContent = '4';
+            
+            switch(instruction) {
+                case 'AND':
+                    logText += `T4: DR ← M[AR] = M[0100] = 0003<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-dr').classList.add('highlight');
+                        document.getElementById('dr-value').textContent = '0003';
+                    }, 1000);
+                    
+                    logText += `T5: AC ← AC ∧ DR = 0005 ∧ 0003 = 0001<br>`;
+                    logText += `T5: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-ac').classList.add('highlight');
+                        document.getElementById('ac-value').textContent = '0001';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 2000);
+                    break;
+                    
+                case 'ADD':
+                    logText += `T4: DR ← M[AR] = M[0100] = 0007<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-dr').classList.add('highlight');
+                        document.getElementById('dr-value').textContent = '0007';
+                    }, 1000);
+                    
+                    logText += `T5: AC ← AC + DR = 0005 + 0007 = 000C<br>`;
+                    logText += `T5: E ← Cout = 0, SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-ac').classList.add('highlight');
+                        document.getElementById('reg-e').classList.add('highlight');
+                        document.getElementById('ac-value').textContent = '000C';
+                        document.getElementById('e-value').textContent = '0';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 2000);
+                    break;
+                    
+                case 'LDA':
+                    logText += `T4: DR ← M[AR] = M[0100] = 0042<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-dr').classList.add('highlight');
+                        document.getElementById('dr-value').textContent = '0042';
+                    }, 1000);
+                    
+                    logText += `T5: AC ← DR = 0042<br>`;
+                    logText += `T5: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-ac').classList.add('highlight');
+                        document.getElementById('ac-value').textContent = '0042';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 2000);
+                    break;
+                    
+                case 'STA':
+                    logText += `T4: M[AR] ← AC = M[0100] ← 0005<br>`;
+                    logText += `T4: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-ar').classList.add('highlight');
+                        document.getElementById('reg-ac').classList.add('highlight');
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 1000);
+                    break;
+                    
+                case 'BUN':
+                    logText += `T4: PC ← AR = 0100<br>`;
+                    logText += `T4: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-pc').classList.add('highlight');
+                        document.getElementById('pc-value').textContent = '0100';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 1000);
+                    break;
+                    
+                case 'BSA':
+                    logText += `T4: M[AR] ← PC = M[0100] ← 0021<br>`;
+                    logText += `T4: AR ← AR + 1 = 0101<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-ar').classList.add('highlight');
+                        document.getElementById('reg-pc').classList.add('highlight');
+                        document.getElementById('ar-value').textContent = '0101';
+                    }, 1000);
+                    
+                    logText += `T5: PC ← AR = 0101<br>`;
+                    logText += `T5: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('pc-value').textContent = '0101';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 2000);
+                    break;
+                    
+                case 'ISZ':
+                    logText += `T4: DR ← M[AR] = M[0100] = FFFF<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-dr').classList.add('highlight');
+                        document.getElementById('dr-value').textContent = 'FFFF';
+                    }, 1000);
+                    
+                    logText += `T5: DR ← DR + 1 = 0000<br>`;
+                    setTimeout(() => {
+                        document.getElementById('dr-value').textContent = '0000';
+                    }, 2000);
+                    
+                    logText += `T6: M[AR] ← DR = M[0100] ← 0000<br>`;
+                    logText += `T6: Since DR = 0, PC ← PC + 1 = 0022<br>`;
+                    logText += `T6: SC ← 0<br>`;
+                    setTimeout(() => {
+                        document.getElementById('reg-pc').classList.add('highlight');
+                        document.getElementById('pc-value').textContent = '0022';
+                        document.getElementById('sc-value').textContent = '0';
+                    }, 3000);
+                    break;
+            }
+            
+            logText += `<br><strong>Execution Complete!</strong> Ready for next instruction fetch.`;
+            log.innerHTML = logText;
+        }
+        
+        function checkAnswer(element, isCorrect) {
+            // Remove previous answer classes from siblings
+            const siblings = element.parentNode.children;
+            for (let sibling of siblings) {
+                sibling.classList.remove('correct', 'wrong');
+            }
+            
+            // Add appropriate class
+            if (isCorrect) {
+                element.classList.add('correct');
+                element.innerHTML += ' ✓ Correct!';
+            } else {
+                element.classList.add('wrong');
+                element.innerHTML += ' ✗ Incorrect';
+                
+                // Show correct answer
+                for (let sibling of siblings) {
+                    if (sibling !== element && !sibling.classList.contains('wrong')) {
+                        setTimeout(() => {
+                            sibling.classList.add('correct');
+                            sibling.innerHTML += ' ✓ This is correct';
+                        }, 1000);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Add some interactive animations on load
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.instruction-card, .characteristic-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeIn 0.8s ease forwards';
+            });
+        });
+        
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const animateElements = document.querySelectorAll('.instruction-card, .characteristic-card, .interactive-demo, .quiz-section');
+            animateElements.forEach(el => {
+                el.style.transform = 'translateY(20px)';
+                el.style.opacity = '0.8';
+                el.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+                observer.observe(el);
+            });
+        });
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const activeSection = document.querySelector('.content-section.active');
+            const sections = ['overview', 'characteristics', 'instructions', 'simulator', 'quiz'];
+            const currentIndex = sections.indexOf(activeSection.id);
+            
+            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                showSectionByIndex(currentIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentIndex < sections.length - 1) {
+                showSectionByIndex(currentIndex + 1);
+            }
+        });
+        
+        function showSectionByIndex(index) {
+            const sections = ['overview', 'characteristics', 'instructions', 'simulator', 'quiz'];
+            const navPills = document.querySelectorAll('.nav-pill');
+            
+            // Simulate click on the nav pill
+            navPills[index].click();
+        }
+    </script>
+</body>
+</html>

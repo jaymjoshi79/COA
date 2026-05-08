@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Subroutines - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .program-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .program-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .program-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .program-table tr:hover {
+            background-color: #f7fafc;
+        }
+
+        .location {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .instruction {
+            color: #2b6cb0;
+            font-weight: 600;
+        }
+
+        .comment {
+            color: #38a169;
+            font-style: italic;
+        }
+
+        .main-program {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .subroutine {
+            background-color: rgba(56, 161, 105, 0.1);
+        }
+
+        .simulator {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+	    flex: 1;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+	.topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 161, 105, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+
+        .execution-display {
+            background: #1a202c;
+            border-radius: 10px;
+            padding: 20px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+
+        .current-instruction {
+            background-color: rgba(102, 126, 234, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .registers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .register {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .register-name {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #2b6cb0;
+        }
+
+        .explanation {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .step.completed {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🔧 Subroutines Explained</h1>
+            <p>Discover how subroutines work in assembly programming with this interactive demonstration based on a real program that shifts numbers left by 4 positions.</p>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>📋 Program Code</h2>
+                <table class="program-table">
+                    <thead>
+                        <tr>
+                            <th>Address</th>
+                            <th>Label</th>
+                            <th>Instruction</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="program-body">
+                        <tr class="main-program">
+                            <td class="location">100</td>
+                            <td></td>
+                            <td class="instruction">ORG 100</td>
+                            <td class="comment">Main program</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">101</td>
+                            <td></td>
+                            <td class="instruction">LDA X</td>
+                            <td class="comment">Load X</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">102</td>
+                            <td></td>
+                            <td class="instruction">BSA SH4</td>
+                            <td class="comment">Branch to subroutine</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">103</td>
+                            <td></td>
+                            <td class="instruction">STA X</td>
+                            <td class="comment">Store shifted number</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">104</td>
+                            <td></td>
+                            <td class="instruction">LDA Y</td>
+                            <td class="comment">Load Y</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">105</td>
+                            <td></td>
+                            <td class="instruction">BSA SH4</td>
+                            <td class="comment">Branch to subroutine again</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">106</td>
+                            <td></td>
+                            <td class="instruction">STA Y</td>
+                            <td class="comment">Store shifted number</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">107</td>
+                            <td>X,</td>
+                            <td class="instruction">HEX 1234</td>
+                            <td class="comment"></td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">108</td>
+                            <td>Y,</td>
+                            <td class="instruction">HEX 4321</td>
+                            <td class="comment"></td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">109</td>
+                            <td>SH4,</td>
+                            <td class="instruction">HEX 0</td>
+                            <td class="comment">Store return address here</td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10A</td>
+                            <td></td>
+                            <td class="instruction">CIL</td>
+                            <td class="comment">Circulate left once</td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10B</td>
+                            <td></td>
+                            <td class="instruction">CIL</td>
+                            <td class="comment"></td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10C</td>
+                            <td></td>
+                            <td class="instruction">CIL</td>
+                            <td class="comment"></td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10D</td>
+                            <td></td>
+                            <td class="instruction">CIL</td>
+                            <td class="comment">Circulate left fourth time</td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10E</td>
+                            <td></td>
+                            <td class="instruction">AND MSK</td>
+                            <td class="comment">Set AC(13-16) to zero</td>
+                        </tr>
+                        <tr class="subroutine">
+                            <td class="location">10F</td>
+                            <td></td>
+                            <td class="instruction">BUN SH4 I</td>
+                            <td class="comment">Return to main program</td>
+                        </tr>
+                        <tr class="main-program">
+                            <td class="location">110</td>
+                            <td>MSK,</td>
+                            <td class="instruction">HEX FFF0</td>
+                            <td class="comment">Mask operand</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>💡 Key Concepts</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">🎯 What is a Subroutine?</h3>
+                    <p>A subroutine is a reusable block of code that performs a specific task. Instead of repeating code, we can call the subroutine multiple times.</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">🔄 BSA Instruction</h3>
+                    <p><strong>Branch and Save Address</strong> - Saves the return address and jumps to the subroutine. Essential for knowing where to return!</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">↩️ Return Mechanism</h3>
+                    <p><strong>BUN SH4 I</strong> - Uses indirect addressing to return to the saved location in the main program.</p>
+                </div>
+                
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">⬅️ Left Shift Operation</h3>
+                    <p>The subroutine shifts bits left by 4 positions using CIL (Circulate Left) instructions, effectively multiplying by 16.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="simulator card">
+            <h2>🎮 Interactive Simulator</h2>
+            <p>Watch how the program executes step by step, calling the subroutine twice to shift both X and Y values.</p>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="startExecution()">▶️ Start</button>
+                <button class="btn btn-secondary" onclick="stepExecution()">⏭️ Next Step</button>
+                <button class="btn btn-danger" onclick="resetExecution()">🔄 Reset</button>
+            </div>
+
+            <div class="step-indicator" id="step-indicator">
+                <div class="step active">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+                <div class="step">5</div>
+                <div class="step">6</div>
+            </div>
+
+            <div class="execution-display" id="execution-display">
+                <div>🖥️ Execution Console</div>
+                <div>Ready to execute program...</div>
+                <div>Click 'Start' to begin simulation</div>
+            </div>
+
+            <div class="registers">
+                <div class="register">
+                    <div class="register-name">Accumulator (AC)</div>
+                    <div class="register-value" id="ac-value">0000</div>
+                </div>
+                <div class="register">
+                    <div class="register-name">Program Counter (PC)</div>
+                    <div class="register-value" id="pc-value">100</div>
+                </div>
+                <div class="register">
+                    <div class="register-name">X Value</div>
+                    <div class="register-value" id="x-value">1234</div>
+                </div>
+                <div class="register">
+                    <div class="register-name">Y Value</div>
+                    <div class="register-value" id="y-value">4321</div>
+                </div>
+                <div class="register">
+                    <div class="register-name">Return Address (109)</div>
+                    <div class="register-value" id="return-addr">----</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation card">
+            <h2>🔍 Deep Dive: How It Works</h2>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📖 Program Flow</h3>
+                <p>This program demonstrates the power of subroutines by using the same shift-left-4 routine twice:</p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>First, it shifts the value in X (1234₁₆) left by 4 bits</li>
+                    <li>Then, it shifts the value in Y (4321₁₆) left by 4 bits</li>
+                    <li>The subroutine SH4 handles both operations, avoiding code duplication</li>
+                </ol>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">⚙️ Technical Details</h3>
+                <p><strong>CIL (Circulate Left):</strong> Rotates all bits in the accumulator one position left. The leftmost bit moves to the rightmost position.</p>
+                <p><strong>AND MSK:</strong> Uses mask FFF0₁₆ to clear the rightmost 4 bits, ensuring a clean left shift (not rotation).</p>
+                <p><strong>Mathematical Effect:</strong> Left shifting by 4 bits is equivalent to multiplying by 2⁴ = 16.</p>
+            </div>
+
+            <div>
+                <h3 style="color: #667eea; margin-bottom: 15px;">✨ Benefits of Subroutines</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;">
+                    <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 8px;">
+                        <strong>🔄 Code Reusability</strong><br>
+                        Write once, use multiple times
+                    </div>
+                    <div style="background: rgba(56, 161, 105, 0.1); padding: 15px; border-radius: 8px;">
+                        <strong>📦 Modularity</strong><br>
+                        Organize code into logical blocks
+                    </div>
+                    <div style="background: rgba(245, 101, 101, 0.1); padding: 15px; border-radius: 8px;">
+                        <strong>🐛 Easier Debugging</strong><br>
+                        Fix bugs in one place only
+                    </div>
+                    <div style="background: rgba(237, 137, 54, 0.1); padding: 15px; border-radius: 8px;">
+                        <strong>💾 Memory Efficiency</strong><br>
+                        Reduces program size
+                    </div>
+                </div>
+            </div>
+	    	<div class="topic-actions" style="text-align: center;">
+                    <a href="subroutine_linkage_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Subroutine Parameters and Data Linkage</a>
+                </div>
+        </div>
+	
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let isExecuting = false;
+        let executionState = {
+            pc: 0x100,
+            ac: 0,
+            x: 0x1234,
+            y: 0x4321,
+            returnAddr: null,
+            memory: {
+                0x109: null // SH4 return address storage
+            }
+        };
+
+        const executionSteps = [
+            {
+                pc: 0x101,
+                instruction: "LDA X",
+                description: "Load value from X (1234₁₆) into accumulator",
+                action: () => {
+                    executionState.ac = executionState.x;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x102,
+                instruction: "BSA SH4",
+                description: "Branch to subroutine SH4, save return address (103₁₆)",
+                action: () => {
+                    executionState.memory[0x109] = 0x103;
+                    executionState.returnAddr = 0x103;
+                    executionState.pc = 0x10A;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x10A,
+                instruction: "CIL x4",
+                description: "Perform 4 circulate-left operations (shift left 4 bits)",
+                action: () => {
+                    // Simulate left shift by 4 (multiply by 16)
+                    executionState.ac = (executionState.ac << 4) & 0xFFFF;
+                    // Apply mask to clear rightmost 4 bits
+                    executionState.ac = executionState.ac & 0xFFF0;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x103,
+                instruction: "STA X",
+                description: "Return from subroutine, store shifted result back to X",
+                action: () => {
+                    executionState.x = executionState.ac;
+                    executionState.returnAddr = null;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x104,
+                instruction: "LDA Y",
+                description: "Load value from Y (4321₁₆) into accumulator",
+                action: () => {
+                    executionState.ac = executionState.y;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x105,
+                instruction: "BSA SH4",
+                description: "Branch to subroutine SH4 again, save return address (106₁₆)",
+                action: () => {
+                    executionState.memory[0x109] = 0x106;
+                    executionState.returnAddr = 0x106;
+                    // Simulate the subroutine execution
+                    executionState.ac = (executionState.ac << 4) & 0xFFF0;
+                    executionState.pc = 0x106;
+                    updateRegisters();
+                }
+            },
+            {
+                pc: 0x106,
+                instruction: "STA Y",
+                description: "Store final shifted result back to Y. Program complete!",
+                action: () => {
+                    executionState.y = executionState.ac;
+                    executionState.returnAddr = null;
+                    updateRegisters();
+                }
+            }
+        ];
+
+        function updateDisplay(message) {
+            const display = document.getElementById('execution-display');
+            display.innerHTML += `<div>${message}</div>`;
+            display.scrollTop = display.scrollHeight;
+        }
+
+        function updateRegisters() {
+            document.getElementById('ac-value').textContent = executionState.ac.toString(16).toUpperCase().padStart(4, '0');
+            document.getElementById('pc-value').textContent = executionState.pc.toString(16).toUpperCase();
+            document.getElementById('x-value').textContent = executionState.x.toString(16).toUpperCase().padStart(4, '0');
+            document.getElementById('y-value').textContent = executionState.y.toString(16).toUpperCase().padStart(4, '0');
+            document.getElementById('return-addr').textContent = executionState.returnAddr ? 
+                executionState.returnAddr.toString(16).toUpperCase() : '----';
+        }
+
+        function updateStepIndicator() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index < currentStep) {
+                    step.classList.add('completed');
+                } else if (index === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function highlightCurrentRow() {
+            // Remove previous highlights
+            document.querySelectorAll('.current-instruction').forEach(row => {
+                row.classList.remove('current-instruction');
+            });
+            
+            // Add highlight to current instruction
+            const rows = document.querySelectorAll('#program-body tr');
+            if (currentStep < executionSteps.length) {
+                const step = executionSteps[currentStep];
+                const targetPc = step.pc;
+                
+                rows.forEach(row => {
+                    const locationCell = row.querySelector('.location');
+                    if (locationCell) {
+                        const addr = parseInt(locationCell.textContent, 16);
+                        if (addr === targetPc || (step.instruction === "CIL x4" && addr >= 0x10A && addr <= 0x10F)) {
+                            row.classList.add('current-instruction');
+                        }
+                    }
+                });
+            }
+        }
+
+        function startExecution() {
+            if (isExecuting) return;
+            isExecuting = true;
+            currentStep = 0;
+            
+            document.getElementById('execution-display').innerHTML = '<div>🚀 Starting program execution...</div>';
+            updateStepIndicator();
+            highlightCurrentRow();
+            
+            setTimeout(() => {
+                stepExecution();
+            }, 1000);
+        }
+
+        function stepExecution() {
+            if (currentStep >= executionSteps.length) {
+                updateDisplay('<div>✅ Program execution completed!</div>');
+                updateDisplay(`<div>📊 Final Results:</div>`);
+                updateDisplay(`<div>   X: 1234₁₆ → ${executionState.x.toString(16).toUpperCase()}₁₆ (shifted left 4 bits)</div>`);
+                updateDisplay(`<div>   Y: 4321₁₆ → ${executionState.y.toString(16).toUpperCase()}₁₆ (shifted left 4 bits)</div>`);
+                isExecuting = false;
+                return;
+            }
+
+            const step = executionSteps[currentStep];
+            
+            updateDisplay(`<div>⏭️ Step ${currentStep + 1}: ${step.instruction}</div>`);
+            updateDisplay(`<div>   ${step.description}</div>`);
+            
+            step.action();
+            executionState.pc = step.pc;
+            
+            currentStep++;
+            updateStepIndicator();
+            highlightCurrentRow();
+        }
+
+        function resetExecution() {
+            currentStep = 0;
+            isExecuting = false;
+            executionState = {
+                pc: 0x100,
+                ac: 0,
+                x: 0x1234,
+                y: 0x4321,
+                returnAddr: null,
+                memory: {
+                    0x109: null
+                }
+            };
+            
+            updateRegisters();
+            updateStepIndicator();
+            
+            // Remove highlights
+            document.querySelectorAll('.current-instruction').forEach(row => {
+                row.classList.remove('current-instruction');
+            });
+            
+            document.getElementById('execution-display').innerHTML = `
+                <div>🖥️ Execution Console</div>
+                <div>Program reset successfully</div>
+                <div>Click 'Start' to begin simulation</div>
+            `;
+        }
+
+        // Initialize the display
+        updateRegisters();
+        updateStepIndicator();
+    </script>
+</body>
+</html>

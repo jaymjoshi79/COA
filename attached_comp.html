@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attached Array Processor System</title>
+    <style>
+        /* REVISED CSS VARIABLES FOR BLUE BACKGROUND & WHITE FONT */
+        :root {
+            --primary-color: #00d2ff; /* Cyan accent - kept for highlight contrast */
+            --secondary-color: #4da6ff; /* Brighter blue for gradients */
+            
+            /* New Blue Theme Backgrounds */
+            --bg-dark: #003366; /* Deep blue for main background */
+            --bg-card: #004488; /* Medium blue for cards/containers */
+            
+            /* New Text Colors */
+            --text-light: #ffffff; /* Pure white text */
+            --text-muted: #d0e8ff; /* Pale blue-white for secondary text */
+            
+            --accent-glow: 0 0 15px rgba(0, 210, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        header {
+            /* Gradient adapted to new blue palette */
+            background: linear-gradient(to right, #0055a5, var(--secondary-color));
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            color: var(--text-muted);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--text-light); /* Changed to white */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.3); /* Added slight glow for definition */
+        }
+
+        /* Diagram Styles */
+        .diagram-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .diagram-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto auto;
+            gap: 40px 60px;
+            position: relative;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid #5588bb; /* Lighter blue border */
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(145deg, #005cbf, #004890);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .block {
+            /* Updated to blue gradients */
+            background: linear-gradient(145deg, #005cbf, #004890);
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            font-weight: bold;
+            width: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            color: var(--text-light);
+        }
+
+        .block:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--accent-glow);
+        }
+
+        /* Positioning blocks based on the diagram */
+        #host-computer { grid-column: 1; grid-row: 1; }
+        #io-interface { grid-column: 2; grid-row: 1; }
+        #array-processor { grid-column: 3; grid-row: 1; }
+        #main-memory { grid-column: 1; grid-row: 2; }
+        #local-memory { grid-column: 3; grid-row: 2; }
+
+        /* Connectors (Arrows) */
+        .connector {
+            position: absolute;
+            background-color: var(--text-muted); /* Using the light blue-white */
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .connector::after, .connector::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        /* Horizontal Connectors */
+        .conn-h { height: 2px; top: 80px; }
+        .conn-h::before { left: -10px; top: -4px; border-width: 5px 10px 5px 0; border-color: transparent var(--text-muted) transparent transparent; }
+        .conn-h::after { right: 10px; top: -4px; border-width: 5px 0 5px 10px; border-color: transparent transparent transparent var(--text-muted); }
+        
+        #conn-host-io { width: 60px; left: 275px; }
+        #conn-io-ap { width: 60px; left: 570px; }
+
+        /* Vertical Connectors */
+        .conn-v { width: 2px; left: 140px; }
+        .conn-v::before { top: +30px; left: -4px; border-width: 0 5px 10px 5px; border-color: transparent transparent var(--text-muted) transparent; }
+        .conn-v::after { bottom: -10px; left: -4px; border-width: 10px 5px 0 5px; border-color: var(--text-muted) transparent transparent transparent; }
+
+        #conn-host-mm { height: 60px; top: 105px; }
+        #conn-ap-lm { height: 60px; top: 105px; left: 735px; }
+
+        /* High-Speed Bus */
+        #conn-bus {
+            height: 4px;
+            top: 215px;
+            width: 325px;
+            left: 280px;
+            /* Bright cyan/blue gradient for the high speed bus */
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            box-shadow: var(--accent-glow);
+        }
+        #conn-bus::before { left: -10px; top: -3px; border-width: 5px 10px 5px 0; border-color: transparent var(--primary-color) transparent transparent; }
+        #conn-bus::after { right: -10px; top: -3px; border-width: 5px 0 5px 10px; border-color: transparent transparent transparent var(--primary-color); }
+        
+        #bus-label {
+            position: absolute;
+            top: 190px;
+            left: 450px;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: var(--primary-color); /* Keep cyan for high contrast label */
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border-left: 5px solid var(--primary-color);
+            max-width: 800px;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid #5588bb;
+        }
+
+        .info-panel h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .info-panel p {
+             color: var(--text-light);
+        }
+
+        /* Key Benefits Section */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .benefit-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            /* Subtle white/light blue border */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .benefit-card h3 {
+            margin: 10px 0;
+            color: var(--text-light);
+        }
+        
+        .benefit-card p {
+            color: var(--text-muted);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 50px;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>The Attached Array Processor System</h1>
+    <p>Unlocking High-Performance Computing through Specialized Architecture</p>
+</header>
+
+<main>
+    <section>
+        <h2 class="section-title">System Architecture Diagram</h2>
+        <p style="text-align: center; margin-bottom: 30px; color: var(--text-muted);">Click on any block to learn more about its function.</p>
+        
+        <div class="diagram-wrapper">
+            <div class="diagram-container">
+                <div class="block" id="host-computer" onclick="showInfo('host-computer')">General-purpose Computer (Host)</div>
+                <div class="block" id="io-interface" onclick="showInfo('io-interface')">Input-output Interface</div>
+                <div class="block" id="array-processor" onclick="showInfo('array-processor')">Attached Array Processor</div>
+                <div class="block" id="main-memory" onclick="showInfo('main-memory')">Main Memory</div>
+                <div class="block" id="local-memory" onclick="showInfo('local-memory')">Local Memory</div>
+                
+                <div class="connector conn-h" id="conn-host-io"></div>
+                <div class="connector conn-h" id="conn-io-ap"></div>
+                <div class="connector conn-v" id="conn-host-mm"></div>
+                <div class="connector conn-v" id="conn-ap-lm"></div>
+                <div class="connector" id="conn-bus"></div>
+                <div id="bus-label">High-speed memory-to-memory bus</div>
+            </div>
+
+            <div class="info-panel" id="info-panel">
+                <h3 id="info-title">Select a Component</h3>
+                <p id="info-desc">Click on any block in the diagram above to see its description and role within the system.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="section-title">Key Benefits & Applications</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">🚀</div>
+                <h3>High-Speed Computation</h3>
+                <p>Designed to perform vector and matrix calculations much faster than a general-purpose CPU, ideal for numerical tasks.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🧠</div>
+                <h3>Scientific Simulation</h3>
+                <p>Used extensively in fields like weather forecasting, fluid dynamics, and molecular modeling where massive datasets are processed.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">📡</div>
+                <h3>Signal Processing</h3>
+                <p>Crucial for real-time processing in radar, sonar, and medical imaging (e.g., CT scans, MRI) applications.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">⚙️</div>
+                <h3>Offloading the Host</h3>
+                <p>Frees up the general-purpose computer to handle system tasks and I/O while the array processor crunches the heavy numbers.</p>
+            </div>
+        </div>
+    </section>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="simd_processor_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning SIMD Processors</a>
+                </div>
+</main>
+<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+<footer>
+    <p>© Dr. Jay M. Joshi</p>
+</footer>
+
+<script>
+    // Script remains unchanged as it only handles functionality
+    const infoData = {
+        'host-computer': {
+            title: 'General-purpose Computer (Host)',
+            desc: 'The central processing unit that controls the entire system. It handles the operating system, general tasks, and coordinates the operations of the attached array processor. It sends instructions and data pointers to the array processor via the I/O interface.'
+        },
+        'io-interface': {
+            title: 'Input-output Interface',
+            desc: 'Acts as the communication bridge between the host computer and the attached array processor. It manages the transfer of control signals, instructions, and initial data addresses between the two processors.'
+        },
+        'array-processor': {
+            title: 'Attached Array Processor',
+            desc: 'A specialized, high-performance processor designed to execute large-scale repetitive numerical calculations (like vector and matrix operations) in parallel. It operates under the control of the host computer but executes its tasks independently.'
+        },
+        'main-memory': {
+            title: 'Main Memory',
+            desc: 'The primary memory of the host computer. It holds the operating system, application programs, and the initial data that needs to be processed. It is directly accessible by the host computer.'
+        },
+        'local-memory': {
+            title: 'Local Memory',
+            desc: 'A dedicated, high-speed memory exclusively for the array processor. It stores the data vectors and matrices currently being processed, allowing for much faster access times than fetching from main memory for every operation.'
+        },
+        'bus-label': { // Special case for the bus label itself
+             title: 'High-speed memory-to-memory bus',
+             desc: 'A dedicated, high-bandwidth pathway that allows for direct and rapid block transfer of data between the Main Memory and the Local Memory, bypassing the processors to minimize overhead.'
+        }
+    };
+
+    function showInfo(id) {
+        const panel = document.getElementById('info-panel');
+        const title = document.getElementById('info-title');
+        const desc = document.getElementById('info-desc');
+        
+        // Add a subtle highlight effect to the panel on update
+        panel.style.transform = 'scale(1.02)';
+        setTimeout(() => { panel.style.transform = 'scale(1)'; }, 200);
+
+        if (infoData[id]) {
+            title.textContent = infoData[id].title;
+            desc.textContent = infoData[id].desc;
+        }
+    }
+
+    // Make the bus label clickable too for consistency
+    document.getElementById('bus-label').addEventListener('click', function() {
+        showInfo('bus-label');
+    });
+    // Make the bus itself clickable
+    document.getElementById('conn-bus').addEventListener('click', function() {
+        showInfo('bus-label');
+    });
+
+    // Pre-select the host computer on load
+    window.onload = function() {
+        showInfo('host-computer');
+    };
+</script>
+
+</body>
+</html>

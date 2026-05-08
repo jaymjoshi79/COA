@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Algorithms - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 30px); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .algorithm-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #6366f1;
+        }
+
+        .algorithm-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .algorithm-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .algorithm-title {
+            font-size: 1.8em;
+            color: #1e293b;
+            flex-grow: 1;
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            color: #6366f1;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        .algorithm-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .algorithm-content.active {
+            max-height: 2000px;
+        }
+
+        .feature-box {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #6366f1;
+        }
+
+        .feature-box h4 {
+            color: #4338ca;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #6366f1;
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+
+        .tag-speed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tag-complexity {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-efficiency {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer-ref {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .algorithm-title {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Multiplication Algorithms</h1>
+            <p class="subtitle">Computer System Architecture - Section 10.3</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>📚 Introduction</h2>
+                <p>Multiplication in digital computers is implemented through a sequence of <strong>shift and add microoperations</strong>. This section explores three fundamental approaches to hardware multiplication for fixed-point binary numbers, each with unique advantages in terms of speed, efficiency, and complexity.</p>
+            </div>
+
+            <!-- Algorithm 1 -->
+            <div class="algorithm-card">
+                <div class="algorithm-header" onclick="toggleContent(0)">
+                    <div class="algorithm-number">1</div>
+                    <h3 class="algorithm-title">Signed-Magnitude Multiplication</h3>
+                    <span class="toggle-icon" id="icon-0">▼</span>
+                </div>
+                <div class="algorithm-content" id="content-0">
+                    
+                    
+                    <div class="feature-box">
+                        <h4>Core Concept</h4>
+                        <p>Simulates traditional manual binary multiplication through repeated additions and shifts, working with magnitude values separately from sign bits.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <h4>Key Principles</h4>
+                        <ul class="feature-list">
+                            <li><strong>Sign Determination:</strong> Product sign is determined by XOR of operand signs (same signs → positive, different signs → negative)</li>
+                            <li><strong>Iterative Process:</strong> Examines multiplier bits sequentially; adds multiplicand if bit is 1, skips if bit is 0</li>
+                            <li><strong>Shifting Operations:</strong> Partial product shifts after each bit examination to align with next bit weight</li>
+                            <li><strong>Double-Width Registers:</strong> Product of two n-bit numbers requires 2n bits (typically A and Q registers)</li>
+                        </ul>
+                    </div>
+
+                    <span class="tag tag-complexity">Simple Implementation</span>
+                    <span class="tag tag-efficiency">Sequential Processing</span>
+
+                    <div class="interactive-demo">
+                        <p><strong>Example: 5 × 3 (Binary: 101 × 011)</strong></p>
+                        <button class="demo-button" onclick="showExample(1)">See Step-by-Step Process</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm 2 -->
+            <div class="algorithm-card">
+                <div class="algorithm-header" onclick="toggleContent(1)">
+                    <div class="algorithm-number">2</div>
+                    <h3 class="algorithm-title">Booth Multiplication Algorithm</h3>
+                    <span class="toggle-icon" id="icon-1">▼</span>
+                </div>
+                <div class="algorithm-content" id="content-1">
+                    
+                    
+                    <div class="feature-box">
+                        <h4>Core Concept</h4>
+                        <p>Highly efficient method for multiplying binary numbers in <strong>signed-2's complement form</strong>, particularly effective with long strings of consecutive 1's or 0's.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <h4>Key Advantages</h4>
+                        <ul class="feature-list">
+                            <li><strong>Direct Negative Handling:</strong> Works directly with 2's complement without separating sign and magnitude</li>
+                            <li><strong>String Skipping:</strong> Efficiently processes consecutive 1's or 0's with fewer operations</li>
+                            <li><strong>Reduced Operations:</strong> Uses subtraction and addition based on bit patterns</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-box">
+                        <h4>Operation Logic</h4>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Bit Pattern (Qᵢ, Qᵢ₋₁)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>00</td>
+                                    <td>Shift only (no arithmetic)</td>
+                                </tr>
+                                <tr>
+                                    <td>01</td>
+                                    <td>Add multiplicand to partial product</td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>Subtract multiplicand (add 2's complement)</td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>Shift only (no arithmetic)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <span class="tag tag-efficiency">Highly Efficient</span>
+                    <span class="tag tag-complexity">2's Complement Support</span>
+
+                    <div class="interactive-demo">
+                        <p><strong>Optimal for: Multipliers with consecutive bit patterns</strong></p>
+                        <button class="demo-button" onclick="showExample(2)">Visualize Booth Algorithm</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm 3 -->
+            <div class="algorithm-card">
+                <div class="algorithm-header" onclick="toggleContent(2)">
+                    <div class="algorithm-number">3</div>
+                    <h3 class="algorithm-title">Array Multiplier</h3>
+                    <span class="toggle-icon" id="icon-2">▼</span>
+                </div>
+                <div class="algorithm-content" id="content-2">
+                    
+                    
+                    <div class="feature-box">
+                        <h4>Core Concept</h4>
+                        <p>Purely <strong>combinational logic circuit</strong> designed for maximum speed through parallel processing. Trades hardware complexity for performance.</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <h4>Key Characteristics</h4>
+                        <ul class="feature-list">
+                            <li><strong>Parallel Architecture:</strong> All partial products calculated simultaneously using interconnected logic gates</li>
+                            <li><strong>Combinational Logic:</strong> No sequential elements; multiplication completes in propagation delay time</li>
+                            <li><strong>High-Speed Performance:</strong> Significantly faster than iterative methods</li>
+                            <li><strong>Hardware Trade-off:</strong> Requires extensive gate arrays and interconnections</li>
+                        </ul>
+                    </div>
+
+                    <span class="tag tag-speed">Fastest Method</span>
+                    <span class="tag tag-complexity">High Hardware Cost</span>
+
+                    <div class="interactive-demo">
+                        <p><strong>Perfect for: High-performance applications requiring minimal latency</strong></p>
+                        <button class="demo-button" onclick="showExample(3)">Explore Array Structure</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Section -->
+            <div class="algorithm-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                <h3 style="color: #92400e; margin-bottom: 20px;">⚖️ Quick Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Speed</th>
+                            <th>Hardware</th>
+                            <th>Best Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Signed-Magnitude</strong></td>
+                            <td>Moderate</td>
+                            <td>Simple</td>
+                            <td>General-purpose, educational</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Booth Algorithm</strong></td>
+                            <td>Efficient</td>
+                            <td>Moderate</td>
+                            <td>2's complement systems, string patterns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Array Multiplier</strong></td>
+                            <td>Fastest</td>
+                            <td>Complex</td>
+                            <td>High-speed applications, real-time processing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+	    <div class="topic-actions" style="text-align: center;">
+                    <a href="signed_mag_mult.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Signed-Magnitude Multiplication</a>
+                </div>
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p class="footer-ref"> © Dr. Jay M. Joshi</p>
+            
+        </footer>
+    </div>
+
+    <script>
+        function toggleContent(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        function showExample(algorithmNum) {
+            const messages = [
+                '',
+                'Signed-Magnitude Example:\n\n5 × 3 = 101 × 011\n\nStep 1: Check bit 1 (1) → Add 101\nStep 2: Shift right\nStep 3: Check bit 2 (1) → Add 101\nStep 4: Shift right\nStep 5: Check bit 3 (0) → Skip\n\nResult: 1111 (15 in decimal)',
+                'Booth Algorithm:\n\nExamines adjacent bit pairs for efficient processing.\nSkips over consecutive 1s and 0s.\nUses addition and subtraction based on bit transitions.\n\nIdeal for numbers like 0111111 (many consecutive 1s)',
+                'Array Multiplier:\n\nUses a grid of AND gates and full adders.\nAll partial products generated simultaneously.\nCombinational logic - no clock cycles needed.\n\nResult available in nanoseconds!'
+            ];
+            
+            alert(messages[algorithmNum]);
+        }
+
+        // Auto-expand first card on load
+        window.addEventListener('load', () => {
+            toggleContent(0);
+        });
+    </script>
+</body>
+</html>

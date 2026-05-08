@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Assembler - Interactive Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 25px;
+            margin-bottom: 50px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section {
+            margin: 50px 0;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        h2 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+            font-weight: 700;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 3px;
+        }
+
+        .process-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .pass-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 35px;
+            border-radius: 20px;
+            border-left: 8px solid #4facfe;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pass-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 40px rgba(79, 172, 254, 0.2);
+        }
+
+        .pass-number {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .interactive-demo {
+            background: #1a1a2e;
+            color: #eee;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe, #667eea);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .demo-header {
+            color: #a0aec0;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .demo-header::before {
+            content: '⚡';
+            margin-right: 15px;
+            font-size: 1.3em;
+        }
+
+        .source-code {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            border: 1px solid #2d3748;
+            margin: 20px 0;
+        }
+
+        .code-line {
+            display: grid;
+            grid-template-columns: 60px 120px 200px 1fr;
+            padding: 8px 0;
+            border-bottom: 1px solid #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .code-line:hover {
+            background: rgba(79, 172, 254, 0.1);
+            transform: translateX(5px);
+        }
+
+        .line-number {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .label { color: #f093fb; font-weight: bold; }
+        .instruction { color: #4fd1c7; font-weight: bold; }
+        .comment { color: #a0aec0; }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+	    flex: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+	.btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+
+        .symbol-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .table-content {
+            padding: 0;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 15px 25px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
+            background: #f7fafc;
+            transform: scale(1.02);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .symbol { 
+            font-family: monospace; 
+            font-weight: bold; 
+            color: #4facfe;
+            font-size: 1.1em;
+        }
+        
+        .address { 
+            font-family: monospace; 
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+
+        .animation-container {
+            height: 200px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arrow {
+            font-size: 3em;
+            color: #4facfe;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step.active {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #4facfe;
+            margin: 0 10px;
+        }
+
+        .error-demo {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 6px solid #e53e3e;
+            margin: 25px 0;
+        }
+
+        .error-title {
+            color: #c53030;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+
+        .status-indicator.processing {
+            background: #f6ad55;
+        }
+
+        .status-indicator.complete {
+            background: #48bb78;
+            animation: none;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .memory-representation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .memory-cell {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .memory-cell:hover {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .memory-cell.highlighted {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(79, 172, 254, 0.5); }
+            to { box-shadow: 0 0 30px rgba(79, 172, 254, 0.8); }
+        }
+
+        .memory-address {
+            font-size: 0.9em;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .memory-content {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 50px 0;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 80px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 20px;
+        }
+	 .topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+            .process-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .process-flow {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 15px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .code-line {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .btn-container {
+                justify-content: center;
+            }
+            
+            .memory-representation {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>The Assembler</h1>
+            <p class="subtitle">Experience the magic of translating symbolic code into machine language through an interactive two-pass process</p>
+        </div>
+
+        <div class="section">
+            <h2>What is an Assembler?</h2>
+            <p style="font-size: 1.2em; line-height: 1.8; color: #4a5568; margin-bottom: 30px;">
+                An assembler is a crucial program that bridges the gap between human-readable assembly language and machine-executable binary code. 
+                It transforms symbolic representations into precise binary instructions that computer hardware can understand and execute.
+            </p>
+            
+            <div class="process-flow">
+                <div class="flow-step">
+                    <h3>📝 Source Program</h3>
+                    <p>Symbolic assembly code written by programmer</p>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <h3>⚙️ Assembler</h3>
+                    <p>Two-pass translation process</p>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <h3>🎯 Object Program</h3>
+                    <p>Binary machine language code</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Memory Representation</h2>
+            <p style="font-size: 1.1em; line-height: 1.7; margin-bottom: 25px;">
+                Before assembly begins, the symbolic program must be loaded into memory using specific encoding rules:
+            </p>
+            
+            <div class="memory-representation">
+                <div class="memory-cell" onclick="highlightCell(this, 'Each character uses 8-bit ASCII encoding')">
+                    <div class="memory-address">Character Encoding</div>
+                    <div class="memory-content">8-bit ASCII</div>
+                </div>
+                <div class="memory-cell" onclick="highlightCell(this, 'Two characters per memory location')">
+                    <div class="memory-address">Storage Format</div>
+                    <div class="memory-content">2 chars/location</div>
+                </div>
+                <div class="memory-cell" onclick="highlightCell(this, 'Space (hex 20) separates symbols')">
+                    <div class="memory-address">Symbol Separator</div>
+                    <div class="memory-content">Space (20h)</div>
+                </div>
+                <div class="memory-cell" onclick="highlightCell(this, 'Carriage Return (hex 0D) ends each line')">
+                    <div class="memory-address">Line Terminator</div>
+                    <div class="memory-content">CR (0Dh)</div>
+                </div>
+                <div class="memory-cell" onclick="highlightCell(this, 'Comma (hex 2C) follows label addresses')">
+                    <div class="memory-address">Label Terminator</div>
+                    <div class="memory-content">Comma (2Ch)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>The Two-Pass Assembly Process</h2>
+            <p style="font-size: 1.1em; line-height: 1.7; margin-bottom: 35px;">
+                The assembler uses a sophisticated two-pass approach to ensure accurate translation of symbolic code:
+            </p>
+            
+            <div class="process-container">
+                <div class="pass-card">
+                    <div class="pass-number">1</div>
+                    <h3>First Pass: Symbol Resolution</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 12px 0;">🎯 <strong>Initialize Location Counter (LC)</strong> to 0</li>
+                        <li style="margin: 12px 0;">🔍 <strong>Scan for Labels</strong> in each line</li>
+                        <li style="margin: 12px 0;">📊 <strong>Build Symbol Table</strong> with addresses</li>
+                        <li style="margin: 12px 0;">➕ <strong>Increment LC</strong> for each instruction</li>
+                        <li style="margin: 12px 0;">🏁 <strong>Stop at END</strong> pseudoinstruction</li>
+                    </ul>
+                </div>
+                
+                <div class="pass-card">
+                    <div class="pass-number">2</div>
+                    <h3>Second Pass: Code Generation</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 12px 0;">🔄 <strong>Reset LC</strong> to 0</li>
+                        <li style="margin: 12px 0;">📋 <strong>Use Lookup Tables</strong> for translation</li>
+                        <li style="margin: 12px 0;">🔢 <strong>Convert Instructions</strong> to binary</li>
+                        <li style="margin: 12px 0;">🎯 <strong>Resolve Addresses</strong> from symbol table</li>
+                        <li style="margin: 12px 0;">💾 <strong>Generate Object Code</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	<div class="section">
+	<h2>Flowchart for Assembler</h2>
+	    <div class="process-container">
+		<div class="pass-card">
+                    <div class="pass-number">1</div>
+		    <h3>First Pass: Flow Chart</h3>
+		    <img src="first_pass.png" alt="first pass" width="450px">
+		</div>
+		<div class="pass-card">
+                    <div class="pass-number">2</div>
+		    <h3>Second Pass: Flow Chart</h3>
+		    <img src="second_pass.png" alt="second pass" width="450px">
+		</div>
+	   </div>
+	</div>
+
+
+        <div class="section">
+            <h2>Interactive Assembly Demonstration</h2>
+            
+            <div class="interactive-demo">
+                <div class="demo-header">Assembly Source Code Example</div>
+                
+                <div class="source-code">
+                    <div class="code-line">
+                        <div class="line-number">100</div>
+                        <div class="label"></div>
+                        <div class="instruction">ORG 100</div>
+                        <div class="comment">/ Origin at location 100</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">101</div>
+                        <div class="label"></div>
+                        <div class="instruction">LDA SUB</div>
+                        <div class="comment">/ Load subtrahend</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">102</div>
+                        <div class="label"></div>
+                        <div class="instruction">CMA</div>
+                        <div class="comment">/ Complement AC</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">103</div>
+                        <div class="label"></div>
+                        <div class="instruction">INC</div>
+                        <div class="comment">/ Increment AC</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">104</div>
+                        <div class="label"></div>
+                        <div class="instruction">ADD MIN</div>
+                        <div class="comment">/ Add minuend</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">105</div>
+                        <div class="label"></div>
+                        <div class="instruction">STA DIF</div>
+                        <div class="comment">/ Store result</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">106</div>
+                        <div class="label">MIN,</div>
+                        <div class="instruction">DEC 83</div>
+                        <div class="comment">/ Minuend value</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">107</div>
+                        <div class="label">SUB,</div>
+                        <div class="instruction">DEC -23</div>
+                        <div class="comment">/ Subtrahend value</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">108</div>
+                        <div class="label">DIF,</div>
+                        <div class="instruction">HEX 0</div>
+                        <div class="comment">/ Result storage</div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">109</div>
+                        <div class="label"></div>
+                        <div class="instruction">END</div>
+                        <div class="comment">/ End program</div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn" onclick="simulateFirstPass()">🔄 Run First Pass</button>
+                    <button class="btn" onclick="simulateSecondPass()">⚡ Run Second Pass</button>
+                    <button class="btn" onclick="showErrors()">❌ Show Error Detection</button>
+                    <button class="btn" onclick="resetDemo()">🔄 Reset</button>
+                </div>
+                
+                <div id="passStatus" style="margin-top: 20px; font-size: 1.1em;"></div>
+            </div>
+            
+            <div id="symbolTable" class="symbol-table" style="display: none;">
+                <div class="table-header">
+                    <span class="status-indicator processing"></span>
+                    Address Symbol Table (First Pass Output)
+                </div>
+                <div class="table-content" id="tableContent">
+                </div>
+            </div>
+            
+            <div id="machineCode" style="display: none; margin-top: 30px;">
+                <div class="symbol-table">
+                    <div class="table-header">
+                        <span class="status-indicator complete"></span>
+                        Generated Machine Code (Second Pass Output)
+                    </div>
+                    <div class="table-content" id="machineCodeContent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Lookup Tables Used by Assembler</h2>
+            <p style="margin-bottom: 30px; font-size: 1.1em; line-height: 1.7;">
+                The assembler uses four essential tables during the second pass for accurate code translation:
+            </p>
+            
+            <div class="process-container">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; grid-column: span 2;">
+                    <div class="pass-card">
+                        <h4 style="color: #4facfe; margin-bottom: 15px;">📋 Pseudoinstruction Table</h4>
+                        <div style="font-family: monospace; line-height: 1.8;">
+                            ORG, END, DEC, HEX
+                        </div>
+                    </div>
+                    
+                    <div class="pass-card">
+                        <h4 style="color: #4facfe; margin-bottom: 15px;">🎯 MRI Table</h4>
+                        <div style="font-family: monospace; line-height: 1.8;">
+                            AND(0), ADD(1), LDA(2), STA(3)<br>
+                            BUN(4), BSA(5), ISZ(6)
+                        </div>
+                    </div>
+                    
+                    <div class="pass-card">
+                        <h4 style="color: #4facfe; margin-bottom: 15px;">⚙️ Non-MRI Table</h4>
+                        <div style="font-family: monospace; line-height: 1.8;">
+                            CLA, CLE, CMA, CME, CIR, CIL<br>
+                            INC, SPA, SNA, SZA, SZE, HLT
+                        </div>
+                    </div>
+                    
+                    <div class="pass-card">
+                        <h4 style="color: #4facfe; margin-bottom: 15px;">🏷️ Address Symbol Table</h4>
+                        <div style="font-family: monospace; line-height: 1.8;">
+                            User-defined labels<br>
+                            Generated in First Pass
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Error Detection & Diagnostics</h2>
+            <p style="margin-bottom: 25px; font-size: 1.1em; line-height: 1.7;">
+                A robust assembler identifies and reports various types of errors to help programmers debug their code:
+            </p>
+            
+            <div id="errorExamples">
+                <div class="error-demo">
+                    <div class="error-title">🚫 Undefined Symbol Error</div>
+                    <code style="background: rgba(0,0,0,0.1); padding: 5px; border-radius: 4px;">LDA UNKNOWN  / Symbol 'UNKNOWN' not defined in program</code>
+                </div>
+                
+                <div class="error-demo">
+                    <div class="error-title">❓ Unrecognized Instruction</div>
+                    <code style="background: rgba(0,0,0,0.1); padding: 5px; border-radius: 4px;">INVALID 100  / 'INVALID' is not a valid instruction</code>
+                </div>
+                
+                <div class="error-demo">
+                    <div class="error-title">🔤 Illegal Symbolic Address</div>
+                    <code style="background: rgba(0,0,0,0.1); padding: 5px; border-radius: 4px;">123ABC,  / Symbol cannot start with a number</code>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="program_loops_webpage.html" class="btn btn-primary">Start Learning Programming Loops</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        let isProcessing = false;
+        
+        function highlightCell(cell, description) {
+            // Remove highlight from all cells
+            document.querySelectorAll('.memory-cell').forEach(c => {
+                c.classList.remove('highlighted');
+            });
+            
+            // Highlight clicked cell
+            cell.classList.add('highlighted');
+            
+            // Show description
+            showStatus('💡 ' + description);
+            
+            setTimeout(() => {
+                cell.classList.remove('highlighted');
+            }, 3000);
+        }
+        
+        function showStatus(message) {
+            const status = document.getElementById('passStatus');
+            status.innerHTML = message;
+            status.style.padding = '15px';
+            status.style.background = 'rgba(79, 172, 254, 0.1)';
+            status.style.borderRadius = '8px';
+            status.style.border = '1px solid #4facfe';
+        }
+        
+        function simulateFirstPass() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            showStatus('<span class="status-indicator processing"></span>First Pass: Building Address Symbol Table...');
+            
+            const symbolTable = document.getElementById('symbolTable');
+            const tableContent = document.getElementById('tableContent');
+            
+            // Clear previous content
+            tableContent.innerHTML = '';
+            symbolTable.style.display = 'block';
+            
+            // Hide machine code if visible
+            document.getElementById('machineCode').style.display = 'none';
+            
+            const symbols = [
+                { symbol: 'MIN', address: '106' },
+                { symbol: 'SUB', address: '107' },
+                { symbol: 'DIF', address: '108' }
+            ];
+            
+            let index = 0;
+            function addSymbol() {
+                if (index < symbols.length) {
+                    const row = document.createElement('div');
+                    row.className = 'table-row';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    row.innerHTML = `
+                        <div class="symbol">${symbols[index].symbol}</div>
+                        <div class="address">${symbols[index].address}</div>
+                    `;
+                    tableContent.appendChild(row);
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        row.style.transition = 'all 0.5s ease';
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateX(0)';
+                    }, 100);
+                    
+                    index++;
+                    setTimeout(addSymbol, 800);
+                } else {
+                    // First pass complete
+                    setTimeout(() => {
+                        document.querySelector('#symbolTable .status-indicator').className = 'status-indicator complete';
+                        showStatus('<span class="status-indicator complete"></span>First Pass Complete! Symbol table created with 3 addresses.');
+                        isProcessing = false;
+                    }, 500);
+                }
+            }
+            
+            setTimeout(addSymbol, 1000);
+        }
+        
+        function simulateSecondPass() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            showStatus('<span class="status-indicator processing"></span>Second Pass: Generating machine code...');
+            
+            const machineCode = document.getElementById('machineCode');
+            const machineCodeContent = document.getElementById('machineCodeContent');
+            
+            // Clear previous content
+            machineCodeContent.innerHTML = '';
+            machineCode.style.display = 'block';
+            
+            const instructions = [
+                { address: '100', instruction: 'ORG 100', machineCode: '----', description: 'Pseudoinstruction' },
+                { address: '100', instruction: 'LDA SUB', machineCode: '2107', description: 'Load from address 107' },
+                { address: '101', instruction: 'CMA', machineCode: '7200', description: 'Complement accumulator' },
+                { address: '102', instruction: 'INC', machineCode: '7020', description: 'Increment accumulator' },
+                { address: '103', instruction: 'ADD MIN', machineCode: '1106', description: 'Add from address 106' },
+                { address: '104', instruction: 'STA DIF', machineCode: '3108', description: 'Store to address 108' },
+                { address: '105', instruction: 'HLT', machineCode: '7001', description: 'Halt execution' },
+                { address: '106', instruction: 'DEC 83', machineCode: '0053', description: 'Decimal 83 in hex' },
+                { address: '107', instruction: 'DEC -23', machineCode: 'FFE9', description: '2\'s complement of -23' },
+                { address: '108', instruction: 'HEX 0', machineCode: '0000', description: 'Initial value' }
+            ];
+            
+            let index = 0;
+            function addInstruction() {
+                if (index < instructions.length) {
+                    const row = document.createElement('div');
+                    row.className = 'table-row';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(20px)';
+                    row.innerHTML = `
+                        <div style="display: grid; grid-template-columns: 60px 120px 80px 1fr; gap: 15px; align-items: center;">
+                            <div class="address">${instructions[index].address}</div>
+                            <div class="symbol">${instructions[index].instruction}</div>
+                            <div class="address" style="font-weight: bold; color: #e53e3e;">${instructions[index].machineCode}</div>
+                            <div style="color: #718096; font-size: 0.9em;">${instructions[index].description}</div>
+                        </div>
+                    `;
+                    machineCodeContent.appendChild(row);
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        row.style.transition = 'all 0.4s ease';
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    index++;
+                    setTimeout(addInstruction, 600);
+                } else {
+                    // Second pass complete
+                    setTimeout(() => {
+                        showStatus('<span class="status-indicator complete"></span>Second Pass Complete! Object code generated successfully.');
+                        isProcessing = false;
+                        
+                        // Add completion animation
+                        machineCode.style.animation = 'glow 1s ease-in-out';
+                        setTimeout(() => {
+                            machineCode.style.animation = '';
+                        }, 1000);
+                    }, 500);
+                }
+            }
+            
+            setTimeout(addInstruction, 1000);
+        }
+        
+        function showErrors() {
+            const errorExamples = document.getElementById('errorExamples');
+            
+            // Add interactive error highlighting
+            const errors = errorExamples.querySelectorAll('.error-demo');
+            errors.forEach((error, index) => {
+                setTimeout(() => {
+                    error.style.animation = 'pulse 0.5s ease-in-out';
+                    error.style.transform = 'scale(1.02)';
+                    
+                    setTimeout(() => {
+                        error.style.animation = '';
+                        error.style.transform = 'scale(1)';
+                    }, 500);
+                }, index * 300);
+            });
+            
+            showStatus('⚠️ Error Detection: Common assembly errors highlighted above');
+            
+            // Scroll to errors section
+            errorExamples.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function resetDemo() {
+            isProcessing = false;
+            currentStep = 0;
+            
+            // Hide all results
+            document.getElementById('symbolTable').style.display = 'none';
+            document.getElementById('machineCode').style.display = 'none';
+            
+            // Clear status
+            document.getElementById('passStatus').innerHTML = '';
+            document.getElementById('passStatus').style = '';
+            
+            showStatus('🔄 Demo reset. Ready for new assembly simulation!');
+        }
+        
+        // Add scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.transform = 'translateY(0)';
+                        entry.target.style.opacity = '1';
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.transform = 'translateY(30px)';
+                section.style.opacity = '0';
+                section.style.transition = 'all 0.8s ease';
+                observer.observe(section);
+            });
+            
+            // Add hover effects to code lines
+            document.querySelectorAll('.code-line').forEach(line => {
+                line.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(79, 172, 254, 0.1)';
+                    this.style.borderRadius = '8px';
+                });
+                
+                line.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+            });
+            
+            // Add ripple effect to buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.5);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Add CSS for ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // Add floating particles animation to hero section
+        function createFloatingParticles() {
+            const hero = document.querySelector('.hero');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: rgba(255, 255, 255, 0.6);
+                    border-radius: 50%;
+                    animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                    animation-delay: ${Math.random() * 2}s;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                `;
+                hero.appendChild(particle);
+            }
+        }
+        
+        // Add floating animation
+        const floatStyle = document.createElement('style');
+        floatStyle.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+                50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(floatStyle);
+        
+        // Initialize particles
+        setTimeout(createFloatingParticles, 1000);
+    </script>
+</body>
+</html>

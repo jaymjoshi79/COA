@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Organization & Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .topic-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .topic-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .topic-card h3 {
+            color: #4a5568;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .topic-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .details h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .details ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .details li {
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .details li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .interactive-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .interactive-section h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .cpu-diagram {
+            max-width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cpu-component {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cpu-component:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 2s ease-out;
+            border-radius: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 40px;
+        }
+	.topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .topic-card {
+                padding: 20px;
+            }
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+
+        .code-snippet {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Computer Organization & Design</h1>
+            <p>Master the fundamentals of how computers work at the hardware level</p>
+        </header>
+
+        <div class="content-grid">
+	    <div class="topic-card">
+                <h3><span class="icon">BN</span>Binary Number System</h3>
+                <p>Understanding how binary and other number systems represent data in computers, perform conversions and handle signed numbers for digital computation.</p>
+                <div class="details">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Binary Base: Uses base 2</li>
+                        <li>Conversion: Decimal ↔ Binary, Binary ↔ Hex, Hex ↔ Octal</li>
+                        <li>1's and 2's Complements</li>
+                        <li>Fixed and Floating Point Representation</li>
+                        <li>Other Binary Codes</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <strong>Example:</strong> Binary number 101101₂ equals decimal 45₁₀ and BCD for 3984 is 0011 1001 1000 0100.
+                </div>
+		<div class="topic-actions">
+                    <a href="binary_systems_webpage.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">RT</span>Register Transfer and Microoperations</h3>
+                <p>Understanding the fundamental concepts of Register Transfer Language (RTL), Register Transfers, Bus and Memory Transfers, Micro-operations (Arithmetic, Logic, Shift), and the design of the Arithmetic Logical Shift Unit (ALSU) for efficient digital system design and control.</p>
+                <div class="details">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Register Transfer Language (RTL)</li>
+                        <li>Bus and Memory Transfers</li>
+                        <li>Arithmetic Micro-Operations</li>
+                        <li>Logic Micro-Operations</li>
+                        <li>Shift Micro-Operations</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <strong>Example:</strong> RTL statement R1 ← R2 + R3 indicates adding contents of registers R2 and R3 and storing the result in R1.
+                </div>
+		<div class="topic-actions">
+                    <a href="register_transfer_webpage.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">BD</span>Basic Computer Design</h3>
+                <p>Understand the structure, operation, and design of a basic digital computer including its instruction set, control unit, memory organization, and I/O processing.</p>
+                <div class="details">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                        <li>Functional units of computer organization</li>
+                        <li>Instruction codes and formats</li>
+                        <li>Computer registers and data transfer</li>
+                        <li>Timing and control signals</li>
+                        <li>Instruction execution cycle</li>
+			<li>Memory-reference and I/O instructions</li>
+			<li>Interrupt mechanism and handling</li>
+			<li>Complete computer design process</li>
+			<li>Accumulator-based architecture and design</li>
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="instruction_codes_webpage.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">CP</span>Computer Programming</h3>
+                <p>Learn Low-level programming which fundamentally involves learning Machine Language (binary) and Assembly Language (mnemonics) to achieve direct control over a computer's hardware, registers, and memory for tasks like arithmetic, logic, program flow (looping/subroutines), and I/O.</p>
+                <div class="details">
+                    <h4>Instruction Categories:</h4>
+                    <ul>
+                        <li>Machine Language</li>
+                        <li>Assembly Language Programming</li>
+                        <li>Arithmetic and logic operations</li>
+			<li>Looping Constructs</li>
+                        <li>Subroutines</li>
+			<li> I/O Programming </li>
+                    </ul>
+                </div>
+                <div class="topic-actions">
+                    <a href="assembly_programming_guide.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">MC</span>Microprogrammed Control</h3>
+                <p>Understanding how a microprogrammed control unit works by executing instructions through reading microinstructions from control memory to generate precise control signals.</p>
+                <div class="details">
+                    <h4>Control Components:</h4>
+                    <ul>
+                        <li><strong>Control Memory:</strong> stores microprograms (sequence of microinstructions)</li>
+                        <li><strong>Control Address Register (CAR):</strong> holds the address of the next microinstruction</li>
+                        <li><strong>Sequencing Logic</strong> determines the sequence of microinstruction execution (next address)</li>
+                        <li><strong>Mapping Logic</strong> converts machine instruction opcodes into starting microinstruction addresses</li>
+                        <li>Hardwired vs. microprogrammed control</li>
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="microprogrammed_control.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">CP</span>Central Processing Unit</h3>
+                <p>Understanding of CPU executes instructions using registers, stacks, instruction formats, addressing modes, and control operations, while comparing RISC and CISC architectures that shape modern processor design.</p>
+                <div class="details">
+                    <h4>Cycle Phases:</h4>
+                    <ul>
+                        <li><strong>General Register Organization:</strong> Multiple fast-access registers to hold data temporarily and speed up processing.</li>
+                        <li><strong>Stack Organization:</strong> Last-In-First-Out (LIFO) memory structure used for expression evaluation and subroutine management.</li>
+                        <li><strong>Addressing Modes:</strong> Locate operands for an instruction to provide flexibility in programming.</li>
+                        <li><strong>RISC vs CISC:</strong> RISC uses simple, fast instructions while CISC uses complex instructions that accomplish more per instruction.</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    The CPU is the brain of the computer that executes instructions and coordinates all operations.
+                </div>
+		<div class="topic-actions">
+                    <a href="cpu_architecture_guide.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">VP</span>Pipeline and Vector Processing</h3>
+                <p>Modern CPUs speed up execution using parallel and pipelined instruction handling, RISC optimization, and vector/array data processing architectures to achieve high-performance computing.</p>
+                <div class="details">
+                    <h4>Key Concepts:</h4>
+                    <ul>
+                         
+                        <li><strong>Flynn’s Taxonomy:</strong> Classifies computer architectures based on instruction and data streams (SISD, SIMD, MISD, MIMD).</li>
+                        <li><strong>Parallel Processing:</strong> Multiple operations execute simultaneously to reduce overall computation time.</li>
+                        <li><strong>Pipelining:</strong> Breaks execution into stages so multiple instructions overlap in time for faster throughput.</li>
+                        <li><strong>Vector Processing:</strong> Same instruction operates on multiple data elements simultaneously (data-parallel).</li>
+                        <li><strong>Array Processors:</strong> Multiple processing units operate in parallel on array-structured data, often SIMD-based for large numerical tasks.</li>
+                   
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="pipeline_vector_processing.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">AL</span>Computer Arithmetic</h3>
+                <p>Focuses on how digital systems perform arithmetic operations using binary number formats and hardware units.</p>
+                <div class="details">
+                    <ul>
+                        <li><strong>Addition and Subtraction: </strong>implement arithmetic for signed magnitude data.</li>
+                        <li><strong>Multiplication Algorithms: </strong>Booth Multiplication Algorithm</li>
+                        <li><strong>Division Algorithms </strong></li>
+                        <li><strong>Floating Point Arithmetic Operations</strong>Device status checking</li>
+                        <li><strong>Decimal Arithmetic Unit</strong></li>
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="computer_arithmetic_page.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">IO</span>Input–Output Organization</h3>
+                <p>Organization of input–output systems in a computer, explaining how data is transferred between the CPU, memory, and peripheral devices using various interfaces, transfer modes, interrupts, DMA, I/O processors, and serial communication techniques to achieve efficient and reliable I/O operations.</p>
+                <div class="details">
+                    <h4>Input–Output Organization and Data Transfer Mechanisms:</h4>
+                    <ul>
+                        <li>I/O Interface</li>
+                        <li>Asynchronous Data Transfer</li>
+                        <li>Modes of Transfere</li>
+                        <li>Priority Interrupts</li>
+                        <li>DMA</li>
+			<li>CPU–IOP Communication</li>
+			<li>Serial Communication</li>
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="io_organization_guide.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <h3><span class="icon">MO</span>Memory Organization</h3>
+                <p>Focuses on how computer systems manage the fundamental trade-off between speed, capacity, and cost. Since no single memory technology is simultaneously lightning-fast, infinitely large, and dirt cheap, the system uses a tiered approach to keep the CPU fed with data.</p>
+                <div class="details">
+                    <h4>Design Elements:</h4>
+                    <ul>
+                        <li><strong>Memory Hierarchy:</strong> The goal is to create a system that performs like fast, expensive memory but has the massive capacity of cheap storage. </li>
+                        <li><strong>Main Memory:</strong> The primary workspace (RAM) that communicates directly with the CPU.</li> 
+                        <li><strong>Auxiliary Memory:</strong> Long-term, non-volatile storage such as hard drives and SSDs.</li>
+                        <li><strong> Associative Memory:</strong> A specialized type of memory where data is accessed by its content rather than a specific memory address.</li>
+                        <li><strong>Cache Memory:</strong> A small, ultra-fast buffer sitting between the CPU and Main Memory. It stores frequently accessed data to minimize the time the processor spends waiting for information from the slower RAM.</li>
+			<li><strong>Virtual Memory:</strong> A management technique that treats secondary storage as an extension of RAM. It allows the system to run large applications that exceed the computer’s actual physical memory capacity.</li>
+                    </ul>
+                </div>
+		<div class="topic-actions">
+                    <a href="memory_org_page.html" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+
+            
+        </div>
+
+        <div class="interactive-section">
+            <h2>Interactive Learning</h2>
+            <p>Explore computer organization through interactive demonstrations</p>
+            
+            <div class="cpu-diagram">
+                <div class="cpu-component pulse" onclick="showInfo('CPU')">
+                    <strong>CPU</strong><br>Central Processing Unit
+                </div>
+                <div class="cpu-component" onclick="showInfo('Memory')">
+                    <strong>Memory</strong><br>Storage System
+                </div>
+                <div class="cpu-component" onclick="showInfo('IO')">
+                    <strong>I/O</strong><br>Input/Output
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="startSimulation()">Start Instruction Cycle Simulation</button>
+            <button class="btn-primary" onclick="showProgress()">Track Learning Progress</button>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div id="info-display" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none;">
+                <h3 id="info-title"></h3>
+                <p id="info-content"></p>
+            </div>
+        </div>
+
+        <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        // Interactive functionality
+        function showInfo(component) {
+            const infoDisplay = document.getElementById('info-display');
+            const infoTitle = document.getElementById('info-title');
+            const infoContent = document.getElementById('info-content');
+            
+            const info = {
+                'CPU': {
+                    title: 'Central Processing Unit (CPU)',
+                    content: 'The CPU is the brain of the computer, containing the ALU, control unit, and registers. It fetches instructions from memory, decodes them, and executes the operations.'
+                },
+                'Memory': {
+                    title: 'Memory System',
+                    content: 'Memory stores both programs and data. It includes main memory (RAM), cache memory for faster access, and secondary storage for permanent data storage.'
+                },
+                'IO': {
+                    title: 'Input/Output System',
+                    content: 'I/O systems handle communication between the computer and external devices like keyboards, displays, and storage devices. They use interrupts and DMA for efficient data transfer.'
+                }
+            };
+            
+            infoTitle.textContent = info[component].title;
+            infoContent.textContent = info[component].content;
+            infoDisplay.style.display = 'block';
+            infoDisplay.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function startSimulation() {
+            alert('🔄 Instruction Cycle Simulation Starting!\n\n1. FETCH: Get instruction from memory\n2. DECODE: Interpret the instruction\n3. EXECUTE: Perform the operation\n4. STORE: Save results\n\nThis cycle repeats for every instruction!');
+        }
+
+        function showProgress() {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = '75%';
+            
+            setTimeout(() => {
+                alert('📈 Learning Progress: 75% Complete!\n\nYou\'ve covered most of the fundamental concepts. Keep going to master computer organization!');
+            }, 2000);
+        }
+
+        // Add smooth scrolling for better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Initially hide cards for animation
+            document.querySelectorAll('.topic-card').forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(50px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>

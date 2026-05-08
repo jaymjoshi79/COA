@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microprogram Sequencer Control Unit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 40px;
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            border-radius: 20px;
+            border-left: 6px solid #667eea;
+            transition: all 0.4s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon {
+            margin-right: 20px;
+            font-size: 2.5rem;
+        }
+
+        .diagram-container {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .sequencer-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            min-width: 1000px;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 40px;
+        }
+
+        .input-logic {
+            background: linear-gradient(145deg, #e0f2fe, #b3e5fc);
+            border: 3px solid #0288d1;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            flex: 1;
+        }
+
+        .input-logic:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(2, 136, 209, 0.3);
+        }
+
+        .input-logic.active {
+            background: linear-gradient(145deg, #4caf50, #66bb6a);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .mux-component {
+            background: linear-gradient(145deg, #fff3e0, #ffe0b2);
+            border: 3px solid #ff9800;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            flex: 1;
+            position: relative;
+        }
+
+        .mux-component:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(255, 152, 0, 0.3);
+        }
+
+        .mux-component.active {
+            background: linear-gradient(145deg, #ff5722, #ff7043);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .subroutine-register {
+            background: linear-gradient(145deg, #f3e5f5, #e1bee7);
+            border: 3px solid #9c27b0;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            flex: 1;
+        }
+
+        .subroutine-register:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(156, 39, 176, 0.3);
+        }
+
+        .subroutine-register.active {
+            background: linear-gradient(145deg, #9c27b0, #ab47bc);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .middle-section {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .car-register {
+            background: linear-gradient(145deg, #e8f5e8, #c8e6c9);
+            border: 3px solid #4caf50;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .car-register:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.3);
+        }
+
+        .car-register.active {
+            background: linear-gradient(145deg, #4caf50, #66bb6a);
+            color: white;
+            transform: scale(1.1);
+            animation: pulse 2s infinite;
+        }
+
+        .incrementer {
+            background: linear-gradient(145deg, #fce4ec, #f8bbd9);
+            border: 3px solid #e91e63;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-weight: bold;
+        }
+
+        .incrementer:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(233, 30, 99, 0.3);
+        }
+
+        .incrementer.active {
+            background: linear-gradient(145deg, #e91e63, #f06292);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .control-memory {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border: 3px solid #2196f3;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .control-memory:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(33, 150, 243, 0.3);
+        }
+
+        .control-memory.active {
+            background: linear-gradient(145deg, #2196f3, #42a5f5);
+            color: white;
+            transform: scale(1.08);
+        }
+
+        .memory-fields {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 15px;
+        }
+
+        .memory-field {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #1976d2;
+            font-weight: bold;
+            color: #1976d2;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .memory-field:hover {
+            background: #1976d2;
+            color: white;
+        }
+
+        .signal-flow {
+            width: 3px;
+            height: 40px;
+            background: linear-gradient(to bottom, #333, #666);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .signal-flow::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: -5px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 12px solid #333;
+        }
+
+        .data-paths {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .data-path {
+            stroke: #ff4081;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 10, 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .data-path.active {
+            opacity: 1;
+            animation: dash 2s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -15;
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .control-panel {
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-button:active {
+            transform: translateY(-1px);
+        }
+
+        .status-display {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .status-active { background: #10b981; }
+        .status-inactive { background: #ef4444; }
+        .status-standby { background: #f59e0b; }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(14, 165, 233, 0.2);
+            border-color: #0284c7;
+        }
+
+        .info-card h3 {
+            color: #0369a1;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #92400e;
+            font-weight: bold;
+        }
+
+        .sequence-step {
+            background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .sequence-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .sequence-step h4 {
+            color: #047857;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .top-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .middle-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Microprogram Sequencer</h1>
+            <p>Interactive Control Unit with Microprogram Sequencing - Understanding how control memory drives CPU operations through precise instruction sequencing</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2><span class="icon">🎯</span>Overview</h2>
+                <p>The microprogram sequencer is a sophisticated control unit that uses <span class="highlight">stored microinstructions</span> to control CPU operations. Unlike hardwired control units, it provides flexibility by storing control sequences in memory, allowing for complex instruction implementations and easier modifications. This system coordinates data flow, ALU operations, and register transfers through precisely timed microoperations.</p>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">⚙️</span>Interactive Sequencer Architecture</h2>
+                <div class="diagram-container">
+                    <svg class="data-paths" viewBox="0 0 1000 600">
+                        <path id="path1" class="data-path" d="M200,100 L500,100 L500,200"/>
+                        <path id="path2" class="data-path" d="M500,250 L500,400 L400,400"/>
+                        <path id="path3" class="data-path" d="M600,400 L750,400 L750,250"/>
+                    </svg>
+
+                    <div class="sequencer-diagram">
+                        <!-- Top Section -->
+                        <div class="top-section">
+                            <div class="input-logic" id="input-logic" onclick="activateComponent('input-logic')">
+                                <div style="font-weight: bold; font-size: 1.3rem;">Input Logic</div>
+                                <div style="margin-top: 10px; font-size: 0.9rem;">
+                                    I₀, I₁, T inputs<br>
+                                    Status flags processing
+                                </div>
+                            </div>
+
+                            <div class="mux-component" id="mux1" onclick="activateComponent('mux1')">
+                                <div style="font-weight: bold; font-size: 1.3rem;">MUX 1</div>
+                                <div style="margin-top: 10px;">
+                                    <div style="display: flex; justify-content: space-around;">
+                                        <span>3</span><span>2</span><span>1</span><span>0</span>
+                                    </div>
+                                    <div style="margin-top: 5px;">S₁ S₀</div>
+                                </div>
+                            </div>
+
+                            <div class="subroutine-register" id="sbr" onclick="activateComponent('sbr')">
+                                <div style="font-weight: bold; font-size: 1.3rem;">SBR</div>
+                                <div style="margin-top: 10px; font-size: 0.9rem;">
+                                    Subroutine Register<br>
+                                    Load/Store operations
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="signal-flow"></div>
+
+                        <!-- Middle Section -->
+                        <div class="middle-section">
+                            <div class="mux-component" id="mux2" onclick="activateComponent('mux2')">
+                                <div style="font-weight: bold; font-size: 1.3rem;">MUX 2</div>
+                                <div style="margin-top: 10px;">
+                                    <div>Test & Select</div>
+                                    <div style="margin-top: 8px; font-size: 0.9rem;">
+                                        Inputs: 1, I, T, Z
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="car-register" id="car" onclick="activateComponent('car')">
+                                <div>CAR</div>
+                                <div style="font-size: 0.9rem; margin-top: 5px;">Control Address Register</div>
+                                <div style="margin-top: 10px; font-size: 0.8rem;">Clock ⏰</div>
+                            </div>
+
+                            <div class="incrementer" id="incrementer" onclick="activateComponent('incrementer')">
+                                <div>Incrementer</div>
+                                <div style="font-size: 0.9rem; margin-top: 5px;">Address + 1</div>
+                            </div>
+                        </div>
+
+                        <div class="signal-flow"></div>
+
+                        <!-- Control Memory -->
+                        <div class="control-memory" id="control-memory" onclick="activateComponent('control-memory')">
+                            <div style="font-weight: bold; font-size: 1.5rem; margin-bottom: 20px;">Control Memory</div>
+                            <div class="memory-fields">
+                                <div class="memory-field">Microops</div>
+                                <div class="memory-field">CD</div>
+                                <div class="memory-field">BR</div>
+                                <div class="memory-field">AD</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h3 style="text-align: center; margin-bottom: 20px;">🎮 Simulation Controls</h3>
+                    <div class="control-buttons">
+                        <button class="control-button" onclick="simulateSequence('fetch')">Instruction Fetch</button>
+                        <button class="control-button" onclick="simulateSequence('decode')">Instruction Decode</button>
+                        <button class="control-button" onclick="simulateSequence('execute')">Execute Phase</button>
+                        <button class="control-button" onclick="simulateSequence('branch')">Branch Operation</button>
+                        <button class="control-button" onclick="resetSequencer()">Reset System</button>
+                    </div>
+
+                    <div class="status-display">
+                        <h4 style="margin-bottom: 15px;">System Status</h4>
+                        <div id="status-container">
+                            <div class="status-item">
+                                <span class="status-indicator status-standby"></span>
+                                <span>Sequencer Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">🔧</span>Component Functions</h2>
+                <div class="info-cards">
+                    <div class="info-card" onclick="highlightComponent('car')">
+                        <h3>🏛️ Control Address Register (CAR)</h3>
+                        <p><strong>Function:</strong> Holds the address of the current microinstruction being executed</p>
+                        <p><strong>Operation:</strong> Incremented sequentially or loaded with branch addresses</p>
+                        <div class="code-block">CAR ← CAR + 1 (Sequential)
+CAR ← Branch Address (Jump)
+CAR ← Stack (Subroutine Return)</div>
+                    </div>
+
+                    <div class="info-card" onclick="highlightComponent('control-memory')">
+                        <h3>💾 Control Memory</h3>
+                        <p><strong>Function:</strong> Stores microinstructions that control CPU operations</p>
+                        <p><strong>Fields:</strong> Microoperations, Condition, Branch type, Address</p>
+                        <div class="code-block">Memory[CAR] → {Microops, CD, BR, AD}
+Microops: Control signals
+CD: Condition codes
+BR: Branch type
+AD: Next address</div>
+                    </div>
+
+                    <div class="info-card" onclick="highlightComponent('mux1')">
+                        <h3>🔀 Multiplexer System</h3>
+                        <p><strong>MUX 1:</strong> Selects next address source (sequential, branch, external, subroutine)</p>
+                        <p><strong>MUX 2:</strong> Controls branching based on condition testing</p>
+                        <div class="code-block">MUX1: Select from {CAR+1, AD, MAP, SBR}
+MUX2: Test conditions {1, I, T, Z}
+Output: Next microinstruction address</div>
+                    </div>
+
+                    <div class="info-card" onclick="highlightComponent('sbr')">
+                        <h3>📚 Subroutine Register (SBR)</h3>
+                        <p><strong>Function:</strong> Stores return addresses for microprogram subroutines</p>
+                        <p><strong>Usage:</strong> Enables modular microprogram design and reusable code blocks</p>
+                        <div class="code-block">CALL: SBR ← CAR + 1
+      CAR ← Subroutine_Address
+RETURN: CAR ← SBR</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">🔄</span>Sequencing Process</h2>
+                <div class="sequence-step">
+                    <h4>Step 1: Address Generation</h4>
+                    <p>The CAR provides the address to control memory. The incrementer generates CAR+1 for sequential execution.</p>
+                </div>
+                <div class="sequence-step">
+                    <h4>Step 2: Microinstruction Fetch</h4>
+                    <p>Control memory outputs the microinstruction containing microoperations, condition codes, branch type, and next address.</p>
+                </div>
+                <div class="sequence-step">
+                    <h4>Step 3: Condition Testing</h4>
+                    <p>MUX 2 evaluates branch conditions (I, T, Z flags) to determine if branching should occur.</p>
+                </div>
+                <div class="sequence-step">
+                    <h4>Step 4: Next Address Selection</h4>
+                    <p>MUX 1 selects the next address based on branch conditions: sequential (CAR+1), branch (AD), external (MAP), or subroutine (SBR).</p>
+                </div>
+                <div class="sequence-step">
+                    <h4>Step 5: Microoperation Execution</h4>
+                    <p>The microoperations field generates control signals to execute the required CPU operations simultaneously.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">🌟</span>Advanced Features</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3>🔀 Conditional Branching</h3>
+                        <p>The sequencer supports multiple branch conditions including zero flags, interrupt signals, and test conditions for flexible program flow control.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>📞 Subroutine Support</h3>
+                        <p>Built-in subroutine mechanism with SBR register enables modular microprogram design and code reusability for common operations.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>🗺️ External Mapping</h3>
+                        <p>MAP input allows external devices or instruction decoders to directly influence the next microinstruction address for interrupt handling.</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>⏰ Synchronized Execution</h3>
+                        <p>Clock-controlled execution ensures precise timing of microoperations and maintains synchronization across all CPU components.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">💡</span>Design Advantages</h2>
+                <p>The microprogram sequencer offers significant advantages over hardwired control units:</p>
+                <ul style="margin: 20px 0 20px 40px; font-size: 1.1rem;">
+                    <li><strong>Flexibility:</strong> Easy to modify control sequences by changing microprogram</li>
+                    <li><strong>Complex Instructions:</strong> Can implement sophisticated operations as microprogram sequences</li>
+                    <li><strong>Debugging:</strong> Microprogram sequences can be easily traced and debugged</li>
+                    <li><strong>Expandability:</strong> New instructions can be added by extending the microprogram</li>
+                    <li><strong>Modularity:</strong> Subroutine support enables reusable microcode blocks</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeComponents = new Set();
+        let simulationRunning = false;
+        let currentStep = 0;
+
+        function activateComponent(componentId) {
+            // Reset all components
+            document.querySelectorAll('.input-logic, .mux-component, .subroutine-register, .car-register, .incrementer, .control-memory')
+                .forEach(comp => comp.classList.remove('active'));
+            
+            // Activate selected component
+            document.getElementById(componentId).classList.add('active');
+            
+            const descriptions = {
+                'input-logic': 'Input Logic activated - Processing I₀, I₁, T inputs and status flags',
+                'mux1': 'MUX 1 activated - Selecting next address source (Sequential/Branch/External/Subroutine)',
+                'mux2': 'MUX 2 activated - Testing branch conditions and controlling address selection',
+                'sbr': 'Subroutine Register (SBR) activated - Managing return addresses for microprogram calls',
+                'car': 'Control Address Register (CAR) activated - Holding current microinstruction address',
+                'incrementer': 'Incrementer activated - Generating next sequential address (CAR + 1)',
+                'control-memory': 'Control Memory activated - Outputting microinstruction fields (Microops, CD, BR, AD)'
+            };
+            
+            updateStatus(descriptions[componentId], 'active');
+        }
+
+        function highlightComponent(componentId) {
+            activateComponent(componentId);
+            
+            // Add pulsing effect
+            const element = document.getElementById(componentId);
+            element.style.animation = 'pulse 1.5s ease-in-out 3';
+            
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 4500);
+        }
+
+        function simulateSequence(sequenceType) {
+            if (simulationRunning) return;
+            
+            simulationRunning = true;
+            currentStep = 0;
+            
+            const sequences = {
+                'fetch': [
+                    { component: 'car', delay: 0, message: 'CAR provides fetch address to control memory' },
+                    { component: 'control-memory', delay: 1000, message: 'Control memory outputs fetch microinstruction' },
+                    { component: 'incrementer', delay: 2000, message: 'Incrementer prepares next sequential address' },
+                    { component: 'mux1', delay: 3000, message: 'MUX 1 selects sequential address path' },
+                    { component: 'car', delay: 4000, message: 'CAR updated with next address - Fetch completed' }
+                ],
+                'decode': [
+                    { component: 'control-memory', delay: 0, message: 'Accessing decode microinstructions' },
+                    { component: 'input-logic', delay: 1000, message: 'Processing instruction opcode and operands' },
+                    { component: 'mux2', delay: 2000, message: 'Testing instruction type conditions' },
+                    { component: 'mux1', delay: 3000, message: 'Selecting appropriate execution routine address' },
+                    { component: 'car', delay: 4000, message: 'CAR loaded with execution routine address - Decode completed' }
+                ],
+                'execute': [
+                    { component: 'car', delay: 0, message: 'Starting execution microprogram sequence' },
+                    { component: 'control-memory', delay: 1000, message: 'Generating ALU and register control signals' },
+                    { component: 'input-logic', delay: 2000, message: 'Processing status flags and conditions' },
+                    { component: 'incrementer', delay: 3000, message: 'Preparing next microinstruction address' },
+                    { component: 'mux1', delay: 4000, message: 'Selecting next execution step address' },
+                    { component: 'car', delay: 5000, message: 'Execution microprogram completed successfully' }
+                ],
+                'branch': [
+                    { component: 'mux2', delay: 0, message: 'Testing branch condition flags (Z, I, T)' },
+                    { component: 'input-logic', delay: 1000, message: 'Evaluating branch condition logic' },
+                    { component: 'control-memory', delay: 2000, message: 'Reading branch address from AD field' },
+                    { component: 'mux1', delay: 3000, message: 'Selecting branch target or sequential address' },
+                    { component: 'car', delay: 4000, message: 'CAR updated with branch destination - Branch completed' }
+                ]
+            };
+
+            const sequence = sequences[sequenceType];
+            if (!sequence) return;
+
+            updateStatus(`Starting ${sequenceType.toUpperCase()} sequence simulation...`, 'active');
+
+            sequence.forEach((step, index) => {
+                setTimeout(() => {
+                    activateComponent(step.component);
+                    updateStatus(step.message, 'active');
+                    
+                    // Activate data path animation
+                    activateDataPath(index);
+                    
+                    if (index === sequence.length - 1) {
+                        setTimeout(() => {
+                            simulationRunning = false;
+                            updateStatus('Simulation completed - System ready for next operation', 'standby');
+                        }, 1000);
+                    }
+                }, step.delay);
+            });
+        }
+
+        function activateDataPath(pathIndex) {
+            // Remove active class from all paths
+            document.querySelectorAll('.data-path').forEach(path => path.classList.remove('active'));
+            
+            // Activate specific path based on step
+            const paths = document.querySelectorAll('.data-path');
+            if (paths[pathIndex % paths.length]) {
+                paths[pathIndex % paths.length].classList.add('active');
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    paths[pathIndex % paths.length].classList.remove('active');
+                }, 2000);
+            }
+        }
+
+        function resetSequencer() {
+            simulationRunning = false;
+            currentStep = 0;
+            
+            // Reset all components
+            document.querySelectorAll('.input-logic, .mux-component, .subroutine-register, .car-register, .incrementer, .control-memory')
+                .forEach(comp => {
+                    comp.classList.remove('active');
+                    comp.style.animation = '';
+                });
+            
+            // Reset data paths
+            document.querySelectorAll('.data-path').forEach(path => path.classList.remove('active'));
+            
+            updateStatus('System reset completed - Microprogram sequencer ready for operation', 'standby');
+        }
+
+        function updateStatus(message, indicator = 'standby') {
+            const statusContainer = document.getElementById('status-container');
+            const indicatorClass = `status-${indicator}`;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            statusContainer.innerHTML = `
+                <div class="status-item">
+                    <span class="status-indicator ${indicatorClass}"></span>
+                    <span>${message}</span>
+                </div>
+                <div style="font-size: 0.9rem; color: #666; margin-left: 30px;">
+                    ${timestamp}
+                </div>
+            `;
+        }
+
+        // Initialize system on load
+        window.addEventListener('load', function() {
+            updateStatus('Microprogram Sequencer Control Unit initialized - Click components to explore functionality!');
+            
+            // Add hover effects to memory fields
+            document.querySelectorAll('.memory-field').forEach(field => {
+                field.addEventListener('mouseenter', function() {
+                    const fieldName = this.textContent;
+                    const descriptions = {
+                        'Microops': 'Microoperations: Control signals for ALU, registers, and data paths',
+                        'CD': 'Condition: Branch condition codes and flags for decision making',
+                        'BR': 'Branch: Branch type specification (conditional, unconditional, subroutine)',
+                        'AD': 'Address: Next microinstruction address for branching operations'
+                    };
+                    updateStatus(descriptions[fieldName] || 'Memory field information', 'active');
+                });
+                
+                field.addEventListener('mouseleave', function() {
+                    if (!simulationRunning) {
+                        updateStatus('Microprogram Sequencer ready for operation', 'standby');
+                    }
+                });
+            });
+            
+            // Add educational tooltips
+            addEducationalTooltips();
+        });
+
+        function addEducationalTooltips() {
+            const tooltips = {
+                'car': 'The CAR holds the address of the current microinstruction. It can be incremented for sequential execution or loaded with a branch address.',
+                'control-memory': 'Control memory stores microinstructions. Each location contains control signals, condition codes, branch type, and next address.',
+                'mux1': 'This multiplexer selects the source of the next address: sequential (CAR+1), branch (AD), external (MAP), or subroutine return (SBR).',
+                'mux2': 'This multiplexer tests branch conditions and controls whether branching occurs based on status flags and test conditions.',
+                'incrementer': 'The incrementer generates the next sequential address (CAR+1) for normal program flow.',
+                'sbr': 'The Subroutine Register stores return addresses when calling microprogram subroutines, enabling modular design.',
+                'input-logic': 'Input logic processes external signals, instruction bits, and status flags to influence sequencing decisions.'
+            };
+
+            Object.keys(tooltips).forEach(componentId => {
+                const element = document.getElementById(componentId);
+                if (element) {
+                    element.title = tooltips[componentId];
+                }
+            });
+        }
+
+        // Add keyboard shortcuts for simulation
+        document.addEventListener('keydown', function(event) {
+            if (event.altKey) {
+                switch(event.key) {
+                    case '1':
+                        simulateSequence('fetch');
+                        break;
+                    case '2':
+                        simulateSequence('decode');
+                        break;
+                    case '3':
+                        simulateSequence('execute');
+                        break;
+                    case '4':
+                        simulateSequence('branch');
+                        break;
+                    case 'r':
+                        resetSequencer();
+                        break;
+                }
+                event.preventDefault();
+            }
+        });
+
+        // Add performance monitoring
+        let operationCount = 0;
+        let startTime = Date.now();
+
+        function updatePerformanceStats() {
+            operationCount++;
+            const elapsed = (Date.now() - startTime) / 1000;
+            const rate = operationCount / elapsed;
+            
+            // Update performance display if it exists
+            const perfDisplay = document.getElementById('performance-stats');
+            if (perfDisplay) {
+                perfDisplay.innerHTML = `
+                    <div>Operations: ${operationCount}</div>
+                    <div>Rate: ${rate.toFixed(2)} ops/sec</div>
+                `;
+            }
+        }
+
+        // Enhanced component interaction
+        function enhanceComponentInteraction() {
+            document.querySelectorAll('.input-logic, .mux-component, .subroutine-register, .car-register, .incrementer, .control-memory')
+                .forEach(component => {
+                    component.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.05) rotateY(5deg)';
+                        this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
+                    });
+                    
+                    component.addEventListener('mouseleave', function() {
+                        if (!this.classList.contains('active')) {
+                            this.style.transform = '';
+                            this.style.boxShadow = '';
+                        }
+                    });
+                });
+        }
+
+        // Initialize enhanced interactions
+        setTimeout(enhanceComponentInteraction, 100);
+    </script>
+</body>
+</html>

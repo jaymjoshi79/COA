@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Interface Operations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+       h1 {
+    color: #2d3748;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h1 .emoji {
+    -webkit-text-fill-color: initial;
+    background: none;
+}
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .tab:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .register-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .register-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .register-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: scale(1.05);
+        }
+
+        .info-item-title {
+            font-weight: 700;
+            color: #5b21b6;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .flow-step {
+            display: inline-block;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .key-point {
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .interactive-demo {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .demo-button {
+            padding: 12px 30px;
+            margin: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-output {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            min-height: 60px;
+            font-family: 'Courier New', monospace;
+            color: #2d3748;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .tab-container {
+                justify-content: center;
+            }
+
+            .flow-step {
+                display: block;
+                margin: 10px 0;
+            }
+
+            .arrow {
+                display: block;
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="emoji">🔌</span>I/O Interface Operations</h1>
+            <p class="subtitle">Understanding CPU-Device Communication</p>
+        </header>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+            <button class="tab" onclick="showTab('registers')">Registers</button>
+            <button class="tab" onclick="showTab('operations')">Operations</button>
+            <button class="tab" onclick="showTab('demo')">Interactive Demo</button>
+        </div>
+
+        <div id="overview" class="content-section active">
+            <div class="card">
+                <h3>What is an I/O Interface?</h3>
+                <p>An I/O interface unit acts as a bridge between the CPU and external devices, enabling data transfer and control operations. It consists of registers that communicate with both the CPU and I/O devices.</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>🎯 Key Concept:</strong> The interface registers communicate with the CPU through a bidirectional data bus and interface unit through the chip select and register select inputs.
+            </div>
+	    <div class="card">
+                <h3>I/O Interface Units</h3>
+		<center><img src="io_port.png" alt="BCD Multiplication Register" style="max-width:60%; height: auto;"></center>
+	    </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-item-title">Port A Register</div>
+                    <p>Handles I/O data transfer</p>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-title">Port B Register</div>
+                    <p>Additional I/O data port</p>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-title">Control Register</div>
+                    <p>Specifies operation mode</p>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-title">Status Register</div>
+                    <p>Tracks device status</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Communication Paths</h3>
+                <div class="key-point">
+                    <strong>CPU ↔ Interface:</strong> Via bidirectional data bus
+                </div>
+                <div class="key-point">
+                    <strong>Interface ↔ Device:</strong> Via chip select and register select inputs
+                </div>
+                <div class="key-point">
+                    <strong>Data Direction:</strong> Controlled by I/O read and I/O write signals
+                </div>
+            </div>
+        </div>
+
+        <div id="registers" class="content-section">
+            <div class="card">
+                <h3>Four Interface Registers</h3>
+                <p>The interface consists of four registers that can be selected using register select inputs (RS1 and RS0):</p>
+            </div>
+
+            <table class="register-table">
+                <thead>
+                    <tr>
+                        <th>CS</th>
+                        <th>RS1</th>
+                        <th>RS0</th>
+                        <th>Register Selected</th>
+                        <th>Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td>
+                        <td>×</td>
+                        <td>×</td>
+                        <td>None (High-impedance)</td>
+                        <td>Data bus is disabled</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>Port A Register</td>
+                        <td>Primary I/O data port</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>Port B Register</td>
+                        <td>Secondary I/O data port</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>Control Register</td>
+                        <td>Defines operation modes</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Status Register</td>
+                        <td>Error checking & status info</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card">
+                <h3>Register Functions</h3>
+                <div class="key-point">
+                    <strong>Data Registers (Port A & B):</strong> Transfer data between CPU and I/O device in either direction
+                </div>
+                <div class="key-point">
+                    <strong>Control Register:</strong> Receives control information from CPU to specify operation mode (input/output)
+                </div>
+                <div class="key-point">
+                    <strong>Status Register:</strong> Contains status bits for error checking, parity errors, and device status indication
+                </div>
+            </div>
+        </div>
+
+        <div id="operations" class="content-section">
+            <div class="card">
+                <h3>I/O Read Operation</h3>
+                <div class="diagram">
+                    <div class="flow-step">CPU sends address</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">Register selected</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">I/O read enabled</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">Data → CPU</div>
+                </div>
+                <p style="margin-top: 20px;">The CPU reads data from the selected register via the data bus when the I/O read signal is enabled.</p>
+            </div>
+
+            <div class="card">
+                <h3>I/O Write Operation</h3>
+                <div class="diagram">
+                    <div class="flow-step">CPU sends address</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">Register selected</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">I/O write enabled</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-step">CPU → Data</div>
+                </div>
+                <p style="margin-top: 20px;">The CPU transfers data into the selected register via the data bus when the I/O write signal is enabled.</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>💡 Important Note:</strong> The common data bus handles both data, control, and status information - the CPU communicates with the interface through this single bus.
+            </div>
+
+            <div class="card">
+                <h3>Address Decoding</h3>
+                <p>The address bus selects the interface unit through the chip select (CS) input using a decoder circuit. This enables chip select (CS) when the address corresponds to the interface registers.</p>
+                <div class="key-point">
+                    Two register select inputs (RS1 and RS0) are connected to two address bus lines to select one of four registers.
+                </div>
+            </div>
+        </div>
+
+        <div id="demo" class="content-section">
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Register Selection Demo</h3>
+                <p style="margin-bottom: 20px;">Click buttons to simulate register selection:</p>
+                
+                <div>
+                    <button class="demo-button" onclick="selectRegister(0, 0, 0)">CS=0 (Disable)</button>
+                    <button class="demo-button" onclick="selectRegister(1, 0, 0)">Port A</button>
+                    <button class="demo-button" onclick="selectRegister(1, 0, 1)">Port B</button>
+                    <button class="demo-button" onclick="selectRegister(1, 1, 0)">Control</button>
+                    <button class="demo-button" onclick="selectRegister(1, 1, 1)">Status</button>
+                </div>
+
+                <div class="demo-output" id="demoOutput">
+                    Click a button to see register selection details...
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Try These Operations:</h3>
+                <div class="key-point">
+                    1. Click "Port A" to simulate selecting the primary data register
+                </div>
+                <div class="key-point">
+                    2. Click "Control" to see how the CPU would configure the interface
+                </div>
+                <div class="key-point">
+                    3. Click "Status" to check device status and error conditions
+                </div>
+                <div class="key-point">
+                    4. Click "CS=0" to disable the interface (high-impedance state)
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="async-data-transfer.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Asynchronous Data Transfer</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <p>© Dr. Jay M. Joshi</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            const sections = document.querySelectorAll('.content-section');
+            const tabs = document.querySelectorAll('.tab');
+            
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function selectRegister(cs, rs1, rs0) {
+            const output = document.getElementById('demoOutput');
+            let message = '';
+            
+            if (cs === 0) {
+                message = `
+                    <strong>🔴 Interface Disabled</strong><br>
+                    CS = 0, RS1 = ${rs1}, RS0 = ${rs0}<br>
+                    Status: Data bus in high-impedance state<br>
+                    Action: No register selected
+                `;
+            } else if (rs1 === 0 && rs0 === 0) {
+                message = `
+                    <strong>🟢 Port A Register Selected</strong><br>
+                    CS = 1, RS1 = 0, RS0 = 0<br>
+                    Function: Primary I/O data transfer<br>
+                    Action: Ready for read/write operations
+                `;
+            } else if (rs1 === 0 && rs0 === 1) {
+                message = `
+                    <strong>🟢 Port B Register Selected</strong><br>
+                    CS = 1, RS1 = 0, RS0 = 1<br>
+                    Function: Secondary I/O data transfer<br>
+                    Action: Ready for read/write operations
+                `;
+            } else if (rs1 === 1 && rs0 === 0) {
+                message = `
+                    <strong>🟡 Control Register Selected</strong><br>
+                    CS = 1, RS1 = 1, RS0 = 0<br>
+                    Function: Configure operation modes<br>
+                    Action: CPU can set input/output modes
+                `;
+            } else if (rs1 === 1 && rs0 === 1) {
+                message = `
+                    <strong>🟠 Status Register Selected</strong><br>
+                    CS = 1, RS1 = 1, RS0 = 1<br>
+                    Function: Monitor device status<br>
+                    Action: Check for errors, status conditions
+                `;
+            }
+            
+            output.innerHTML = message;
+        }
+    </script>
+</body>
+</html>

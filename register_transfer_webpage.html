@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Transfers & Micro-Operations - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #2d3748;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #8b5cf6 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="registers" patternUnits="userSpaceOnUse" width="40" height="40"><rect width="40" height="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23registers)"/></svg>') repeat;
+            animation: slide 30s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-40px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .chip {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0.5rem;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            background: #f8fafc;
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            background: linear-gradient(135deg, transparent, transparent);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        main {
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .section h2 {
+            font-size: 2.8rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #3b82f6;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .register-visual {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #cbd5e1;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-visual::before {
+            content: 'RTL';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #64748b;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .rtl-notation {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 0 15px 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .rtl-notation::before {
+            content: 'RTL Expression';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #f59e0b;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .interactive-demo {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+        }
+
+        .demo-title {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .register-container {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .register-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 2px solid #3b82f6;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            min-width: 150px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .register-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .register-label {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #374151;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .operation-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .operation-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .operation-card:hover::before {
+            right: 100%;
+        }
+
+        .operation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2);
+        }
+
+        .operation-title {
+            color: #0c4a6e;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .bus-diagram {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .bus-line {
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 2px;
+            margin: 1rem 0;
+            position: relative;
+            animation: data-flow 3s ease-in-out infinite;
+        }
+
+        @keyframes data-flow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 2rem;
+            border-radius: 0 20px 20px 0;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: '💡';
+            position: absolute;
+            top: -10px;
+            left: -15px;
+            font-size: 2rem;
+            background: white;
+            border-radius: 50%;
+            padding: 0.5rem;
+        }
+
+        .alu-visual {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            border: 2px solid #ec4899;
+            border-radius: 25px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alu-visual::before {
+            content: 'ALU';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ec4899;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+	pre {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            display: inline-block;
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+            margin: 2rem 0;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #475569;
+        }
+
+        .code-block::before {
+            content: 'Hardware Implementation';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #64748b;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .shift-demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .bit-container {
+            display: flex;
+            gap: 0.25rem;
+        }
+	dialog {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+	.topic-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .bit {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.5s ease;
+        }
+	 .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .bit.shifting {
+            transform: translateX(45px);
+            background: #f59e0b;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .section h2 { font-size: 2rem; }
+            main { padding: 2rem 1rem; }
+            .nav-links { justify-content: center; }
+            .register-container { flex-direction: column; gap: 1rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        footer {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="hero-content">
+                <h1>Register Transfers & Micro-Operations</h1>
+                <p class="subtitle">Computer System Architecture Fundamentals</p>
+                <div>
+                    <span class="chip">RTL</span>
+                    <span class="chip">ALU</span>
+                    <span class="chip">Bus Systems</span>
+                    <span class="chip">Digital Logic</span>
+                </div>
+            </div>
+        </header>
+
+        <nav>
+            <div class="nav-container">
+                <div class="nav-links">
+                    <a href="#rtl" class="nav-link">RTL</a>
+                    <a href="#transfers" class="nav-link">Register Transfers</a>
+                    <a href="#bus-memory" class="nav-link">Bus & Memory</a>
+                    <a href="#arithmetic" class="nav-link">Arithmetic</a>
+                    <a href="#logic" class="nav-link">Logic</a>
+                    <a href="#shift" class="nav-link">Shift</a>
+                    <a href="#alu" class="nav-link">ALU</a>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <section id="rtl" class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2>Register Transfer Language (RTL)</h2>
+                </div>
+
+                <div class="card">
+                    <h3>What is RTL?</h3>
+                    <p>Register Transfer Language (RTL) is a symbolic notation used to <strong>describe micro-operation sequences in a computer</strong>. It provides a concise and precise way to specify how hardware components interact.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Purpose:</strong> RTL enables designers to specify the physical organization of registers, the sequence of micro-operations, and the control that initiates these sequences.
+                    </div>
+
+                    <div class="register-visual">
+                        <h4>Basic RTL Symbols:</h4>
+                        <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                            <li><strong>Letters & Numerals:</strong> Denote registers (e.g., MAR, R2)</li>
+                            <li><strong>Parentheses ( ):</strong> Denote part of register (e.g., R2(0-7), R2(L))</li>
+                            <li><strong>Arrow ←:</strong> Denotes transfer of information</li>
+                            <li><strong>Comma ,:</strong> Separates micro-operations</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="transfers" class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2>Register Transfer Operations</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Register Transfer Concept</h3>
+                    <p>A register transfer describes the <strong>transfer of binary information from one register to another</strong>.</p>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Register Transfer Demo</div>
+                        <div class="register-container">
+				<div class="register-box">
+                                <div class="register-label">R2</div>
+                                <div class="register-value" id="r2-value">0000000</div>
+                            </div>                            
+                            <div class="arrow">←</div>
+                            <div class="register-box">
+                                <div class="register-label">R1</div>
+                                <div class="register-value" id="r1-value">1011010</div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="rtl-notation" id="rtl-expression">
+                            R2 ← R1
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="performTransfer()">Execute Transfer</button>
+                            <button class="btn btn-secondary" onclick="resetRegisters()">Reset</button>
+                            <button class="btn" onclick="generateRandomData()">Random Data</button>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Key Point:</strong> During transfer R2 ← R1, the content of R1 remains unchanged, but R2's previous content is replaced by R1's content.
+                    </div>
+                </div>
+            </section>
+
+            <section id="bus-memory" class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2>Bus & Memory Transfers</h2>
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h3>Common Bus System</h3>
+                        <p>A digital computer uses a <strong>common bus system</strong> to transfer information between multiple registers efficiently.</p>
+                        
+                        <div class="bus-diagram">
+                            <div style="text-align: center; margin-bottom: 1rem;">
+                                <strong>Bus Architecture</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-around; align-items: center;">
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 10px;">R1</div>
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 10px;">R2</div>
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 10px;">R3</div>
+                            </div>
+                            <div class="bus-line"></div>
+                            <div style="text-align: center; margin-top: 1rem;">
+                                <em>Common Bus Line</em>
+                            </div>
+			   
+
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Three-State Bus Buffers</h3>
+                        <p>A <strong>three-state gate</strong> has three output states:</p>
+                        <ul style="margin-top: 1rem;">
+                            <li><strong>Logic 0:</strong> Low output</li>
+                            <li><strong>Logic 1:</strong> High output</li>
+                            <li><strong>High-impedance:</strong> Disconnected state</li>
+                        </ul>
+                        
+                        <div class="register-visual">
+                            When disabled: Output goes to high-impedance state<br>
+                            When enabled: Behaves as normal buffer (0 or 1)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Memory Transfers</h3>
+                    <div class="grid">
+                        <div class="operation-card">
+                            <div class="operation-title">Memory Read</div>
+                            <div class="rtl-notation">DR ← M[AR]</div>
+                            <p>Content of memory word M at address specified by AR is transferred to data register DR.</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Memory Write</div>
+                            <div class="rtl-notation">M[AR] ← DR</div>
+                            <p>Content of DR is transferred to memory word M at address specified by AR.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="arithmetic" class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2>Arithmetic Micro-Operations</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Arithmetic Operations on Binary Data</h3>
+                    <p>Arithmetic micro-operations perform <strong>arithmetic operations on binary data stored in registers</strong> using combinational circuits.</p>
+
+                    <div class="grid">
+                        <div class="operation-card">
+                            <div class="operation-title">Addition</div>
+                            <div class="rtl-notation">R3 ← R1 + R2</div>
+                            <p><strong>Hardware:</strong> Binary adder circuit</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Subtraction</div>
+                            <div class="rtl-notation">R3 ← R1 - R2</div>
+                            <p><strong>Hardware:</strong> Binary adder-subtractor using 2's complement</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Increment</div>
+                            <div class="rtl-notation">R1 ← R1 + 1</div>
+                            <p><strong>Hardware:</strong> Binary incrementer with cascaded half-adders</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Decrement</div>
+                            <div class="rtl-notation">R1 ← R1 - 1</div>
+                            <p><strong>Hardware:</strong> Binary decrementer circuit</p>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Arithmetic Operation Demo</div>
+                        <div class="register-container">
+                            <div class="register-box">
+                                <div class="register-label">A</div>
+                                <div class="register-value" id="arith-a">0101</div>
+                            </div>
+                            <div style="font-size: 2rem; color: #3b82f6;" id="operation">+</div>
+                            <div class="register-box">
+                                <div class="register-label">B</div>
+                                <div class="register-value" id="arith-b">0011</div>
+                            </div>
+                            <div class="arrow">=</div>
+                            <div class="register-box">
+                                <div class="register-label">Result</div>
+                                <div class="register-value" id="arith-result">----</div>
+                            </div>
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="setOperation('add')">Addition</button>
+                            <button class="btn" onclick="setOperation('sub')">Subtraction</button>
+                            <button class="btn" onclick="setOperation('inc')">Increment A</button>
+                            <button class="btn btn-secondary" onclick="performArithmetic()">Calculate</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="logic" class="section">
+                <div class="section-header">
+                    <div class="section-number">5</div>
+                    <h2>Logic Micro-Operations</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Bit-Manipulation Operations</h3>
+                    <p>Logic micro-operations perform <strong>bit-manipulation operations</strong> on data stored in registers, treating each bit as a binary variable.</p>
+
+                    <div class="grid">
+                        <div class="operation-card">
+                            <div class="operation-title">AND Operation</div>
+                            <div class="rtl-notation">P ← R1 ∧ R2</div>
+                            <p>Bitwise AND of R1 and R2</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">OR Operation</div>
+                            <div class="rtl-notation">P ← R1 ∨ R2</div>
+                            <p>Bitwise OR of R1 and R2</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">XOR Operation</div>
+                            <div class="rtl-notation">P ← R1 ⊕ R2</div>
+                            <p>Bitwise Exclusive-OR of R1 and R2</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Complement</div>
+                            <div class="rtl-notation">P ← R1'</div>
+                            <p>Bitwise complement of R1</p>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Logic Operation Demo</div>
+                        <div class="register-container">
+                            <div class="register-box">
+                                <div class="register-label">R1</div>
+                                <div class="register-value" id="logic-r1">1010</div>
+                            </div>
+                            <div style="font-size: 1.5rem; color: #8b5cf6;" id="logic-op">∧</div>
+                            <div class="register-box">
+                                <div class="register-label">R2</div>
+                                <div class="register-value" id="logic-r2">1100</div>
+                            </div>
+                            <div class="arrow">=</div>
+                            <div class="register-box">
+                                <div class="register-label">Result</div>
+                                <div class="register-value" id="logic-result">----</div>
+                            </div>
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="setLogicOperation('and')">AND</button>
+                            <button class="btn" onclick="setLogicOperation('or')">OR</button>
+                            <button class="btn" onclick="setLogicOperation('xor')">XOR</button>
+                            <button class="btn" onclick="setLogicOperation('not')">NOT R1</button>
+                            <button class="btn btn-secondary" onclick="performLogic()">Execute</button>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Applications:</strong> Logic operations are useful for selective set, selective complement, selective clear, and insert operations on individual bits.
+                    </div>
+                </div>
+            </section>
+
+            <section id="shift" class="section">
+                <div class="section-header">
+                    <div class="section-number">6</div>
+                    <h2>Shift Micro-Operations</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Serial Transfer of Data</h3>
+                    <p>Shift micro-operations are used for <strong>serial transfer of data</strong> and data-processing tasks by shifting register contents left or right.</p>
+
+                    <div class="grid">
+                        <div class="operation-card">
+                            <div class="operation-title">Logical Shift</div>
+                            <div class="rtl-notation">
+                                R1 ← shl R1 (Shift Left)<br>
+                                R2 ← shr R2 (Shift Right)
+                            </div>
+                            <p>Transfers 0 into the serial input</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Circular Shift (Rotate)</div>
+                            <div class="rtl-notation">
+                                R ← cil R (Circular Left)<br>
+                                R ← cir R (Circular Right)
+                            </div>
+                            <p>Preserves all bits by rotating them around</p>
+                        </div>
+
+                        <div class="operation-card">
+                            <div class="operation-title">Arithmetic Shift</div>
+                            <div class="rtl-notation">
+                                R ← ashl R (Arithmetic Left)<br>
+                                R ← ashr R (Arithmetic Right)
+                            </div>
+                            <p>Shifts signed numbers (×2 left, ÷2 right)</p>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">Interactive Shift Operations</div>
+                        
+                        <div style="text-align: center; margin: 2rem 0;">
+                            <div class="register-label">Current Value:</div>
+                            <div class="shift-demo">
+                                <div class="bit-container" id="shift-bits">
+                                    <div class="bit">1</div>
+                                    <div class="bit">0</div>
+                                    <div class="bit">1</div>
+                                    <div class="bit">1</div>
+                                    <div class="bit">0</div>
+                                    <div class="bit">1</div>
+                                    <div class="bit">0</div>
+                                    <div class="bit">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="performShift('shl')">Shift Left</button>
+                            <button class="btn" onclick="performShift('shr')">Shift Right</button>
+                            <button class="btn" onclick="performShift('cil')">Rotate Left</button>
+                            <button class="btn" onclick="performShift('cir')">Rotate Right</button>
+                            <button class="btn btn-secondary" onclick="resetShift()">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+Hardware Implementation:<br>
+- Combinational circuit shifter<br>
+- Uses multiplexers to select operations<br>
+- Control inputs determine shift type<br>
+- Parallel data processing<br>
+                    </div>
+                </div>
+            </section>
+
+            <section id="alu" class="section">
+                <div class="section-header">
+                    <div class="section-number">7</div>
+                    <h2>Arithmetic Logic Unit (ALU)</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Complete Operational Unit</h3>
+                    <p>An Arithmetic Logic Unit (ALU) is a <strong>combinational circuit that performs arithmetic, logic, and shift micro-operations</strong>. It's the computational heart of computer systems.</p>
+
+                    <div class="alu-visual">
+                        <div style="font-size: 1.5rem; margin-bottom: 2rem; color: #be185d;">
+                            <strong>ALU Architecture</strong>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 2rem;">
+                            <div style="text-align: center;">
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 15px; margin-bottom: 1rem;">
+                                    <strong>Input A</strong><br>
+                                    <span style="font-family: monospace;">1010</span>
+                                </div>
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 15px;">
+                                    <strong>Input B</strong><br>
+                                    <span style="font-family: monospace;">0110</span>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="background: #fecaca; padding: 2rem; border-radius: 20px; border: 3px solid #dc2626;">
+                                    <strong>ALU Core</strong><br>
+                                    <div style="margin: 1rem 0;">
+                                        <div>Arithmetic Circuit</div>
+                                        <div>Logic Circuit</div>
+                                        <div>Shifter</div>
+                                    </div>
+                                    <div style="background: #fee2e2; padding: 0.5rem; border-radius: 10px; margin-top: 1rem;">
+                                        Control: <span id="alu-operation">ADD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="background: #dcfce7; padding: 1rem; border-radius: 15px;">
+                                    <strong>Output</strong><br>
+                                    <span style="font-family: monospace; font-size: 1.2rem;" id="alu-output">10000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <div class="demo-title">ALU Operation Simulator</div>
+                        
+                        <div class="register-container">
+                            <div class="register-box">
+                                <div class="register-label">Input A</div>
+                                <div class="register-value" id="alu-input-a">1010</div>
+                            </div>
+                            <div class="register-box">
+                                <div class="register-label">Input B</div>
+                                <div class="register-value" id="alu-input-b">0110</div>
+                            </div>
+                            <div class="register-box">
+                                <div class="register-label">Result</div>
+                                <div class="register-value" id="alu-result">----</div>
+                            </div>
+                        </div>
+
+                        <div class="control-panel">
+                            <button class="btn" onclick="setALUOperation('add')">ADD</button>
+                            <button class="btn" onclick="setALUOperation('sub')">SUB</button>
+                            <button class="btn" onclick="setALUOperation('and')">AND</button>
+                            <button class="btn" onclick="setALUOperation('or')">OR</button>
+                            <button class="btn" onclick="setALUOperation('xor')">XOR</button>
+                            <button class="btn" onclick="setALUOperation('shl')">SHL A</button>
+                            <button class="btn btn-secondary" onclick="executeALU()">Execute</button>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Key Features:</strong>
+                        <ul style="margin-top: 1rem;">
+                            <li>Single operational unit for multiple functions</li>
+                            <li>Multiplexers select desired operation</li>
+                            <li>Control inputs determine ALU behavior</li>
+                            <li>Fundamental component of CPU architecture</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>ALU Components Integration</h3>
+                    <div class="code-block">
+ALU Structure:<br><br>
+<center>
+    <pre>
+┌─────────────────────────────────────┐
+│           ALU Control Unit          │
+├──────────────┬──────────┬───────────┤
+│ Arithmetic   │ Logic    │ Shifter   │
+│ Circuit      │ Circuit  │ Circuit   │
+├──────────────┴──────────┴───────────┤
+│         Multiplexer Network         │
+├─────────────────────────────────────┤
+│            Output Buffer            │
+└─────────────────────────────────────┘
+    </pre>
+</center>
+<br>
+Control signals determine which circuit 
+provides the final output result.
+
+                    </code>
+                </div>
+
+
+            </section>
+		<div class="topic-actions" style="text-align: center;">
+                    <a href="register_transfer_section.html" class="btn btn-primary">Start Learning Register Transfer</a>
+                </div>
+        </main>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            <div style="max-width: 800px; margin: 0 auto;">
+                <p>© Dr. Jay M. Joshi</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Navigation and scroll animations
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const targetId = entry.target.id;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + targetId) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Register Transfer Functions
+        function performTransfer() {
+            const r1Value = document.getElementById('r1-value').textContent;
+            document.getElementById('r2-value').textContent = r1Value;
+            
+            // Animation effect
+            const r2Element = document.querySelector('#r2-value').parentElement;
+            r2Element.style.transform = 'scale(1.1)';
+            r2Element.style.background = 'linear-gradient(135deg, #dcfce7, #bbf7d0)';
+            
+            setTimeout(() => {
+                r2Element.style.transform = 'scale(1)';
+                r2Element.style.background = 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+            }, 500);
+        }
+
+        function resetRegisters() {
+            document.getElementById('r1-value').textContent = '1011010';
+            document.getElementById('r2-value').textContent = '0000000';
+        }
+
+        function generateRandomData() {
+            const randomBinary = () => Math.floor(Math.random() * 128).toString(2).padStart(7, '0');
+            document.getElementById('r1-value').textContent = randomBinary();
+            document.getElementById('r2-value').textContent = randomBinary();
+        }
+
+        // Arithmetic Operations
+        let currentArithOp = 'add';
+
+        function setOperation(op) {
+            currentArithOp = op;
+            const opSymbol = {
+                'add': '+',
+                'sub': '-',
+                'inc': '+1'
+            };
+            document.getElementById('operation').textContent = opSymbol[op];
+            
+            if (op === 'inc') {
+                document.getElementById('arith-b').textContent = '0001';
+            } else {
+                document.getElementById('arith-b').textContent = '0011';
+            }
+        }
+
+        function performArithmetic() {
+            const a = parseInt(document.getElementById('arith-a').textContent, 2);
+            const b = parseInt(document.getElementById('arith-b').textContent, 2);
+            let result;
+
+            switch(currentArithOp) {
+                case 'add':
+                case 'inc':
+                    result = a + b;
+                    break;
+                case 'sub':
+                    result = Math.max(0, a - b);
+                    break;
+            }
+
+            document.getElementById('arith-result').textContent = result.toString(2).padStart(4, '0');
+        }
+
+        // Logic Operations
+        let currentLogicOp = 'and';
+
+        function setLogicOperation(op) {
+            currentLogicOp = op;
+            const opSymbol = {
+                'and': '∧',
+                'or': '∨',
+                'xor': '⊕',
+                'not': '¬'
+            };
+            document.getElementById('logic-op').textContent = opSymbol[op];
+        }
+
+        function performLogic() {
+            const r1 = document.getElementById('logic-r1').textContent;
+            const r2 = document.getElementById('logic-r2').textContent;
+            let result = '';
+
+            for (let i = 0; i < r1.length; i++) {
+                const bit1 = parseInt(r1[i]);
+                const bit2 = parseInt(r2[i]);
+                
+                switch(currentLogicOp) {
+                    case 'and':
+                        result += (bit1 & bit2).toString();
+                        break;
+                    case 'or':
+                        result += (bit1 | bit2).toString();
+                        break;
+                    case 'xor':
+                        result += (bit1 ^ bit2).toString();
+                        break;
+                    case 'not':
+                        result += (1 - bit1).toString();
+                        break;
+                }
+            }
+
+            document.getElementById('logic-result').textContent = result;
+        }
+
+        // Shift Operations
+        let shiftValue = [1, 0, 1, 1, 0, 1, 0, 0];
+
+        function performShift(operation) {
+            switch(operation) {
+                case 'shl':
+                    shiftValue.shift();
+                    shiftValue.push(0);
+                    break;
+                case 'shr':
+                    shiftValue.pop();
+                    shiftValue.unshift(0);
+                    break;
+                case 'cil':
+                    const leftBit = shiftValue.shift();
+                    shiftValue.push(leftBit);
+                    break;
+                case 'cir':
+                    const rightBit = shiftValue.pop();
+                    shiftValue.unshift(rightBit);
+                    break;
+            }
+            updateShiftDisplay();
+        }
+
+        function updateShiftDisplay() {
+            const bitsContainer = document.getElementById('shift-bits');
+            bitsContainer.innerHTML = '';
+            
+            shiftValue.forEach(bit => {
+                const bitElement = document.createElement('div');
+                bitElement.className = 'bit';
+                bitElement.textContent = bit;
+                bitsContainer.appendChild(bitElement);
+            });
+        }
+
+        function resetShift() {
+            shiftValue = [1, 0, 1, 1, 0, 1, 0, 0];
+            updateShiftDisplay();
+        }
+
+        // ALU Operations
+        let currentALUOp = 'add';
+
+        function setALUOperation(op) {
+            currentALUOp = op;
+            document.getElementById('alu-operation').textContent = op.toUpperCase();
+        }
+
+        function executeALU() {
+            const inputA = document.getElementById('alu-input-a').textContent;
+            const inputB = document.getElementById('alu-input-b').textContent;
+            const a = parseInt(inputA, 2);
+            const b = parseInt(inputB, 2);
+            let result;
+
+            switch(currentALUOp) {
+                case 'add':
+                    result = a + b;
+                    break;
+                case 'sub':
+                    result = Math.max(0, a - b);
+                    break;
+                case 'and':
+                    result = a & b;
+                    break;
+                case 'or':
+                    result = a | b;
+                    break;
+                case 'xor':
+                    result = a ^ b;
+                    break;
+                case 'shl':
+                    result = a << 1;
+                    break;
+            }
+
+            const binaryResult = result.toString(2).padStart(Math.max(4, result.toString(2).length), '0');
+            document.getElementById('alu-result').textContent = binaryResult;
+            document.getElementById('alu-output').textContent = binaryResult;
+        }
+
+        // Initialize displays
+        updateShiftDisplay();
+        performArithmetic();
+        performLogic();
+        executeALU();
+    </script>
+</body>
+</html>
+                            

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-programmed Control Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 0;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: slideInFromTop 1s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            animation: slideInFromBottom 1s ease-out 0.3s both;
+        }
+
+        .content-grid {
+            display: grid;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card h2 {
+            font-size: 2.2em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .memory-block {
+            display: inline-block;
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            text-align: center;
+            line-height: 60px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .memory-block:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(116, 185, 255, 0.5);
+        }
+
+        .memory-block.active {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            animation: pulse 1.5s infinite;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .flowchart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 10px 25px rgba(116, 185, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .flow-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Code Example';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+
+        .highlight {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 2px 6px;
+            border-radius: 5px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @keyframes slideInFromTop {
+            0% { transform: translateY(-100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideInFromBottom {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(40px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tab-container {
+            margin: 30px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 2px;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .card { padding: 25px; }
+            .flowchart { flex-direction: column; }
+            .control-buttons { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Micro-programmed Control Organization</h1>
+            <p class="subtitle">Understanding the Heart of Computer Architecture</p>
+        </header>
+
+        <div class="content-grid">
+            <!-- Control Memory Section -->
+            <div class="card">
+                <h2><span class="icon">🧠</span>Control Memory</h2>
+                <p>Control memory is the heart of micro-programmed control units, storing microinstructions that define the control signals for each machine instruction.</p>
+                
+                <div class="interactive-demo">
+                    <h3>Interactive Control Memory Visualization</h3>
+                    <p>Click on memory blocks to see their contents:</p>
+                    <div id="controlMemory">
+                        <div class="memory-block" data-address="0000000">0000000</div>
+                        <div class="memory-block" data-address="0000100">0000100</div>
+                        <div class="memory-block" data-address="0001000">0001000</div>
+                        <div class="memory-block" data-address="0001100">0001100</div>
+                        <div class="memory-block" data-address="1000000">1000000</div>
+                        <div class="memory-block" data-address="1000011">1000011</div>
+                    </div>
+                    <div id="memoryContent" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; display: none;">
+                        <h4>Memory Address: <span id="currentAddress"></span></h4>
+                        <p><strong>Instruction:</strong> <span id="microInstruction"></span></p>
+                        <p><strong>Microinstructions:</strong> <span id="controlSignals"></span></p>
+                    </div>
+                </div>
+
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="showTab('memory-structure')">Structure</button>
+                        <button class="tab-button" onclick="showTab('memory-organization')">Organization</button>
+                        <button class="tab-button" onclick="showTab('memory-access')">Access Pattern</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="memory-structure">
+                        <h4>Control Memory Structure</h4>
+                        <p>Control memory consists of:</p>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li><strong>Address Field:</strong> Specifies the next microinstruction address</li>
+                            <li><strong>Control Field:</strong> Contains control signals for the datapath</li>
+                            <li><strong>Condition Field:</strong> Determines branching conditions</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tab-content" id="memory-organization">
+                        <h4>Memory Organization</h4>
+                        <p>Each memory location contains a complete microinstruction with multiple fields for different control functions. The width typically ranges from 50-100 bits to accommodate all necessary control signals.</p>
+                    </div>
+                    
+                    <div class="tab-content" id="memory-access">
+                        <h4>Access Pattern</h4>
+                        <p>Sequential access is the default, but branch microinstructions can alter the sequence based on condition codes or instruction opcodes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design of Control Unit Section -->
+            <div class="card">
+                <h2><span class="icon">🏗️</span>Design of Control Unit</h2>
+                <p>The control unit design involves careful consideration of microinstruction format, sequencing logic, and control signal generation.</p>
+                
+                <div class="interactive-demo">
+                    <h3>Control Unit Architecture</h3>
+                    <img src="block_micro_prog.png"  alt="Micro Programmed Control" width="1000px">
+                </div>
+
+                <h4>Control Memory Components:</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h5>📍Control Address Register (CAR)</h5>
+                        <p>Also referred to as the <strong>Next Address Register</strong>, the <strong>Control Address Register (CAR)</strong> holds the <strong>address</strong> of the microinstruction to be read from the control memory (ROM).</p>
+			<ul>
+            <li>It <strong>specifies the address</strong> of the microinstruction to be read.</li>
+            <li>The next address is either the next sequential address or an address generated based on external input conditions.</li>
+        </ul>
+
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h5>📜Control Data Register (CDR)</h5>
+                        <p>The <strong>Control Data Register (CDR)</strong> holds the <strong>present microinstruction</strong> while its microoperations are being executed and the next address is computed.</p>
+			<ul>
+            <li>The microinstruction in the CDR contains the <strong>control word</strong> that specifies one or more microoperations for the data processor.</li>
+            <li>It also contains the bits that determine the <strong>address sequence</strong> for the control memory.</li>
+        </ul>
+
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h5>➡️Program Sequencer (Next Address Generator)</h5>
+                         <p>The <strong>Next Address Generator</strong>, often called the <strong>Program Sequencer</strong> or <strong>Microprogram Sequencer</strong>, determines the <strong>address sequence</strong> that is read from the control memory.</p>
+        <p>Typical functions:</p>
+        <ul>
+            <li>Incrementing the CAR to select the next sequential microinstruction.</li>
+            <li>Loading an address from the control memory into the CAR (e.g., for branching).</li>
+            <li>Transferring an external address to the CAR (e.g., to start control operations).</li>
+        </ul>
+                    </div>
+                </div>
+            </div>
+	    <div class="card">
+		<h2><span class="icon">⚙️</span>Microinstruction Execution Cycle</h2>
+		<p>The execution of a machine instruction involves a series of sequential microinstructions in control memory. In a simplified view:</p>
+		<ol>
+            <li>The <strong>CAR</strong> is loaded with the address of the first microinstruction for the operation.</li>
+            <li>The microinstruction is <strong>read from Control Memory</strong> and loaded into the <strong>CDR</strong>.</li>
+            <li>The <strong>control word</strong> bits in the <strong>CDR</strong> initiate the specified microoperations in the data processor.</li>
+            <li>The <strong>address sequencing bits</strong> in the <strong>CDR</strong> are used by the <strong>Program Sequencer</strong> to determine the address of the <strong>next microinstruction</strong> (which is then loaded into the CAR).</li>
+            <li>The cycle repeats until the machine instruction is complete, and control returns to the fetch phase for the next instruction.</li>
+        </ol>
+	    </div>
+            <!-- Comparison Section -->
+            <div class="card">
+                <h2><span class="icon">⚖️</span>Hardwired vs Microprogrammed Control</h2>
+                <p>Understanding the key differences between hardwired and microprogrammed control units.</p>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Hardwired Control</th>
+                            <th>Microprogrammed Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Speed</strong></td>
+                            <td>Faster execution</td>
+                            <td>Slower due to memory access</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Flexibility</strong></td>
+                            <td>Fixed, difficult to modify</td>
+                            <td>Highly flexible and modifiable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexity</strong></td>
+                            <td>Complex hardware design</td>
+                            <td>Simpler hardware, complex software</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cost</strong></td>
+                            <td>Higher hardware cost</td>
+                            <td>Lower hardware cost</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Debugging</strong></td>
+                            <td>Difficult to debug</td>
+                            <td>Easier to debug and test</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instruction Set</strong></td>
+                            <td>Limited instruction set</td>
+                            <td>Can support complex instruction sets</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Development Time</strong></td>
+                            <td>Longer development time</td>
+                            <td>Shorter development time</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Applications</strong></td>
+                            <td>RISC processors, simple CPUs</td>
+                            <td>CISC processors, complex systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="interactive-demo">
+                    <h4>Interactive Comparison</h4>
+                    <div class="control-buttons">
+                        <button class="btn" onclick="highlightAdvantages('hardwired')">Hardwired Advantages</button>
+                        <button class="btn" onclick="highlightAdvantages('microprogrammed')">Microprogrammed Advantages</button>
+                        <button class="btn" onclick="clearHighlights()">Clear Highlights</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="control_memory_webpage.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Control Memory</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+        // Control Memory Interactive Demo
+        const memoryContents = {
+            '0000000': { instruction: 'ADD', signals: 'AC ← AC + M[EA]' },
+            '0000100': { instruction: 'BRANCH', signals: 'if AC < 0 then PC ← EA' },
+            '0001000': { instruction: 'STORE', signals: 'M[EA] ← AC' },
+            '0001100': { instruction: 'EXCHANGE', signals: 'AC ← M[EA], M[EA] ← AC' },
+            '1000000': { instruction: 'FETCH', signals: 'AR ← PC, DR ← M[AR], CAR ← Decode(DR)' },
+            '1000011': { instruction: 'INDRCT', signals: 'AR ← M[AR]' },
+        };
+
+        document.querySelectorAll('.memory-block').forEach(block => {
+            block.addEventListener('click', function() {
+                document.querySelectorAll('.memory-block').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const address = this.dataset.address;
+                const content = memoryContents[address];
+                
+                document.getElementById('currentAddress').textContent = address;
+                document.getElementById('microInstruction').textContent = content.instruction;
+                document.getElementById('controlSignals').textContent = content.signals;
+                document.getElementById('memoryContent').style.display = 'block';
+            });
+        });
+
+        // Tab functionality
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Address Sequencing Demo
+        let sequencingInterval;
+        let currentSequenceStep = 0;
+        const sequenceSteps = [
+            { pc: '000', op: 'Fetch Instruction', next: '001' },
+            { pc: '001', op: 'Decode Opcode', next: '010' },
+            { pc: '010', op: 'Read Operand 1', next: '011' },
+            { pc: '011', op: 'Read Operand 2', next: '100' },
+            { pc: '100', op: 'Execute Operation', next: '101' },
+            { pc: '101', op: 'Write Result', next: '000' }
+        ];
+
+        function demonstrateSequencing() {
+            document.getElementById('sequencingDemo').style.display = 'block';
+            currentSequenceStep = 0;
+            sequencingInterval = setInterval(updateSequencing, 1500);
+            updateSequencing();
+        }
+
+        function updateSequencing() {
+            if (currentSequenceStep >= sequenceSteps.length) {
+                clearInterval(sequencingInterval);
+                return;
+            }
+            
+            const step = sequenceSteps[currentSequenceStep];
+            document.getElementById('currentPC').textContent = step.pc;
+            document.getElementById('currentOp').textContent = step.op;
+            document.getElementById('nextAddr').textContent = step.next;
+            
+            currentSequenceStep++;
+        }
+
+        function resetSequencing() {
+            clearInterval(sequencingInterval);
+            document.getElementById('sequencingDemo').style.display = 'none';
+            currentSequenceStep = 0;
+        }
+
+        // Microprogram Example
+        let microprogramStep = 0;
+        let autoInterval;
+        const microprogramSteps = [
+            { step: 0, desc: 'Ready to start', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '000' },
+            { step: 1, desc: 'Fetch instruction', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '001' },
+            { step: 2, desc: 'Decode instruction', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '010' },
+            { step: 3, desc: 'Read operand R2', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '011' },
+            { step: 4, desc: 'Read operand R3', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '100' },
+            { step: 5, desc: 'Perform addition', r1: '0000', r2: '0005', r3: '0003', pc: '1000', upc: '101' },
+            { step: 6, desc: 'Store result in R1', r1: '0008', r2: '0005', r3: '0003', pc: '1000', upc: '110' },
+            { step: 7, desc: 'Update program counter', r1: '0008', r2: '0005', r3: '0003', pc: '1001', upc: '000' }
+        ];
+
+        function stepMicroprogram() {
+            if (microprogramStep < microprogramSteps.length - 1) {
+                microprogramStep++;
+                updateMicroprogramDisplay();
+            }
+        }
+
+        function resetMicroprogram() {
+            clearInterval(autoInterval);
+            microprogramStep = 0;
+            updateMicroprogramDisplay();
+        }
+
+        function autoExecute() {
+            clearInterval(autoInterval);
+            autoInterval = setInterval(() => {
+                if (microprogramStep < microprogramSteps.length - 1) {
+                    microprogramStep++;
+                    updateMicroprogramDisplay();
+                } else {
+                    clearInterval(autoInterval);
+                }
+            }, 1000);
+        }
+
+        function updateMicroprogramDisplay() {
+            const step = microprogramSteps[microprogramStep];
+            document.getElementById('currentStep').textContent = step.step;
+            document.getElementById('stepDescription').textContent = step.desc;
+            document.getElementById('r1').textContent = step.r1;
+            document.getElementById('r2').textContent = step.r2;
+            document.getElementById('r3').textContent = step.r3;
+            document.getElementById('pc').textContent = step.pc;
+            document.getElementById('upc').textContent = step.upc;
+        }
+
+        // Comparison table highlighting
+        function highlightAdvantages(type) {
+            clearHighlights();
+            const table = document.querySelector('.comparison-table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            const hardwiredAdvantages = [0, 6]; // Speed, Development complexity
+            const microprogrammedAdvantages = [1, 2, 3, 4, 5, 7]; // Flexibility, Complexity, Cost, Debugging, Instruction Set, Applications
+            
+            if (type === 'hardwired') {
+                hardwiredAdvantages.forEach(index => {
+                    rows[index].style.backgroundColor = '#d1f2eb';
+                    rows[index].style.transform = 'scale(1.02)';
+                    rows[index].style.transition = 'all 0.3s ease';
+                });
+            } else {
+                microprogrammedAdvantages.forEach(index => {
+                    rows[index].style.backgroundColor = '#ebf3fd';
+                    rows[index].style.transform = 'scale(1.02)';
+                    rows[index].style.transition = 'all 0.3s ease';
+                });
+            }
+        }
+
+        function clearHighlights() {
+            const rows = document.querySelectorAll('.comparison-table tbody tr');
+            rows.forEach(row => {
+                row.style.backgroundColor = '';
+                row.style.transform = '';
+            });
+        }
+
+        // Initialize displays
+        updateMicroprogramDisplay();
+        
+        // Add floating animation to cards
+        document.querySelectorAll('.card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.2}s`;
+        });
+
+        // Add hover effects to interactive elements
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.05)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Smooth scroll for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add parallax effect to header
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const header = document.querySelector('header');
+            header.style.transform = `translateY(${scrolled * 0.3}px)`;
+        });
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Add dynamic content loading effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            function typing() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typing, speed);
+                }
+            }
+            typing();
+        }
+
+        // Enhanced visual feedback for interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add ripple effect to buttons
+            document.querySelectorAll('.btn, .memory-block, .flow-box').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255,255,255,0.6);
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+            
+            .card:nth-child(1) { animation-delay: 0.1s; }
+            .card:nth-child(2) { animation-delay: 0.3s; }
+            .card:nth-child(3) { animation-delay: 0.5s; }
+            .card:nth-child(4) { animation-delay: 0.7s; }
+            .card:nth-child(5) { animation-delay: 0.9s; }
+            
+            .memory-block:hover::after {
+                content: '📋';
+                position: absolute;
+                top: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #2c3e50;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 0.8em;
+                white-space: nowrap;
+                z-index: 1000;
+            }
+            
+            .flow-box {
+                position: relative;
+                overflow: visible;
+            }
+            
+            .flow-box:hover::before {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 5px;
+                font-size: 0.85em;
+                white-space: nowrap;
+                margin-bottom: 5px;
+                opacity: 0;
+                animation: tooltipFade 0.3s ease-in-out forwards;
+            }
+            
+            @keyframes tooltipFade {
+                from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add tooltips to flow boxes
+        document.querySelectorAll('.flow-box').forEach((box, index) => {
+            const tooltips = [
+                'Retrieves the next instruction from memory',
+                'Converts opcode to microprogram address',
+                'Runs the sequence of microinstructions',
+                'Determines the next microinstruction address'
+            ];
+            box.setAttribute('data-tooltip', tooltips[index] || 'Processing step');
+        });
+
+        // Performance optimization: Debounce scroll events
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        const debouncedScroll = debounce(() => {
+            const scrolled = window.pageYOffset;
+            const header = document.querySelector('header');
+            if (header) {
+                header.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        }, 10);
+
+        window.addEventListener('scroll', debouncedScroll);
+    </script>
+</body>
+</html>

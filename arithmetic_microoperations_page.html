@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arithmetic Microoperations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1e293b;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 2rem 0 1rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .section h3:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 2px;
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            color: #3b82f6;
+        }
+
+        .operations-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .operations-table th,
+        .operations-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .operations-table th {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .operations-table td {
+            background: white;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .operations-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .code {
+            background: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #3730a3;
+            font-weight: 500;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            margin: 1.5rem 0;
+        }
+
+        .circuit-demo {
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .circuit-demo h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #92400e;
+        }
+
+        .input-field {
+            padding: 0.5rem 1rem;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            width: 80px;
+            text-align: center;
+            background: white;
+        }
+
+        .select-field {
+            padding: 0.5rem 1rem;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .result-display {
+            background: white;
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #059669;
+        }
+	  .topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	  dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+    .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: black;
+            margin-top: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .operations-table {
+                font-size: 0.8rem;
+            }
+            
+            .operations-table th,
+            .operations-table td {
+                padding: 0.75rem;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="icon">🔢</span> Arithmetic Microoperations</h1>
+            <p>Elementary operations performed on numeric data stored in registers - the foundation of digital computer arithmetic</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">📋</span>Common Arithmetic Microoperations</h2>
+            <p>These are the fundamental building blocks for more complex arithmetic functions like multiplication and division:</p>
+            
+            <table class="operations-table">
+                <thead>
+                    <tr>
+                        <th>Symbolic Designation</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="code">R3 ← R1 + R2</span></td>
+                        <td>Contents of R1 plus R2 transferred to R3</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R3 ← R1 - R2</span></td>
+                        <td>Contents of R1 minus R2 transferred to R3</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R2 ← R2'</span></td>
+                        <td>Complement the contents of R2 (1's complement)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R2 ← R2' + 1</span></td>
+                        <td>2's complement of R2 (negate)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R3 ← R1 + R2' + 1</span></td>
+                        <td>Add contents of R1 and 2's complement of R2 (Subtraction) </td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R1 ← R1 + 1</span></td>
+                        <td>Increment the contents of R1 by one</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">R1 ← R1 - 1</span></td>
+                        <td>Decrement the contents of R1 by one</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight">
+                <strong>💡 Implementation Note:</strong> Increment and decrement operations are typically implemented using a combinational circuit or a binary up-down counter.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🔧</span>Hardware Implementation Components</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>🔗 Binary Adder</h4>
+                    <p>Constructed by connecting n full-adders in cascade. The carry output of each stage becomes the carry input of the next stage, enabling multi-bit addition operations.</p>
+		<button class="btn" button id="showFigureBtn">See the Figure</button>
+
+    <dialog id="figureDialog">
+        <img src="binary_adder.png" alt="Binary Adder" width="800px">
+        <br><br>
+        <button class="btn" button id="closeDialogBtn">Close</button>
+    </dialog>
+                </div>
+                
+                <div class="card">
+                    <h4>➕➖ Adder-Subtractor</h4>
+                    <p>Uses XOR gates and 2's complement method. Control input M determines operation: M=0 for addition (A+B), M=1 for subtraction (A-B) using 2's complement.</p>
+		<button class="btn" button id="showFigureBtn1">See the Figure</button>
+
+    <dialog id="figureDialog1">
+        <img src="add_subtract.png" alt="Binary Adder/Subtractor" width="800px">
+        <br><br>
+        <button class="btn" button id="closeDialogBtn1">Close</button>
+    </dialog>
+                </div>
+                
+                <div class="card">
+                    <h4>⬆️ Binary Incrementer</h4>
+                    <p>Adds one to a register using half-adders in cascade. The least significant bit receives '1' as input carry, propagating through subsequent stages.</p>
+		<button class="btn" button id="showFigureBtn2">See the Figure</button>
+
+    <dialog id="figureDialog2">
+        <img src="inc_ha.png" alt="Binary Increment" width="800px">>
+        <br><br>
+        <button class="btn" button id="closeDialogBtn2">Close</button>
+    </dialog>
+
+                </div>
+                
+                <div class="card">
+                    <h4>🎛️ Arithmetic Circuit</h4>
+                    <p>Composite circuit with parallel adders and multiplexers. Selection inputs (S1, S0) and carry input (Cin) determine the specific arithmetic operation performed.</p>
+		<button class="btn" button id="showFigureBtn3">See the Figure</button>
+
+    <dialog id="figureDialog3">
+        <img src="arithmetic_circuit.png" alt="Binary Arithmetic" width="500px">
+        <br><br>
+        <button class="btn" button id="closeDialogBtn3">Close</button>
+    </dialog>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">📊</span>Arithmetic Circuit Function Table</h2>
+            <p>Complete operation table showing how selection inputs and carry determine the output:</p>
+            
+            <table class="operations-table">
+                <thead>
+                    <tr>
+                        <th>Select (S1 S0)</th>
+                        <th>Cin</th>
+                        <th>Input Y</th>
+                        <th>Output D = A + Y + Cin</th>
+                        <th>Microoperation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="code">00</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">B</span></td>
+                        <td><span class="code">D = A + B</span></td>
+                        <td>Add</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">00</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">B</span></td>
+                        <td><span class="code">D = A + B + 1</span></td>
+                        <td>Add with carry</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">01</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">B'</span></td>
+                        <td><span class="code">D = A + B'</span></td>
+                        <td>Subtract with borrow</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">01</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">B'</span></td>
+                        <td><span class="code">D = A + B' + 1</span></td>
+                        <td>Subtract (A - B)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">10</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">D = A</span></td>
+                        <td>Transfer A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">10</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">D = A + 1</span></td>
+                        <td>Increment A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">11</span></td>
+                        <td><span class="code">0</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">D = A - 1</span></td>
+                        <td>Decrement A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="code">11</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">1</span></td>
+                        <td><span class="code">D = A</span></td>
+                        <td>Transfer A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+	<div class="section">
+            <h2><span class="icon">⚡</span>Interactive Arithmetic Circuit Demo</h2>
+            <div class="circuit-demo">
+                <h4>4-bit Arithmetic Circuit Simulator</h4>
+                <p>Experience how a composite arithmetic circuit performs various operations using multiplexers and full-adders!</p>
+                
+                <div class="demo-controls">
+                    <div class="control-group">
+                        <label>Input A (4-bit)</label>
+                        <input type="text" class="input-field" id="inputA" value="1010" maxlength="4" pattern="[01]*">
+                    </div>
+                    <div class="control-group">
+                        <label>Input B (4-bit)</label>
+                        <input type="text" class="input-field" id="inputB" value="0011" maxlength="4" pattern="[01]*">
+                    </div>
+                    <div class="control-group">
+                        <label>Select (S₁S₀)</label>
+                        <select class="select-field" id="select">
+                            <option value="00">00 - Add</option>
+                            <option value="01">01 - Subtract</option>
+                            <option value="10">10 - Increment/Transfer</option>
+                            <option value="11">11 - Decrement/Trasfer</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Cin</label>
+                        <select class="select-field" id="cin">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="performOperation()">Calculate Result</button>
+                
+                <div class="result-display" id="result">
+                    Click "Calculate Result" to see the output
+                </div>
+                
+                <div id="operation-description" style="margin-top: 1rem; font-style: italic; color: #92400e;">
+                    Select operation parameters above
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🎯</span>Key Takeaways</h2>
+            <div class="highlight">
+                <strong>🔗 Foundation for Complex Operations:</strong> These basic microoperations combine with shift microoperations to implement multiplication and division.
+            </div>
+            <div class="highlight">
+                <strong>⚙️ Hardware Efficiency:</strong> A single arithmetic circuit can perform multiple operations using multiplexers and control signals.
+            </div>
+            <div class="highlight">
+                <strong>🏗️ ALU Integration:</strong> These circuits combine with logic and shift operations to form complete Arithmetic Logic Units (ALUs).
+            </div>
+        </div>
+	
+	        <div class="topic-actions">
+    <a href="logic_microoperations_webpage.html" class="btn btn-primary">
+        Start Learning Logical Microoperations
+    </a>
+</div>
+	
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+    </div>
+
+    <script>
+	const showBtn = document.getElementById('showFigureBtn');
+        const closeBtn = document.getElementById('closeDialogBtn');
+        const dialog = document.getElementById('figureDialog');
+
+        showBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            dialog.close();
+        });
+
+	const showBtn1 = document.getElementById('showFigureBtn1');
+        const closeBtn1 = document.getElementById('closeDialogBtn1');
+        const dialog1 = document.getElementById('figureDialog1');
+
+        showBtn1.addEventListener('click', () => {
+            dialog1.showModal();
+        });
+
+        closeBtn1.addEventListener('click', () => {
+            dialog1.close();
+        });
+
+	const showBtn2 = document.getElementById('showFigureBtn2');
+        const closeBtn2 = document.getElementById('closeDialogBtn2');
+        const dialog2 = document.getElementById('figureDialog2');
+
+        showBtn2.addEventListener('click', () => {
+            dialog2.showModal();
+        });
+
+        closeBtn2.addEventListener('click', () => {
+            dialog2.close();
+        });
+
+	const showBtn3 = document.getElementById('showFigureBtn3');
+        const closeBtn3 = document.getElementById('closeDialogBtn3');
+        const dialog3 = document.getElementById('figureDialog3');
+
+        showBtn3.addEventListener('click', () => {
+            dialog3.showModal();
+        });
+
+        closeBtn3.addEventListener('click', () => {
+            dialog3.close();
+        });
+
+        function performOperation() {
+            const inputA = document.getElementById('inputA').value;
+            const inputB = document.getElementById('inputB').value;
+            const select = document.getElementById('select').value;
+            const cin = document.getElementById('cin').value;
+            const resultDiv = document.getElementById('result');
+            const descDiv = document.getElementById('operation-description');
+
+            // Validate inputs
+            if (!/^[01]{4}$/.test(inputA) || !/^[01]{4}$/.test(inputB)) {
+                resultDiv.innerHTML = '❌ Invalid input! Please enter 4-bit binary numbers (0s and 1s only)';
+                resultDiv.style.borderColor = '#ef4444';
+                resultDiv.style.color = '#dc2626';
+                return;
+            }
+
+            // Convert binary to decimal
+            const a = parseInt(inputA, 2);
+            const b = parseInt(inputB, 2);
+            const carryIn = parseInt(cin);
+            
+            let result, operation, y;
+
+            switch(select) {
+                case '00': // Add
+                    y = b;
+                    result = (a + b + carryIn) & 0xF; // Keep only 4 bits
+                    operation = carryIn === 0 ? `Add: ${inputA} + ${inputB} = ${result.toString(2).padStart(4, '0')}` : 
+                                               `Add with carry: ${inputA} + ${inputB} + 1 = ${result.toString(2).padStart(4, '0')}`;
+                    break;
+                case '01': // Subtract
+                    y = (~b) & 0xF; // 1's complement of B
+                    result = (a + y + carryIn) & 0xF;
+                    operation = carryIn === 1 ? `Subtract: ${inputA} - ${inputB} = ${result.toString(2).padStart(4, '0')}` : 
+                                               `Subtract with borrow: ${inputA} - ${inputB} - 1 = ${result.toString(2).padStart(4, '0')}`;
+                    break;
+                case '10': // Transfer/Increment
+                    y = 0;
+                    result = (a + carryIn) & 0xF;
+                    operation = carryIn === 0 ? `Transfer: A = ${result.toString(2).padStart(4, '0')}` : 
+                                               `Increment: ${inputA} + 1 = ${result.toString(2).padStart(4, '0')}`;
+                    break;
+                case '11': // Decrement/Transfer
+                    y = 0xF; // All 1s (equivalent to -1 in 2's complement)
+                    result = (a + y + carryIn) & 0xF;
+                    operation = carryIn === 0 ? `Decrement: ${inputA} - 1 = ${result.toString(2).padStart(4, '0')}` : 
+                                               `Transfer: A = ${a.toString(2).padStart(4, '0')}`;
+                    if (carryIn === 1) result = a; // Special case for 11,1
+                    break;
+            }
+
+            // Display result
+            resultDiv.innerHTML = `
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">
+                    Result: <span style="color: #059669; font-weight: bold;">${result.toString(2).padStart(4, '0')}</span> 
+                    (Decimal: ${result})
+                </div>
+                <div style="font-size: 0.9rem; color: #6b7280;">
+                    A=${inputA} (${a}), B=${inputB} (${b}), Y=${y.toString(2).padStart(4, '0')}, Cin=${cin}
+                </div>
+            `;
+            
+            descDiv.innerHTML = `🎯 ${operation}`;
+            
+            // Reset styling
+            resultDiv.style.borderColor = '#10b981';
+            resultDiv.style.color = '#059669';
+            
+            // Add pulse animation
+            resultDiv.classList.add('pulse');
+            setTimeout(() => resultDiv.classList.remove('pulse'), 2000);
+        }
+
+        // Add input validation
+        document.getElementById('inputA').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^01]/g, '').substring(0, 4);
+        });
+
+        document.getElementById('inputB').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^01]/g, '').substring(0, 4);
+        });
+
+        // Initialize with a calculation
+        window.addEventListener('load', () => {
+            performOperation();
+        });
+    </script>
+</body>
+</html>

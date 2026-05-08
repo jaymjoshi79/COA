@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Transfer Modes - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+	h1::before {
+    content: "🖥️ ";
+    -webkit-text-fill-color: initial;
+}
+        .subtitle {
+            font-size: 1.2em;
+            color: #718096;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-box {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .feature-box:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .demo-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .flow-arrow {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .comparison-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-top: 40px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .mode-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>I/O Transfer Modes</h1>
+            <p class="subtitle">Understanding CPU-Peripheral Data Transfer Methods</p>
+        </header>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="showMode('overview')">📊 Overview</button>
+            <button class="mode-btn" onclick="showMode('pio')">⚙️ Programmed I/O</button>
+            <button class="mode-btn" onclick="showMode('interrupt')">⚡ Interrupt I/O</button>
+            <button class="mode-btn" onclick="showMode('dma')">🚀 DMA</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview" class="content-card active">
+            <h2><span class="icon">📊</span> Transfer Modes Overview</h2>
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                Transfer modes define how the CPU coordinates with peripheral devices to move data into or out of memory and registers. Each mode represents a different approach to handling the speed mismatch between fast CPUs and slower I/O devices.
+            </p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Mode</th>
+                        <th>CPU Involvement</th>
+                        <th>Efficiency</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Programmed I/O</strong></td>
+                        <td>Continuous monitoring</td>
+                        <td>Low ⭐</td>
+                        <td>Simple, infrequent transfers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Interrupt I/O</strong></td>
+                        <td>On-demand response</td>
+                        <td>Medium ⭐⭐</td>
+                        <td>Moderate transfer rates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Direct Memory Access</strong></td>
+                        <td>Minimal (initial setup)</td>
+                        <td>High ⭐⭐⭐</td>
+                        <td>High-speed bulk transfers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="feature-grid" style="margin-top: 40px;">
+                <div class="feature-box">
+                    <div class="feature-title">🎯 Synchronization</div>
+                    <p>All modes use flags to coordinate between fast CPUs and slow peripherals</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">⚡ Performance</div>
+                    <p>Efficiency increases from PIO → Interrupt → DMA</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">🔧 Complexity</div>
+                    <p>Hardware and software complexity grows with efficiency gains</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programmed I/O Section -->
+        <div id="pio" class="content-card">
+            <h2><span class="icon">⚙️</span> Programmed I/O (PIO)</h2>
+            
+            <p style="font-size: 1.1em; margin-bottom: 25px;">
+                In Programmed I/O, the <span class="highlight">CPU is solely responsible</span> for initiating and overseeing the entire data transfer operation. The CPU must constantly check the status of the I/O device before every data transfer.
+            </p>
+	    <center><img src="transfer_mode_block.png"  alt="Programmed IO" style="max-width:60%; height: auto;"></center>
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div class="feature-title">🧠 CPU (Central Processing Unit)</div>
+                    <p>The CPU checks the status register flag to detect data availability, reads the data from the interface data register, and clears the flag to allow the next transfer.</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">🔌 I/O Interface (Module)</div>
+                    <p>The interface acts as a mediator, storing incoming data in the data register, setting the status flag, and coordinating handshake signals like data valid and data accepted.</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">🖨️ I/O Device</div>
+                    <p>The I/O device generates data and places it on the I/O bus, activates the data valid signal, and waits for acknowledgment before sending the next byte.</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <div class="demo-title">PIO Flowchart - Input Operation</div>
+                <div class="flowchart">
+                    <center><img src="program_io_flowchart.png"  alt="Programmed IO Flowchart" style="max-width:60%; height: auto;"></center>
+                </div>
+            </div>
+
+            <div class="code-block">
+LOOP:  READ status_register<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	IF (flag == 1) THEN <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        	READ data_register <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        	STORE data in memory <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        	CLEAR flag <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	ELSE<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		BUN EXIT<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	BUN LOOP<br>
+EXIT:       ; Continue with processing...
+            </div>
+
+            <div style="background: #fee2e2; padding: 20px; border-radius: 10px; border-left: 4px solid #dc2626; margin-top: 20px;">
+                <strong style="color: #dc2626;">⚠️ Main Drawback:</strong> The CPU is much faster than I/O devices. Constantly checking flags in a loop wastes valuable processing time that could be used for other computations. This is highly inefficient!
+            </div>
+        </div>
+
+        <!-- Interrupt I/O Section -->
+        <div id="interrupt" class="content-card">
+            <h2><span class="icon">⚡</span> Interrupt-Initiated I/O</h2>
+            
+            <p style="font-size: 1.1em; margin-bottom: 25px;">
+                Interrupt I/O is an <span class="highlight">enhanced transfer mode</span> designed to overcome PIO's efficiency problems by allowing the CPU to perform other tasks while waiting for slow I/O operations to complete.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div class="feature-title">🔔 CPU (Central Processing Unit)</div>
+                    <p>The CPU executes programs without monitoring flags, deviating only when an interrupt occurs. It responds by saving the return address to a memory stack and branching to an I/O service routine.</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">🔌 Interface</div>
+                    <p>The interface informs the computer when it is ready for data transfer by setting a flag bit. This action triggers the interrupt facility, signaling the processor to pause its current program.</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">⚙️ Service Routine</div>
+                    <p>This routine processes the required I/O transfer after the CPU identifies the branch address. Once finished, control returns to the original program using the return address stored previously in the stack.</p>
+                </div>
+            </div>
+
+           
+
+            <div style="margin-top: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Methods of Service Routine</h3>
+		<div class="feature-box">
+                <div class="feature-title">🎯 Vectored Interrupt</div>
+                    <p>The interrupting source provides the computer with specific branch information known as the interrupt vector, which identifies the first address or a pointer to the service routine.</p>
+		</div><br>
+		<div class="feature-box">
+		<div class="feature-title">⚡ Non-vectored Interrupt</div>
+                    <p>The branch address for the service routine is assigned to a predetermined, fixed location in memory, rather than being supplied by the interrupting device.</p>
+		</div>
+            </div>
+
+            <div style="background: #dcfce7; padding: 20px; border-radius: 10px; border-left: 4px solid #16a34a; margin-top: 20px;">
+                <strong style="color: #16a34a;">✅ Key Advantage:</strong> The CPU can perform useful work while waiting for I/O. The device notifies the CPU only when ready, eliminating wasteful busy-waiting!
+            </div>
+        </div>
+
+        <!-- DMA Section -->
+        <div id="dma" class="content-card">
+            <h2><span class="icon">🚀</span> Direct Memory Access (DMA)</h2>
+            
+            <p style="font-size: 1.1em; margin-bottom: 25px;">
+                DMA is the <span class="highlight">most efficient transfer mode</span> for high-speed devices. It allows peripherals to transfer data directly to/from memory without continuous CPU involvement.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div class="feature-title">🎯 DMA Controller</div>
+                    <p>Specialized hardware that manages data transfers independently of the CPU</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">🚌 Bus Control</div>
+                    <p>DMA controller temporarily takes over system bus to transfer data directly</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">⚡ High Speed</div>
+                    <p>Ideal for disk drives, graphics cards, and network interfaces requiring bulk transfers</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <div class="demo-title">DMA Transfer Process</div>
+                <div class="flowchart">
+                    <div class="flow-step" style="background: #667eea; color: white;">
+                        CPU initializes DMA controller
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        Set memory address, word count,<br>
+                        transfer direction (Read/Write)
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step" style="background: #e0f2fe;">
+                        CPU continues other work
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step" style="background: #fef3c7;">
+                        Device ready to transfer
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step" style="background: #d4edda;">
+                        DMA controller requests bus<br>
+                        CPU relinquishes bus control
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        DMA transfers data:<br>
+                        Device ↔ Memory (direct!)
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        Update address, decrement count<br>
+                        Repeat until count = 0
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step" style="background: #fef3c7;">
+                        DMA sends interrupt to CPU:<br>
+                        "Transfer complete!"
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step" style="background: #667eea; color: white;">
+                        CPU resumes full control
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">DMA Registers</h3>
+                <div class="feature-grid">
+                    <div class="feature-box">
+                        <div class="feature-title">Address Register</div>
+                        <p>Holds current memory address for transfer</p>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-title">Word Count Register</div>
+                        <p>Number of words remaining to transfer</p>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-title">Control Register</div>
+                        <p>Specifies transfer mode and direction</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #dbeafe; padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; margin-top: 20px;">
+                <strong style="color: #3b82f6;">💡 Maximum Efficiency:</strong> CPU is only involved in initial setup and receiving completion notification. The entire transfer happens without CPU intervention, making DMA perfect for high-bandwidth operations!
+            </div>
+	 <div class="topic-actions" style="text-align: center;">
+                    <a href="priority_interrupt_page.html" style="text-decoration: none;" class="btn btn-primary">Priority Interrupt</a>
+                </div>
+
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            
+            <p style="margin-top: 10px; color: #718096;">
+                © Dr. Jay M. Joshi
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function showMode(mode) {
+            // Hide all content cards
+            const cards = document.querySelectorAll('.content-card');
+            cards.forEach(card => card.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.mode-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected card and activate button
+            document.getElementById(mode).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Smooth scroll to content
+            document.getElementById(mode).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Add hover effects to flow steps
+        document.addEventListener('DOMContentLoaded', () => {
+            const flowSteps = document.querySelectorAll('.flow-step');
+            flowSteps.forEach(step => {
+                step.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                step.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Instructions - The Language of the CPU</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            color: #1e293b;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1) drop-shadow(0 0 20px rgba(59, 130, 246, 0.3)); }
+            to { filter: brightness(1.2) drop-shadow(0 0 30px rgba(139, 92, 246, 0.4)); }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+            transition: left 0.5s;
+        }
+
+        .section:hover::before {
+            left: 100%;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: #8b5cf6;
+        }
+
+        .instruction-demo {
+            background: rgba(241, 245, 249, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .binary-display {
+            display: flex;
+            gap: 2px;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .bit {
+            width: 25px;
+            height: 25px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        .bit:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.1);
+        }
+
+        .bit.opcode {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .bit.address {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+        }
+
+        .bit.mode {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: #8b5cf6;
+        }
+
+        .interactive-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.03));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interactive-card:hover {
+            transform: translateX(10px);
+            border-color: #3b82f6;
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .instruction-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .type-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .type-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308);
+            border-radius: 15px 15px 0 0;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .type-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .type-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .type-card h4 {
+            color: #f97316;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .example-list {
+            list-style: none;
+            padding: 0;
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: #8b5cf6;
+            margin-top: 40px;
+        }
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	 .btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        .example-list li {
+            background: rgba(59, 130, 246, 0.05);
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+            transition: all 0.3s ease;
+            color: #374151;
+        }
+
+        .example-list li:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
+        }
+
+        .cycle-visualization {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .cycle-step {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.05));
+            border: 2px solid #22c55e;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        .cycle-step:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        .addressing-demo {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .addressing-mode {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(241, 245, 249, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .addressing-mode h4 {
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .memory-cell {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #3b82f6;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #374151;
+        }
+
+        .memory-cell:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.05);
+        }
+
+        .floating-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            opacity: 0.4;
+        }
+
+        .pseudo-instructions {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.03));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .pseudo-instructions h3 {
+            color: #10b981;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pseudo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pseudo-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pseudo-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #10b981;
+        }
+
+        .pseudo-card h4 {
+            color: #059669;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .pseudo-card .syntax {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #065f46;
+            margin: 0.5rem 0;
+        }
+
+        .pseudo-card .description {
+            color: #374151;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+	
+        .example-code {
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            color: #334155;
+            overflow-x: auto;
+        }
+
+        .code-comment {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .cycle-step {
+                width: 100px;
+                height: 100px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Computer Instructions</h1>
+            <p>The Language of the CPU - Understanding How Computers Execute Commands</p>
+        </div>
+
+        <div class="section">
+            <div class="floating-icon">🖥️</div>
+            <h2>What Are Computer Instructions?</h2>
+            <p>A computer instruction is a <strong>binary code that directs the computer to perform a specific operation</strong>. These instructions are fundamental to how a computer processes information, specifying a sequence of micro-operations for the computer to execute.</p>
+            
+            <div class="instruction-demo">
+                <h3>16-Bit Instruction Structure</h3>
+                <div class="binary-display">
+                    <div class="bit mode" onclick="toggleBit(this)">1</div>
+                    <div class="bit opcode" onclick="toggleBit(this)">1</div>
+                    <div class="bit opcode" onclick="toggleBit(this)">1</div>
+                    <div class="bit opcode" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">0</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                    <div class="bit address" onclick="toggleBit(this)">1</div>
+                </div>
+                <p><span style="color: #8b5cf6;">■</span> Mode Bit (I) | <span style="color: #ef4444;">■</span> Opcode | <span style="color: #22c55e;">■</span> Address</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="floating-icon">🎯</div>
+            <h2>Addressing Modes</h2>
+            <p>Instructions can refer to memory locations in different ways:</p>
+            
+            <div class="addressing-demo">
+                <div class="addressing-mode">
+                    <h4>Direct Addressing (I = 0)</h4>
+                    <div class="memory-cell">Instruction: ADD 457</div>
+                    <div class="memory-cell">→ Directly access address 457</div>
+                    <div class="memory-cell">Get operand from location 457</div>
+                </div>
+                
+                <div class="addressing-mode">
+                    <h4>Indirect Addressing (I = 1)</h4>
+                    <div class="memory-cell">Instruction: ADD 300</div>
+                    <div class="memory-cell">→ Go to address 300</div>
+                    <div class="memory-cell">→ Read address stored there (1350)</div>
+                    <div class="memory-cell">→ Get operand from location 1350</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+    <div class="floating-icon">📋</div>
+    <h2>Types of Computer Instructions</h2>
+    
+    <div class="instruction-types">
+        <div class="type-card long-card">
+            <h4>Memory-Reference Instructions</h4>
+            <p><strong>Format:</strong> I (Mode) bit + 3-bit Opcode (000-110) + 12-bit address</p>
+            <ul class="example-list">
+                <li>
+                    <strong>AND:</strong> Bitwise AND with memory
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 0xxx</li>
+                        <li><strong>Indirect (I=1):</strong> 8xxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>ADD:</strong> Add memory content to AC
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 1xxx</li>
+                        <li><strong>Indirect (I=1):</strong> 9xxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>LDA:</strong> Load AC from memory
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 2xxx</li>
+                        <li><strong>Indirect (I=1):</strong> Axxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>STA:</strong> Store AC to memory
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 3xxx</li>
+                        <li><strong>Indirect (I=1):</strong> Bxxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>BUN:</strong> Branch unconditionally
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 4xxx</li>
+                        <li><strong>Indirect (I=1):</strong> Cxxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>BSA:</strong> Branch and save return address
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 5xxx</li>
+                        <li><strong>Indirect (I=1):</strong> Dxxx</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>ISZ:</strong> Increment and skip if zero
+                    <ul class="example-list">
+                        <li><strong>Direct (I=0):</strong> 6xxx</li>
+                        <li><strong>Indirect (I=1):</strong> Exxx</li>
+                    </ul>
+                </li>
+            </ul>
+            <p> xxx - Represent 12-bit address for Memory</p>
+        </div>
+
+        <div class="stacked-cards">
+            <div class="type-card">
+                <h4>Register-Reference Instructions</h4>
+                <p><strong>Format:</strong> 0 (I bit) + 111 (Opcode bit) + 12-bit operation</p>
+                <ul class="example-list">
+                    <li><strong>CLA (7800):</strong> Clear Accumulator</li>
+                    <li><strong>CLE (7400):</strong> Clear E flip-flop</li>
+                    <li><strong>CMA (7200):</strong> Complement Accumulator</li>
+                    <li><strong>CME (7100):</strong> Complement E</li>
+                    <li><strong>CIR (7080):</strong> Circular shifts Right AC and E</li>
+                    <li><strong>CIL (7040):</strong> Circular shifts Left AC and E</li>
+                    <li><strong>INC (7020):</strong> Increment Accumulator</li>
+                    <li><strong>SPA (7010):</strong> Skip on AC sign Positive</li>
+                    <li><strong>SNA (7008):</strong> Skip on AC sign Negative</li>
+                    <li><strong>SZA (7004):</strong> Skip next instruction if AC zero</li>
+                    <li><strong>SZE (7002):</strong> Skip next instruction if E is 0</li>
+                    <li><strong>HLT (7001):</strong> Halt computer</li>
+                </ul>
+            </div>
+            
+            <div class="type-card">
+                <h4>Input-Output Instructions</h4>
+                <p><strong>Format:</strong> 1 (I bit) + 111 (Opcode bit) + 12-bit I/O operation</p>
+                <ul class="example-list">
+                    <li><strong>INP:</strong> Input character to AC</li>
+                    <li><strong>OUT:</strong> Output character from AC</li>
+                    <li><strong>SKI:</strong> Skip if input flag on</li>
+                    <li><strong>SKO:</strong> Skip if output flag on</li>
+                    <li><strong>ION:</strong> Turn interrupt on</li>
+                    <li><strong>IOF:</strong> Turn interrupt off</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="section">
+            <div class="floating-icon">🔧</div>
+            <h2>Pseudo-Instructions</h2>
+            <div class="pseudo-instructions">
+                <h3>🏷️ Assembly Language Directives</h3>
+                <p>Pseudo-instructions provide information to the assembler but do not translate into machine code themselves. They control the assembly process and define program structure.</p>
+                
+                <div class="pseudo-grid">
+                    <div class="pseudo-card">
+                        <h4>ORG (Origin)</h4>
+                        <div class="syntax">ORG N</div>
+                        <div class="description">Sets the starting address (origin) of the program. Tells the assembler where to place the first instruction in memory.</div>
+                    </div>
+
+                    <div class="pseudo-card">
+                        <h4>END</h4>
+                        <div class="syntax">END</div>
+                        <div class="description">Marks the end of the assembly language program. No instructions should follow this directive.</div>
+                    </div>
+
+                    <div class="pseudo-card">
+                        <h4>DEC (Decimal)</h4>
+                        <div class="syntax">DEC N</div>
+                        <div class="description">Defines a signed decimal number. The assembler converts it to binary and stores it in memory.</div>
+                    </div>
+
+                    <div class="pseudo-card">
+                        <h4>HEX (Hexadecimal)</h4>
+                        <div class="syntax">HEX N</div>
+                        <div class="description">Defines a hexadecimal number. The assembler converts it to binary format for storage.</div>
+                    </div>
+
+                    <div class="pseudo-card">
+                        <h4>BSS (Block Started by Symbol)</h4>
+                        <div class="syntax">BSS N</div>
+                        <div class="description">Reserves N memory locations without initializing them. Used for declaring uninitialized variables.</div>
+                    </div>
+
+                    <div class="pseudo-card">
+                        <h4>EQU (Equate)</h4>
+                        <div class="syntax">SYMBOL EQU VALUE</div>
+                        <div class="description">Assigns a symbolic name to a value or address. Creates constants for use throughout the program.</div>
+                    </div>
+                </div>
+
+                <div class="example-code">
+<span class="code-comment">/ Example Assembly Program with Pseudo-Instructions</span><br><br>
+ORG 100         <span class="code-comment">/ Start program at address 100</span><br>
+LOAD,   LDA X   <span class="code-comment">/ Load value of X into AC</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADD Y   <span class="code-comment">/ Add value of Y to AC</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STA Z   <span class="code-comment">/ Store result in Z</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HLT     <span class="code-comment">/ Halt the program</span><br><br>
+
+&nbsp;&nbsp;&nbsp;X,      DEC 25  <span class="code-comment">/ Declare X = 25 (decimal)</span><br>
+&nbsp;&nbsp;&nbsp;Y,      HEX 1A  <span class="code-comment">/ Declare Y = 26 (hex 1A)</span><br>
+&nbsp;&nbsp;&nbsp;Z,      BSS 1   <span class="code-comment">/ Reserve 1 location for Z</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END     <span class="code-comment">/ End of program</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="floating-icon">🔄</div>
+            <h2>Instruction Cycle</h2>
+            <p>Computer instructions are executed through a sequence of subcycles:</p>
+            
+            <div class="cycle-visualization">
+                <div class="cycle-step pulse" onclick="highlightStep(this)">
+                    <div>1</div>
+                    <div>FETCH</div>
+                    <small>Get instruction from memory</small>
+                </div>
+                <div class="cycle-step" onclick="highlightStep(this)">
+                    <div>2</div>
+                    <div>DECODE</div>
+                    <small>Interpret operation code</small>
+                </div>
+                <div class="cycle-step" onclick="highlightStep(this)">
+                    <div>3</div>
+                    <div>ADDRESS</div>
+                    <small>Calculate effective address</small>
+                </div>
+                <div class="cycle-step" onclick="highlightStep(this)">
+                    <div>4</div>
+                    <div>EXECUTE</div>
+                    <small>Perform the operation</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="floating-icon">💻</div>
+            <h2>Programming Languages</h2>
+            
+            <div class="interactive-card" onclick="expandCard(this)">
+                <h3>Machine Language</h3>
+                <p>Binary codes (0s and 1s) that the computer directly understands and executes.</p>
+                <div class="instruction-demo" style="display: none; margin-top: 1rem;">
+                    <code>0010000000000101  <span class="code-comment">// ADD instruction</span><br>
+                    0001000000001010  <span class="code-comment">// LDA instruction</span><br>
+                    0111100000000001  <span class="code-comment">// HLT instruction</span></code>
+                </div>
+            </div>
+            
+            <div class="interactive-card" onclick="expandCard(this)">
+                <h3>Assembly Language</h3>
+                <p>Symbolic program using operation codes and addresses instead of binary values.</p>
+                <div class="instruction-demo" style="display: none; margin-top: 1rem;">
+                    <code>ORG 100      <span class="code-comment">/ Origin at address 100</span><br>
+                    LDA X        <span class="code-comment">/ Load X to accumulator</span><br>
+                    ADD Y        <span class="code-comment">/ Add Y to accumulator</span><br>
+                    STA Z        <span class="code-comment">/ Store result in Z</span><br>
+                    HLT          <span class="code-comment">/ Halt</span><br>
+                    X, DEC 83    <span class="code-comment">/ Variable X = 83</span><br>
+                    Y, DEC -23   <span class="code-comment">/ Variable Y = -23</span><br>
+                    Z, DEC 0     <span class="code-comment">/ Variable Z = 0</span><br>
+                    END          <span class="code-comment">/ End of program</span></code>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions">
+    <a href="timing_control_webpage.html" class="btn btn-primary">
+        Start Timing and Control
+    </a>
+</div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleBit(element) {
+            element.textContent = element.textContent === '0' ? '1' : '0';
+            element.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        function highlightStep(element) {
+            // Remove pulse from all steps
+            document.querySelectorAll('.cycle-step').forEach(step => {
+                step.classList.remove('pulse');
+            });
+            
+            // Add pulse to clicked step
+            element.classList.add('pulse');
+            
+            // Add a glow effect
+            element.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.6)';
+            setTimeout(() => {
+                element.style.boxShadow = '';
+            }, 2000);
+        }
+
+        function expandCard(card) {
+            const demo = card.querySelector('.instruction-demo');
+            if (demo.style.display === 'none') {
+                demo.style.display = 'block';
+                demo.style.animation = 'fadeIn 0.5s ease';
+            } else {
+                demo.style.display = 'none';
+            }
+        }
+
+        // Add smooth scrolling and interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate sections on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(section);
+            });
+
+            // Add hover effects to interactive elements
+            document.querySelectorAll('.memory-cell, .pseudo-card').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    this.style.background = 'rgba(59, 130, 246, 0.2)';
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.background = '';
+                        this.style.transform = '';
+                    }, 300);
+                });
+            });
+        });
+
+        // Add CSS for fade in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

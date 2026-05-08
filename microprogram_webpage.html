@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microprogramming Example - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        .section.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            color: #1e293b;
+            margin-bottom: 25px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transition: width 0.8s ease;
+        }
+
+        .section.visible h2::after {
+            width: 100%;
+        }
+
+        .hardware-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .register-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .register-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .register-card:hover::before {
+            opacity: 1;
+        }
+
+        .register-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1e293b;
+            transition: color 0.3s ease;
+        }
+
+        .register-card:hover .register-title {
+            color: white;
+        }
+
+        .register-description {
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+
+        .register-card:hover .register-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .microinstruction-format {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .format-field {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .format-field:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .format-field h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .format-field p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .instruction-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            margin: 30px 0;
+        }
+
+        .instruction-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .instruction-table th,
+        .instruction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .instruction-table tr:hover {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            transform: scale(1.01);
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-demo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            animation: rotate 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+	.hero h1 .emoji {
+    -webkit-text-fill-color: initial;
+    background: none;
+    background-clip: initial;
+    font-size: 3.5rem;
+    margin-right: 10px;
+}
+        .demo-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            position: relative;
+        }
+	.demo-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+	  .fields-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+	.btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color: white;
+            margin-top: 2px;
+        }
+        .field-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .field-card:nth-child(2) {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .field-card:nth-child(3) {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+        }
+
+        .field-card:nth-child(4) {
+            background: linear-gradient(135deg, #abdcff 0%, #0396ff 100%);
+            color: white;
+        }
+
+        .field-card:nth-child(5) {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .field-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .field-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-number {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        .field-card:nth-child(4) .field-number {
+            color: #0396ff;
+        }
+
+        .field-card p {
+            font-size: 1.05em;
+            line-height: 1.7;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .section {
+                padding: 25px;
+            }
+            .section h2 {
+                font-size: 2rem;
+            }
+            .demo-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="floating-elements" id="floatingElements"></div>
+    
+    <div class="container">
+        <div class="hero">
+            <h1><span class="emoji">🔬</span> Microprogramming Example</h1>
+            <p>Explore the fascinating world of microprogram control units with interactive examples and beautiful visualizations</p>
+        </div>
+
+        <div class="section">
+            <h2>🏗️ Computer Hardware Configuration</h2>
+            <p>A microprogrammed control unit uses control memory to store microprograms, which are sequences of microinstructions. Let's explore the key hardware components:</p>
+            <center><img src="micro_hard.png"  alt="Control Memory" width="500px"></center>
+            <div class="hardware-config">
+                <div class="register-card">
+                    <div class="register-title">Control Address Register (CAR)</div>
+                    <div class="register-description">7-bit register holding the address of the next microinstruction to be fetched from control memory</div>
+                </div>
+                
+                <div class="register-card">
+                    <div class="register-title">Subroutine Register (SBR)</div>
+                    <div class="register-description">7-bit register storing the return address during microprogram subroutine calls</div>
+                </div>
+                
+                <div class="register-card">
+                    <div class="register-title">Control Memory</div>
+                    <div class="register-description">128 x 20 ROM storing microprograms. Each 20-bit word represents a complete microinstruction</div>
+                </div>
+                
+                <div class="register-card">
+                    <div class="register-title">Address Register (AR)</div>
+                    <div class="register-description">11-bit register for memory addressing operations</div>
+                </div>
+                
+                <div class="register-card">
+                    <div class="register-title">Program Counter (PC)</div>
+                    <div class="register-description">11-bit register pointing to the next instruction in main memory</div>
+                </div>
+                
+                <div class="register-card">
+                    <div class="register-title">Data Register (DR)</div>
+                    <div class="register-description">16-bit register for temporary data storage during instruction execution</div>
+                </div>
+            </div>
+		
+        </div>
+
+        <div class="section">
+            <h2>📋 Microinstruction Format</h2>
+            <p>Each microinstruction is a 20-bit control word that initiates microoperations and determines the next microinstruction address:</p>
+            <center><img src="micro_format.png" alt="Micorinst Format" width="600px"></center>
+            <div class="microinstruction-format">
+                <div class="format-grid">
+                    <div class="format-field">
+                        <h4>F1, F2, F3</h4>
+                        <p>Three 3-bit fields specifying microoperations (9 bits total, 21 distinct operations)</p>
+			<center><button class="demo-btn" button id="showFigureBtn">Microoperations</button></center>
+                    </div>
+                        <dialog id="figureDialog">
+        <img src="f13.png" alt="Bus Transfer" width="400px">
+        <br><br>
+        <button id="closeDialogBtn">Close</button>
+    </dialog>
+                    <div class="format-field">
+                        <h4>CD Field</h4>
+                        <p>2-bit condition field: U(00), I(01), S(10), Z(11)</p>
+			<center><button class="demo-btn" button id="showFigureBtn1">CD field</button></center>
+                    </div>
+                    <dialog id="figureDialog1">
+        <img src="cd.png" alt="Bus Transfer" width="600px">
+        <br><br>
+        <button id="closeDialogBtn1">Close</button>
+    </dialog>
+
+                    <div class="format-field">
+                        <h4>BR Field</h4>
+                        <p>2-bit branch field: JMP(00), CALL(01), RET(10), MAP(11)</p>
+			<center><button class="demo-btn" button id="showFigureBtn2">BR field</button></center>
+                    </div>
+                    <dialog id="figureDialog2">
+        <img src="br.png" alt="Bus Transfer" width="600px">
+        <br><br>
+        <button id="closeDialogBtn2">Close</button>
+    </dialog>
+
+                    <div class="format-field">
+                        <h4>AD Field</h4>
+                        <p>7-bit address field for jump and call operations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	 <div class="section">
+            <h2> 🔗 Microinstruction Structure</h2>
+	    <p> Each line of the assembly language microprogram defines a symbolic microinstruction. Each symbolic microinstruction is divided into five fields:</p>
+	     <div class="fields-grid">
+                    <div class="field-card">
+                        <h3><span class="field-number">1</span> Label Field</h3>
+                        <p>The label field may be empty or it may specify a symbolic address. A label is terminated with a colon (:).</p>
+                    </div>
+
+                    <div class="field-card">
+                        <h3><span class="field-number">2</span> Microoperations Field</h3>
+                        <p>This field consists of one, two, or three symbols, separated by commas, from those defined above in <strong>F1, F2, F3</strong> . There may be no more than one symbol from each F field. The NOP symbol is used when the microinstruction has no microoperations. This will be translated by the assembler to nine zeros.</p>
+                    </div>
+
+                    <div class="field-card">
+                        <h3><span class="field-number">3</span> CD Field</h3>
+                        <p>The CD field has one of the letters <strong>U</strong>, <strong>I</strong>, <strong>S</strong>, or <strong>Z</strong>.</p>
+                    </div>
+
+                    <div class="field-card">
+                        <h3><span class="field-number">4</span> BR Field</h3>
+                        <p>The BR field contains one of the four symbols <strong>JMP</strong>, <strong>CALL</strong>, <strong>RET</strong>, or <strong>MAP </strong>.</p>
+                    </div>
+
+                    <div class="field-card">
+                        <h3><span class="field-number">5</span> AD Field</h3>
+                        <p>The AD field specifies a value for the address field of the microinstruction in one of three possible ways:</p>
+                        <ul class="sub-list">
+                            <li>With a symbolic address, which must also appear as a label.</li>
+                            <li>With the symbol NEXT to designate the next address in sequence.</li>
+                            <li>When the BR field contains a RET or MAP symbol, the AD field is left empty and is converted to seven zeros by the assembler.</li>
+                        </ul>
+                    </div>
+                </div>
+	</div>
+
+        <div class="section">
+            <h2>🔄 Microinstruction Fetch Routine</h2>
+            <p>The fetch routine retrieves the next computer instruction from main memory:</p>
+            
+            <div class="instruction-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Step</th>
+                            <th>Operation</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><span class="highlight">AR ← PC</span></td>
+                            <td>Load program counter value into address register</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><span class="highlight">DR ← M[AR], PC ← PC + 1</span></td>
+                            <td>Read instruction from memory and increment PC</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><span class="highlight">AR ← DR(0-10), CAR(2-5) ← DR(11-14), CAR(0,1,6) ← 0</span></td>
+                            <td>Extract address and map opcode to microprogram start</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-block">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 64          ; Starting at binary address 1000000<br>
+FETCH: PCTAR    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U&nbsp;&nbsp; JMP&nbsp;&nbsp; NEXT    ; AR ← PC<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ, INCPC &nbsp;&nbsp;U&nbsp;&nbsp; JMP&nbsp;&nbsp; NEXT ; DR ← M[AR], PC ← PC + 1  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRTAR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   U&nbsp;&nbsp; MAP        ; AR ← DR(0-10), map opcode
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔗 Indirect Addressing Subroutine</h2>
+            <p>The INDRCT subroutine handles indirect addressing for memory reference instructions:</p>
+            
+            <div class="code-block">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 67          ; Starting at binary address 1000011<br>
+INDRCT:READ       &nbsp;&nbsp;&nbsp;U&nbsp;&nbsp; JMP&nbsp;&nbsp; NEXT    ;  DR ← M[AR]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DRTAR&nbsp;&nbsp;    U&nbsp;&nbsp; RET         ; AR ← DR, SBR ← CAR
+            </div>
+        </div>
+
+        <div class="interactive-demo">
+            <h2>🎯 Interactive Instruction Examples</h2>
+            <p>Explore microprograms for common computer instructions:</p>
+            
+            <div class="demo-controls">
+                <button class="demo-button" onclick="showInstruction('ADD')">ADD Instruction</button>
+                <button class="demo-button" onclick="showInstruction('BRANCH')">BRANCH Instruction</button>
+                <button class="demo-button" onclick="showInstruction('STORE')">STORE Instruction</button>
+                <button class="demo-button" onclick="showInstruction('EXCHANGE')">EXCHANGE Instruction</button>
+            </div>
+            
+            <div id="instructionDemo">
+                <h3>Select an instruction to see its microprogram!</h3>
+                <p>Click any button above to explore how different instructions are implemented using microprograms.</p>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="binary_microprogram.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Architecture of Control Memory</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        const showBtn = document.getElementById('showFigureBtn');
+        const closeBtn = document.getElementById('closeDialogBtn');
+        const dialog = document.getElementById('figureDialog');
+	
+        showBtn.addEventListener('click', () => {
+            dialog.showModal();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            dialog.close();
+        });
+	const showBtn1 = document.getElementById('showFigureBtn1');
+        const closeBtn1 = document.getElementById('closeDialogBtn1');
+        const dialog1 = document.getElementById('figureDialog1');
+	
+        showBtn1.addEventListener('click', () => {
+            dialog1.showModal();
+        });
+
+        closeBtn1.addEventListener('click', () => {
+            dialog1.close();
+        });
+	const showBtn2 = document.getElementById('showFigureBtn2');
+        const closeBtn2 = document.getElementById('closeDialogBtn2');
+        const dialog2 = document.getElementById('figureDialog2');
+	
+        showBtn2.addEventListener('click', () => {
+            dialog2.showModal();
+        });
+
+        closeBtn2.addEventListener('click', () => {
+            dialog2.close();
+        });
+	// Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Progress bar
+        function updateProgressBar() {
+            const scrollTop = window.pageYOffset;
+            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / documentHeight) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        window.addEventListener('scroll', updateProgressBar);
+
+        // Floating elements
+        function createFloatingElement() {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            const size = Math.random() * 60 + 20;
+            element.style.width = size + 'px';
+            element.style.height = size + 'px';
+            element.style.left = Math.random() * window.innerWidth + 'px';
+            element.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            element.style.animationDelay = Math.random() * 5 + 's';
+            
+            document.getElementById('floatingElements').appendChild(element);
+            
+            setTimeout(() => {
+                element.remove();
+            }, 25000);
+        }
+
+        setInterval(createFloatingElement, 2000);
+
+        // Instruction demonstration
+        const instructions = {
+            'ADD': {
+                title: 'ADD Instruction (Opcode 0000)',
+                operation: 'AC ← AC + M[EA]',
+                steps: [
+                    'Check indirect bit (I). If I=1, call INDRCT subroutine',
+                    'Read operand from M[AR] into DR',
+                    'Perform ADD operation: AC ← AC + DR',
+                    'Jump back to FETCH routine'
+                ],
+                code: ` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 0<br>
+ADD:  NOP     I CALL INDRCT  ; Check indirect<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READ    U JMP  NEXT    ; Read operand<br>  
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADD     U JMP  FETCH   ; Perform addition`
+            },
+            'BRANCH': {
+                title: 'BRANCH Instruction (Opcode 0001)',
+                operation: 'If (AC < 0) then (PC ← EA)',
+                steps: [
+                    'Check sign bit of AC. If AC ≥ 0, skip branch',
+                    'If AC < 0, check indirect bit and get effective address',
+                    'Load effective address into PC (PC ← AR)',
+                    'Jump back to FETCH routine'
+                ],
+                code: `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 4<br>
+BRANCH: NOP&nbsp;&nbsp;   S&nbsp;&nbsp; JMP&nbsp;&nbsp;  OVER    ; Check AC sign<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOP&nbsp;&nbsp;   U&nbsp;&nbsp; JMP&nbsp;&nbsp;  FETCH  ; Skip if AC ≥ 0<br>
+OVER:   &nbsp;&nbsp;NOP&nbsp;&nbsp;   I&nbsp;&nbsp; CALL&nbsp;&nbsp; INDRCT ; Get effective addr<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARTPC U&nbsp;&nbsp; JMP&nbsp;&nbsp;  FETCH  ; PC ← AR`
+            },
+            'STORE': {
+                title: 'STORE Instruction (Opcode 0010)',
+                operation: 'M[EA] ← AC',
+                steps: [
+                    'Check indirect bit. If I=1, call INDRCT subroutine',
+                    'Move accumulator content to data register (DR ← AC)',
+                    'Write data register to memory (M[AR] ← DR)',
+                    'Jump back to FETCH routine'
+                ],
+                code: `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 8<br>
+STORE: NOP&nbsp;&nbsp;    I&nbsp;&nbsp; CALL&nbsp; INDRCT  ; Check indirect<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTDR  U&nbsp;&nbsp; JMP&nbsp;&nbsp;  NEXT   ; DR ← AC<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WRITE  U&nbsp;&nbsp; JMP&nbsp;&nbsp;  FETCH  ; M[AR] ← DR`
+            },
+            'EXCHANGE': {
+                title: 'EXCHANGE Instruction (Opcode 0011)',
+                operation: 'AC ↔ M[EA]',
+                steps: [
+                    'Check indirect bit. If I=1, call INDRCT subroutine',
+                    'Read memory content into DR',
+                    'Simultaneously: DR ← AC and AC ← DR (exchange)',
+                    'Write original AC content (now in DR) back to memory'
+                ],
+                code: `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ORG 12<br>
+EXCHANGE: NOP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        I&nbsp;&nbsp; CALL INDRCT ; Check indirect<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          READ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       U&nbsp;&nbsp; JMP&nbsp;  NEXT   ; Read M[EA]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          ACTDR,DRTAC U&nbsp;&nbsp; JMP&nbsp; NEXT   ; Exchange<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          WRITE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      U&nbsp;&nbsp; JMP&nbsp;  FETCH  ; Write back<br>`
+            }
+        };
+
+        function showInstruction(name) {
+            const instruction = instructions[name];
+            const demoDiv = document.getElementById('instructionDemo');
+            
+            demoDiv.innerHTML = `
+                <h3>${instruction.title}</h3>
+                <p><strong>Operation:</strong> ${instruction.operation}</p>
+                <h4>Execution Steps:</h4>
+                <ol>
+                    ${instruction.steps.map(step => `<li>${step}</li>`).join('')}
+                </ol>
+                <h4>Symbolic Microprogram:</h4>
+                <div class="code-block" style="margin-top: 15px;">
+${instruction.code}
+                </div>
+            `;
+            
+            // Add animation
+            demoDiv.style.opacity = '0';
+            demoDiv.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                demoDiv.style.transition = 'all 0.5s ease';
+                demoDiv.style.opacity = '1';
+                demoDiv.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // Initialize with ADD instruction
+        setTimeout(() => showInstruction('ADD'), 1000);
+    </script>
+</body>
+</html>

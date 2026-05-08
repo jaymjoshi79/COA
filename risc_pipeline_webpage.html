@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISC Pipeline - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="2" height="2" fill="white" opacity="0.1"/></svg>');
+            animation: drift 20s linear infinite;
+        }
+
+        @keyframes drift {
+            from { transform: translateX(0); }
+            to { transform: translateX(100px); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .content-section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.6rem;
+            margin: 30px 0 15px;
+        }
+
+        .pipeline-stages {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stage {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stage:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+        }
+
+        .stage-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stage h4 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .interactive-table {
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.3s ease;
+        }
+
+        tr:hover td {
+            background: #f6f8fb;
+        }
+
+        .highlight-cell {
+            background: #ffd93d;
+            font-weight: bold;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'CODE';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .code-line {
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        .code-line:hover {
+            background: rgba(102, 126, 234, 0.2);
+            padding-left: 10px;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .timeline-item {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 45%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: auto;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .animation-demo {
+            background: #f6f8fb;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .flow-stage {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: flowPulse 2s ease infinite;
+        }
+
+        .flow-stage:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .flow-stage:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes flowPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 20px 10px rgba(102, 126, 234, 0);
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #667eea;
+            font-weight: bold;
+            border-bottom: 2px dotted #667eea;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #2d3748;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+
+            .pipeline-flow {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+        }
+
+        footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🚀 RISC Pipeline Architecture</h1>
+        <p>Explore the power of optimized instruction execution</p>
+    </div>
+
+    <div class="container">
+        <div class="content-section">
+            <h2>Understanding RISC Pipeline</h2>
+            <p>The <strong>RISC (Reduced Instruction Set Computer)</strong> approach revolutionizes processor design through simplified instruction sets and optimized pipelines. By executing multiple instructions concurrently across various stages, RISC architectures achieve remarkable throughput and efficiency.</p>
+            
+            <div class="animation-demo">
+                <h3>Three-Stage Pipeline Flow</h3>
+                <div class="pipeline-flow">
+                    <div class="flow-stage">I</div>
+                    <div class="flow-stage">A</div>
+                    <div class="flow-stage">E</div>
+                </div>
+                <p><strong>I:</strong> Instruction Fetch | <strong>A:</strong> ALU Operation | <strong>E:</strong> Execute & Write Back</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Pipeline Optimization Philosophy</h2>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>⚡ Single-Cycle Execution</h4>
+                    <p>RISC processors aim to execute each instruction in a single clock cycle, simplifying control logic and maximizing performance. While not always feasible for complex operations, this goal shapes the entire architecture.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔧 Compiler Support</h4>
+                    <p>Compilers play a crucial role by reordering instructions to minimize dependencies and filling delay slots with useful operations, transforming potential stalls into productive cycles.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🎨 Hardware Simplification</h4>
+                    <p>Simplified instruction sets reduce required operations and hardware complexity, making the pipeline more efficient and easier to optimize at both hardware and software levels.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>⚙️ Three-Segment Pipeline Stages</h2>
+            <div class="pipeline-stages">
+                <div class="stage">
+                    <span class="stage-icon">📥</span>
+                    <h4>I - Instruction Fetch</h4>
+                    <p>Retrieves the next instruction from memory</p>
+                </div>
+                <div class="stage">
+                    <span class="stage-icon">🧮</span>
+                    <h4>A - ALU Operation</h4>
+                    <p>Performs arithmetic and logic operations</p>
+                </div>
+                <div class="stage">
+                    <span class="stage-icon">✅</span>
+                    <h4>E - Execute</h4>
+                    <p>Writes results back to registers or memory</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🔄 Handling Pipeline Conflicts</h2>
+            
+            <h3>1. Delayed Load (Data Conflicts)</h3>
+            <p>Data conflicts occur when an instruction needs results from a previous instruction still in the pipeline. Consider this instruction sequence:</p>
+            
+            <div class="code-block">
+                <div class="code-line">1. LOAD: R1 ← M[address 1]</div>
+                <div class="code-line">2. LOAD: R2 ← M[address 2]</div>
+                <div class="code-line">3. ADD: R3 ← R1 + R2</div>
+                <div class="code-line">4. STORE: M[address 3] ← R3</div>
+            </div>
+
+            <p>The ADD instruction needs R1 and R2, but they're not ready until the Execute stage completes. The solution? Insert a <span class="tooltip">No-operation<span class="tooltiptext">A NOP instruction does nothing but fills time, allowing previous operations to complete</span></span> instruction:</p>
+
+            <div class="interactive-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Clock Cycle</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Load R1</strong></td>
+                            <td>I</td>
+                            <td>A</td>
+                            <td class="highlight-cell">E</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Load R2</strong></td>
+                            <td></td>
+                            <td>I</td>
+                            <td>A</td>
+                            <td class="highlight-cell">E</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><strong>No-operation</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td>I</td>
+                            <td>A</td>
+                            <td>E</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Add R1 + R2</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>I</td>
+                            <td>A</td>
+                            <td>E</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Store R3</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>I</td>
+                            <td>A</td>
+                            <td>E</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>2. Delayed Branch (Control Conflicts)</h3>
+            <p>Branch instructions can flush the pipeline, causing performance penalties. The <span class="tooltip">Delayed Branch<span class="tooltiptext">The instruction after a branch executes regardless of branch outcome</span></span> technique keeps the pipeline productive:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>🎯 The Delay Slot</h4>
+                    <p>The instruction immediately following a branch is placed in the "delay slot" and always executes before the branch takes effect.</p>
+                </div>
+                <div class="info-card">
+                    <h4>⚡ Performance Benefit</h4>
+                    <p>By executing useful work during branch evaluation, the pipeline stays busy and avoids costly stalls.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🧩 Compiler Challenge</h4>
+                    <p>The compiler must find safe instructions for delay slots or insert no-ops when no suitable instruction exists.</p>
+                </div>
+            </div>
+
+            <h3>Execution Sequence with Delayed Branch</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>1. Fetch Branch</h4>
+                        <p>Branch instruction is fetched from memory</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2. Decode Branch</h4>
+                        <p>Branch instruction is decoded and prepared</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>3. Execute Delay Slot</h4>
+                        <p>Delay slot instruction executes BEFORE branch evaluation</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>4. Branch Decision</h4>
+                        <p>Branch condition evaluated, next instruction fetched from appropriate address</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>💡 Key Takeaways</h2>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>✨ Efficiency Through Simplicity</h4>
+                    <p>RISC achieves high performance through streamlined instruction sets and optimized pipeline architecture.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🤝 Hardware-Software Synergy</h4>
+                    <p>Optimal performance requires both architectural features and intelligent compiler optimization.</p>
+                </div>
+                <div class="info-card">
+                    <h4>⚖️ Trade-offs Matter</h4>
+                    <p>Techniques like delayed branches improve performance but increase compiler complexity and require ISA support.</p>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="delayed_branch_tutorial.html" style="text-decoration: none;" class="btn btn-primary">Dive in Delayed Branch Pipeline</a>
+                </div>
+    </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+    <footer>
+        © Dr. Jay M. Joshi
+    </footer>
+
+    <script>
+        document.querySelectorAll('.stage').forEach(stage => {
+            stage.addEventListener('click', function() {
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 300);
+            });
+        });
+
+        document.querySelectorAll('.info-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                this.style.color = 'white';
+                setTimeout(() => {
+                    this.style.background = '';
+                    this.style.color = '';
+                }, 500);
+            });
+        });
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.content-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

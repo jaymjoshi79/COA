@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Arithmetic Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 20px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .example-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .binary-display {
+            font-family: 'Courier New', monospace;
+            background: #2d3748;
+            color: #48bb78;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 1.1em;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .calculator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            margin: 20px 0;
+        }
+
+        .calc-input {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: transform 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: 3px solid #48bb78;
+            transform: scale(1.02);
+        }
+	
+				.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:#718096;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+
+        button {
+            background: #48bb78;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            background: white;
+            color: #2d3748;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .overflow-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #ef4444;
+            color: white;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .content { padding: 20px; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Binary Arithmetic Tutorial</h1>
+            <p class="subtitle">Master Addition & Subtraction with Signed Numbers</p>
+        </header>
+
+        <div class="content">
+            <!-- Introduction -->
+            <div class="section">
+                <h2><span class="icon">📚</span> Introduction</h2>
+                <p>Learn how computers perform arithmetic operations on signed binary numbers using efficient 2's complement representation. This system simplifies both addition and subtraction using the same hardware!</p>
+            </div>
+
+            <!-- Representation Methods -->
+            <div class="section">
+                <h2><span class="icon">🔤</span> Signed Number Representations</h2>
+                
+                <div class="tab-container">
+                    <button class="tab active" onclick="showTab(0)">Signed-Magnitude</button>
+                    <button class="tab" onclick="showTab(1)">2's Complement</button>
+                    <button class="tab" onclick="showTab(2)">Comparison</button>
+                </div>
+
+                <div class="tab-content active" id="tab0">
+                    <h3>Signed-Magnitude Representation</h3>
+                    <p>The leftmost bit represents the sign (0 = positive, 1 = negative), and the remaining bits represent the magnitude.</p>
+                    <div class="example-box">
+                        <strong>8-bit Examples:</strong>
+                        <div class="binary-display">+14 = 0 0001110
+-14 = 1 0001110</div>
+                        <p><span class="highlight">Sign bit</span> + <span class="highlight">Magnitude bits</span></p>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab1">
+                    <h3>Signed-2's Complement Representation</h3>
+                    <p>Negative numbers are obtained by taking the 2's complement of the positive number. This system is preferred because it simplifies arithmetic operations.</p>
+                    <div class="example-box">
+                        <strong>How to find 2's complement:</strong>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>Invert all bits (1's complement)</li>
+                            <li>Add 1 to the result</li>
+                        </ol>
+                        <div class="binary-display">+14 = 0 0001110
+Invert: 1 1110001
+Add 1:  1 1110010
+-14 = 1 1110010</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab2">
+                    <h3>Why 2's Complement?</h3>
+                    <div class="info-card">
+                        <strong>✨ Advantages of 2's Complement:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Addition and subtraction use the same hardware</li>
+                            <li>No separate positive and negative zero</li>
+                            <li>Simpler overflow detection</li>
+                            <li>Natural extension of unsigned arithmetic</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Addition Section -->
+            <div class="section">
+                <h2><span class="icon">➕</span> Binary Addition (2's Complement)</h2>
+                <p><strong>Simple Procedure:</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                    <li>Add the two numbers, including their sign bits</li>
+                    <li>Discard any carry out of the sign bit position</li>
+                    <li>The result is automatically in 2's complement form</li>
+                </ol>
+
+                <div class="example-box">
+                    <h3>Example 1: (+6) + (+13) = +19</h3>
+                    <div class="binary-display">Carries: 0 0001110
+   +6:  0 0000110
+  +13: +0 0001101
+  ───────────────
+  Sum:  0 0010011 (+19)</div>
+                </div>
+
+                <div class="example-box">
+                    <h3>Example 2: (-6) + (+13) = +7</h3>
+                    <div class="binary-display">Carries: 1 1111010
+   -6:  1 1111010
+  +13: +0 0001101
+  ───────────────
+  Sum: 1 0 0000111 → 0 0000111 (+7)
+       ↑ Carry discarded</div>
+                </div>
+            </div>
+
+            <!-- Subtraction Section -->
+            <div class="section">
+                <h2><span class="icon">➖</span> Binary Subtraction (2's Complement)</h2>
+                <p>Subtraction is performed by <span class="highlight">converting it to addition</span>:</p>
+                <div class="info-card">
+                    <strong>Key Concept:</strong> (±A) - (±B) = (±A) + (∓B)
+                    <p style="margin-top: 10px;">Change the sign of the subtrahend and add!</p>
+                </div>
+
+                <p style="margin-top: 20px;"><strong>Procedure for A - B:</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                    <li>Take the 2's complement of B (subtrahend)</li>
+                    <li>Add it to A (minuend)</li>
+                    <li>Discard the carry out of the sign bit position</li>
+                </ol>
+
+                <div class="example-box">
+                    <h3>Example: (+7) - (+13) = -6</h3>
+                    <div class="binary-display">Step 1: Convert to (+7) + (-13)
+
++7 = 0 0000111
+2's complement of +13:
+  +13 = 0 0001101
+  Invert: 1 1110010
+  Add 1:  1 1110011 = -13
+
+Step 2: Add them
+   +7:  0 0000111
+  -13: +1 1110011
+  ───────────────
+  Sum:  1 1111010 (-6)</div>
+                </div>
+            </div>
+
+            <!-- Overflow Detection -->
+            <div class="section">
+                <h2><span class="icon">⚠️</span> Overflow Detection</h2>
+                <p>When two signed n-bit numbers produce a sum requiring n+1 bits, overflow occurs.</p>
+                
+                <div class="info-card">
+                    <strong>Overflow occurs when:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Two positive numbers sum to a negative result</li>
+                        <li>Two negative numbers sum to a positive result</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <strong>Detection Method:</strong>
+                    <p style="margin-top: 10px;">If <span class="highlight">carry into sign bit</span> ≠ <span class="highlight">carry out of sign bit</span> → Overflow!</p>
+                    <p style="margin-top: 10px;">This can be implemented with an XOR gate for the two carry signals.</p>
+                </div>
+
+                <div class="info-card">
+                    <strong>💡 Important Note:</strong> Overflow can NEVER occur when adding numbers with unlike signs!
+                </div>
+            </div>
+
+            <!-- Interactive Calculator -->
+            <div class="calculator">
+                <h2 style="color: white; margin-bottom: 20px;">🧮 Interactive Calculator</h2>
+                
+                <div class="calc-input">
+                    <div class="input-group">
+                        <label>First Number (A):</label>
+                        <input type="number" id="numA" placeholder="e.g., 6" value="6">
+                    </div>
+                    <div class="input-group">
+                        <label>Operation:</label>
+                        <select id="operation">
+                            <option value="add">Addition (+)</option>
+                            <option value="sub">Subtraction (-)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Second Number (B):</label>
+                        <input type="number" id="numB" placeholder="e.g., 13" value="13">
+                    </div>
+                </div>
+
+                <button onclick="calculate()">Calculate</button>
+
+                <div class="result-box" id="result">
+                    <p style="color: #718096;">Enter numbers and click Calculate to see the step-by-step solution!</p>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="signed_magnitude_learning.html" style="text-decoration: none;" class="btn btn-primary">Explore Signed Magnitude Arithmetic</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            © Dr. Jay M. Joshi
+
+    </div>
+
+    </div>
+
+    <script>
+        function showTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            
+            contents.forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+        }
+
+        function decimalToBinary(num, bits = 8) {
+            if (num >= 0) {
+                return num.toString(2).padStart(bits, '0');
+            } else {
+                const positive = Math.abs(num);
+                let binary = positive.toString(2).padStart(bits, '0');
+                let inverted = binary.split('').map(b => b === '0' ? '1' : '0').join('');
+                let complement = (parseInt(inverted, 2) + 1).toString(2).padStart(bits, '0');
+                return complement;
+            }
+        }
+
+        function binaryToDecimal(binary, bits = 8) {
+            if (binary[0] === '0') {
+                return parseInt(binary, 2);
+            } else {
+                let inverted = binary.split('').map(b => b === '0' ? '1' : '0').join('');
+                let magnitude = parseInt(inverted, 2) + 1;
+                return -magnitude;
+            }
+        }
+
+        function addBinary(a, b, bits = 8) {
+            let sum = 0;
+            let carry = 0;
+            let result = '';
+            let carries = '';
+            
+            for (let i = bits - 1; i >= 0; i--) {
+                let bitA = parseInt(a[i]);
+                let bitB = parseInt(b[i]);
+                sum = bitA + bitB + carry;
+                result = (sum % 2) + result;
+                carries = carry + carries;
+                carry = Math.floor(sum / 2);
+            }
+            
+            return { result, carries, finalCarry: carry };
+        }
+
+        function calculate() {
+            const numA = parseInt(document.getElementById('numA').value);
+            const numB = parseInt(document.getElementById('numB').value);
+            const operation = document.getElementById('operation').value;
+            
+            if (isNaN(numA) || isNaN(numB)) {
+                document.getElementById('result').innerHTML = '<p style="color: #ef4444;">Please enter valid numbers!</p>';
+                return;
+            }
+
+            if (numA < -128 || numA > 127 || numB < -128 || numB > 127) {
+                document.getElementById('result').innerHTML = '<p style="color: #ef4444;">Numbers must be between -128 and 127 for 8-bit representation!</p>';
+                return;
+            }
+
+            const binaryA = decimalToBinary(numA);
+            const binaryB = decimalToBinary(numB);
+            
+            let result = '';
+            
+            if (operation === 'add') {
+                const actualResult = numA + numB;
+                const addition = addBinary(binaryA, binaryB);
+                const overflow = (numA > 0 && numB > 0 && actualResult < 0) || (numA < 0 && numB < 0 && actualResult > 0);
+                
+                result = `<h3 style="color: #667eea;">Addition: (${numA}) + (${numB})</h3>`;
+                result += `<div class="binary-display">`;
+                result += `Carries: ${addition.carries}\n`;
+                result += `    ${numA >= 0 ? '+' : ''}${numA}: ${binaryA}\n`;
+                result += `    ${numB >= 0 ? '+' : ''}${numB}: ${binaryB}\n`;
+                result += `   ${'─'.repeat(20)}\n`;
+                result += `   Sum: ${addition.finalCarry} ${addition.result}`;
+                if (addition.finalCarry) result += ` → ${addition.result} (carry discarded)`;
+                result += `</div>`;
+                result += `<p style="margin-top: 15px;"><strong>Decimal Result:</strong> ${binaryToDecimal(addition.result)}`;
+                if (overflow) result += `<span class="overflow-indicator">OVERFLOW!</span>`;
+                result += `</p>`;
+            } else {
+                const negB = -numB;
+                const binaryNegB = decimalToBinary(negB);
+                const addition = addBinary(binaryA, binaryNegB);
+                const actualResult = numA - numB;
+                
+                result = `<h3 style="color: #667eea;">Subtraction: (${numA}) - (${numB})</h3>`;
+                result += `<p style="margin-bottom: 10px;">Converting to: (${numA}) + (${negB})</p>`;
+                result += `<div class="binary-display">`;
+                result += `Step 1: 2's complement of ${numB >= 0 ? '+' : ''}${numB}\n`;
+                result += `  ${numB >= 0 ? '+' : ''}${numB}: ${binaryB}\n`;
+                result += `  ${negB >= 0 ? '+' : ''}${negB}: ${binaryNegB}\n\n`;
+                result += `Step 2: Add\n`;
+                result += `Carries: ${addition.carries}\n`;
+                result += `    ${numA >= 0 ? '+' : ''}${numA}: ${binaryA}\n`;
+                result += `    ${negB >= 0 ? '+' : ''}${negB}: ${binaryNegB}\n`;
+                result += `   ${'─'.repeat(20)}\n`;
+                result += `   Sum: ${addition.finalCarry ? addition.finalCarry + ' ' : ''}${addition.result}`;
+                if (addition.finalCarry) result += ` → ${addition.result} (carry discarded)`;
+                result += `</div>`;
+                result += `<p style="margin-top: 15px;"><strong>Decimal Result:</strong> ${binaryToDecimal(addition.result)}</p>`;
+            }
+            
+            document.getElementById('result').innerHTML = result;
+        }
+
+        // Calculate on load
+        calculate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline & Vector Processing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 20px 0 10px;
+            font-size: 1.3em;
+        }
+
+        .interactive-demo {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .pipeline-visual {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .stage {
+            min-width: 120px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .stage:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stage::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: white;
+        }
+
+        .stage:last-child::after {
+            content: '';
+        }
+
+        .flynn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .flynn-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flynn-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .flynn-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            transform: translateX(10px);
+            background: #eef0ff;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9ff;
+        }
+
+		.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .vector-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .vector-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .vector-element {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            min-width: 60px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .vector-element:hover {
+            transform: scale(1.1);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .flynn-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+        }
+
+        .animation-container {
+            position: relative;
+            height: 150px;
+            margin: 20px 0;
+            background: #f8f9ff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .moving-data {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: left 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pipeline & Vector Processing</h1>
+            <p class="subtitle">Interactive Guide to Parallel Computing Architecture</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('flynn')">Flynn's Taxonomy</button>
+            <button class="tab-btn" onclick="showTab('pipeline')">Pipelining</button>
+            <button class="tab-btn" onclick="showTab('arithmetic')">Arithmetic Pipeline</button>
+            <button class="tab-btn" onclick="showTab('instruction')">Instruction Pipeline</button>
+            <button class="tab-btn" onclick="showTab('risc')">RISC Pipeline</button>
+            <button class="tab-btn" onclick="showTab('vector')">Vector Processing</button>
+            <button class="tab-btn" onclick="showTab('array')">Array Processors</button>
+	    <button class="tab-btn" onclick="showTab('comparison')">Comparison</button>
+        </div>
+
+        <!-- Flynn's Taxonomy -->
+        <div id="flynn" class="content-section active">
+            <div class="card">
+                <h2>Flynn's Taxonomy</h2>
+                <p>Flynn's taxonomy classifies computer architectures based on the number of instruction and data streams:</p>
+                
+                <div class="flynn-grid">
+                    <div class="flynn-box" onclick="toggleInfo('sisd')">
+                        <h4>SISD</h4>
+                        <p>Single Instruction, Single Data</p>
+                    </div>
+                    <div class="flynn-box" onclick="toggleInfo('simd')">
+                        <h4>SIMD</h4>
+                        <p>Single Instruction, Multiple Data</p>
+                    </div>
+                    <div class="flynn-box" onclick="toggleInfo('misd')">
+                        <h4>MISD</h4>
+                        <p>Multiple Instruction, Single Data</p>
+                    </div>
+                    <div class="flynn-box" onclick="toggleInfo('mimd')">
+                        <h4>MIMD</h4>
+                        <p>Multiple Instruction, Multiple Data</p>
+                    </div>
+                </div>
+
+                <div id="info-display" class="interactive-demo" style="display: none;">
+                    <h3 id="info-title"></h3>
+                    <p id="info-content"></p>
+                    <ul id="info-examples" class="feature-list"></ul>
+                </div>
+
+                <div class="highlight-box">
+                    <strong>Key Insight:</strong> Flynn's taxonomy helps us understand different approaches to parallel processing. Modern systems often combine multiple categories!
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipelining -->
+        <div id="pipeline" class="content-section">
+            <div class="card">
+                <h2>Pipelining Concept</h2>
+                <p>Pipelining is a technique that allows multiple instructions to overlap in execution, similar to an assembly line in manufacturing.</p>
+
+                <div class="interactive-demo">
+                    <h3>Pipeline Stages Visualization</h3>
+                    <div class="pipeline-visual">
+                        <div class="stage">Fetch (IF)</div>
+                        <div class="stage">Decode (ID)</div>
+                        <div class="stage">Execute (EX)</div>
+                        <div class="stage">Memory (MEM)</div>
+                        <div class="stage">Write Back (WB)</div>
+                    </div>
+                    <button class="demo-btn" onclick="animatePipeline()">Animate Pipeline Flow</button>
+                </div>
+
+                <div class="animation-container" id="pipelineAnimation">
+                    <div class="moving-data" id="dataPacket" style="left: 10px; top: 45px;">Data</div>
+                </div>
+
+                <h3>Benefits of Pipelining</h3>
+                <ul class="feature-list">
+                    <li><strong>Increased Throughput:</strong> More instructions completed per unit time</li>
+                    <li><strong>Better Resource Utilization:</strong> All stages work simultaneously</li>
+                    <li><strong>Reduced Average Execution Time:</strong> Instructions overlap in execution</li>
+                    <li><strong>Improved Performance:</strong> Speedup proportional to number of stages</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Formula:</strong> Speedup = Number of Pipeline Stages (in ideal conditions)
+                </div>
+            </div>
+        </div>
+
+        <!-- Arithmetic Pipeline -->
+        <div id="arithmetic" class="content-section">
+            <div class="card">
+                <h2>Arithmetic Pipeline</h2>
+                <p>Arithmetic pipelines divide complex arithmetic operations into multiple stages for faster execution.</p>
+
+                <h3>Floating-Point Addition Pipeline Example</h3>
+                <div class="pipeline-visual">
+                    <div class="stage">Compare Exponents</div>
+                    <div class="stage">Align Mantissas</div>
+                    <div class="stage">Add Mantissas</div>
+                    <div class="stage">Normalize</div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Pipeline Performance Calculator</h3>
+                    <label>Number of Operations: <input type="number" id="numOps" value="10" min="1"></label><br><br>
+                    <label>Pipeline Stages: <input type="number" id="numStages" value="4" min="1"></label><br><br>
+                    <button class="demo-btn" onclick="calculatePerformance()">Calculate Speedup</button>
+                    <div id="perfResult" style="margin-top: 15px; font-size: 1.1em; font-weight: bold;"></div>
+                </div>
+
+                <h3>Common Arithmetic Operations</h3>
+                <ul class="feature-list">
+                    <li>Floating-point addition and subtraction</li>
+                    <li>Floating-point multiplication</li>
+                    <li>Floating-point division</li>
+                    <li>Complex number operations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Instruction Pipeline -->
+        <div id="instruction" class="content-section">
+            <div class="card">
+                <h2>Instruction Pipeline</h2>
+                <p>Instruction pipelining breaks down instruction execution into discrete stages.</p>
+
+                <h3>Five-Stage Pipeline</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Stage</th>
+                        <th>Name</th>
+                        <th>Function</th>
+                    </tr>
+                    <tr>
+                        <td>IF</td>
+                        <td>Instruction Fetch</td>
+                        <td>Fetch instruction from memory</td>
+                    </tr>
+                    <tr>
+                        <td>ID</td>
+                        <td>Instruction Decode</td>
+                        <td>Decode instruction and read registers</td>
+                    </tr>
+                    <tr>
+                        <td>EX</td>
+                        <td>Execute</td>
+                        <td>Perform ALU operations</td>
+                    </tr>
+                    <tr>
+                        <td>MEM</td>
+                        <td>Memory Access</td>
+                        <td>Access memory for load/store</td>
+                    </tr>
+                    <tr>
+                        <td>WB</td>
+                        <td>Write Back</td>
+                        <td>Write result to register</td>
+                    </tr>
+                </table>
+
+                <h3>Pipeline Hazards</h3>
+                <div class="flynn-grid">
+                    <div class="flynn-box">
+                        <h4>Structural Hazards</h4>
+                        <p>Resource conflicts</p>
+                    </div>
+                    <div class="flynn-box">
+                        <h4>Data Hazards</h4>
+                        <p>Data dependencies</p>
+                    </div>
+                    <div class="flynn-box">
+                        <h4>Control Hazards</h4>
+                        <p>Branch instructions</p>
+                    </div>
+                    <div class="flynn-box">
+                        <h4>Solutions</h4>
+                        <p>Forwarding, stalling, prediction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RISC Pipeline -->
+        <div id="risc" class="content-section">
+            <div class="card">
+                <h2>RISC Pipeline</h2>
+                <p>RISC (Reduced Instruction Set Computer) architectures are designed for efficient pipelining.</p>
+
+                <h3>RISC Characteristics</h3>
+                <ul class="feature-list">
+                    <li><strong>Fixed Instruction Length:</strong> Simplifies fetch and decode stages</li>
+                    <li><strong>Load-Store Architecture:</strong> Only load/store access memory</li>
+                    <li><strong>Simple Addressing Modes:</strong> Reduces decode complexity</li>
+                    <li><strong>Large Register Set:</strong> Minimizes memory access</li>
+                    <li><strong>Hardwired Control:</strong> Faster instruction execution</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Advantage:</strong> RISC pipelines typically achieve better performance with fewer pipeline stages and simpler hazard handling!
+                </div>
+
+                <h3>RISC vs CISC Pipeline</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Feature</th>
+                        <th>RISC</th>
+                        <th>CISC</th>
+                    </tr>
+                    <tr>
+                        <td>Instruction Complexity</td>
+                        <td>Simple, uniform</td>
+                        <td>Complex, variable</td>
+                    </tr>
+                    <tr>
+                        <td>Pipeline Stages</td>
+                        <td>Fewer (3-5)</td>
+                        <td>More (10-20)</td>
+                    </tr>
+                    <tr>
+                        <td>Execution Time</td>
+                        <td>One cycle/instruction</td>
+                        <td>Multiple cycles</td>
+                    </tr>
+                    <tr>
+                        <td>Code Size</td>
+                        <td>Larger</td>
+                        <td>Smaller</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Vector Processing -->
+        <div id="vector" class="content-section">
+            <div class="card">
+                <h2>Vector Processing</h2>
+                <p>Vector processors perform the same operation on multiple data elements simultaneously.</p>
+
+                <div class="interactive-demo">
+                    <h3>Vector Addition Example</h3>
+                    <div class="vector-demo">
+                        <div class="vector-row">
+                            <strong>Vector A:</strong>
+                            <div class="vector-element">1</div>
+                            <div class="vector-element">2</div>
+                            <div class="vector-element">3</div>
+                            <div class="vector-element">4</div>
+                            <div class="vector-element">5</div>
+                        </div>
+                        <div class="vector-row">
+                            <strong>Vector B:</strong>
+                            <div class="vector-element">6</div>
+                            <div class="vector-element">7</div>
+                            <div class="vector-element">8</div>
+                            <div class="vector-element">9</div>
+                            <div class="vector-element">10</div>
+                        </div>
+                        <div style="text-align: center; font-size: 1.5em;">+</div>
+                        <button class="demo-btn" onclick="performVectorAdd()">Perform Vector Addition</button>
+                        <div class="vector-row" id="vectorResult" style="display: none;">
+                            <strong>Result:</strong>
+                            <div class="vector-element" id="r1"></div>
+                            <div class="vector-element" id="r2"></div>
+                            <div class="vector-element" id="r3"></div>
+                            <div class="vector-element" id="r4"></div>
+                            <div class="vector-element" id="r5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Vector Processing Advantages</h3>
+                <ul class="feature-list">
+                    <li>High computational throughput for data-parallel operations</li>
+                    <li>Reduced instruction fetch overhead</li>
+                    <li>Efficient memory bandwidth utilization</li>
+                    <li>Ideal for scientific and multimedia applications</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Applications:</strong> Weather simulation, image processing, machine learning, graphics rendering
+                </div>
+            </div>
+        </div>
+
+        <!-- Array Processors -->
+        <div id="array" class="content-section">
+            <div class="card">
+                <h2>Array Processors</h2>
+                <p>Array processors contain multiple processing elements that execute the same instruction on different data simultaneously (SIMD architecture).</p>
+
+                <h3>Architecture Components</h3>
+                <div class="pipeline-visual">
+                    <div class="stage">Control Unit</div>
+                    <div class="stage">PE 1</div>
+                    <div class="stage">PE 2</div>
+                    <div class="stage">PE 3</div>
+                    <div class="stage">PE N</div>
+                </div>
+
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    <li><strong>Synchronous Operation:</strong> All PEs execute in lockstep</li>
+                    <li><strong>Shared Control:</strong> Single control unit broadcasts instructions</li>
+                    <li><strong>Local Memory:</strong> Each PE has private memory</li>
+                    <li><strong>Interconnection Network:</strong> PEs communicate via network</li>
+                </ul>
+
+                <h3>Comparison: Vector vs Array Processors</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Vector Processor</th>
+                        <th>Array Processor</th>
+                    </tr>
+                    <tr>
+                        <td>Processing Units</td>
+                        <td>Single pipelined unit</td>
+                        <td>Multiple independent PEs</td>
+                    </tr>
+                    <tr>
+                        <td>Data Access</td>
+                        <td>Sequential from vector registers</td>
+                        <td>Parallel from distributed memory</td>
+                    </tr>
+                    <tr>
+                        <td>Best For</td>
+                        <td>Regular, predictable patterns</td>
+                        <td>Irregular, distributed data</td>
+                    </tr>
+                    <tr>
+                        <td>Scalability</td>
+                        <td>Limited by vector length</td>
+                        <td>Highly scalable with more PEs</td>
+                    </tr>
+                </table>
+
+                <div class="highlight-box">
+                    <strong>Modern Examples:</strong> GPUs, neural network accelerators, image processing chips
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Array Processor Simulation</h3>
+                    <p>Watch how multiple processing elements work in parallel:</p>
+                    <button class="demo-btn" onclick="simulateArrayProcessor()">Start Simulation</button>
+                    <div id="arraySimulation" style="display: none; margin-top: 20px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <div class="vector-element" id="pe1">PE1: 0</div>
+                            <div class="vector-element" id="pe2">PE2: 0</div>
+                            <div class="vector-element" id="pe3">PE3: 0</div>
+                            <div class="vector-element" id="pe4">PE4: 0</div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center; font-weight: bold; color: #667eea;" id="arrayStatus">
+                            Ready to process...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Comparison -->
+        <!---<div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">--->
+	<div id="comparison" class="content-section">
+            <div class="card">
+            <h2 style="text-align: center;">Performance Comparison Dashboard</h2>
+            <div class="flynn-grid">
+                <div class="card" style="background: white;">
+                    <h3>Sequential Processing</h3>
+                    <div style="font-size: 3em; text-align: center; color: #e74c3c;">1x</div>
+                    <p style="text-align: center;">Baseline performance</p>
+                </div>
+                <div class="card" style="background: white;">
+                    <h3>Pipeline Processing</h3>
+                    <div style="font-size: 3em; text-align: center; color: #f39c12;">4-5x</div>
+                    <p style="text-align: center;">With 5 pipeline stages</p>
+                </div>
+                <div class="card" style="background: white;">
+                    <h3>Vector Processing</h3>
+                    <div style="font-size: 3em; text-align: center; color: #3498db;">8-16x</div>
+                    <p style="text-align: center;">For data-parallel tasks</p>
+                </div>
+                <div class="card" style="background: white;">
+                    <h3>Array Processing</h3>
+                    <div style="font-size: 3em; text-align: center; color: #2ecc71;">100+x</div>
+                    <p style="text-align: center;">With massive parallelism</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="card">
+            <h2>Quick Reference Guide</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea;">When to Use Pipelining?</h4>
+                    <p>✓ Repetitive operations<br>✓ Independent stages<br>✓ Uniform data flow</p>
+                </div>
+                <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; border-left: 4px solid #764ba2;">
+                    <h4 style="color: #764ba2;">When to Use Vector Processing?</h4>
+                    <p>✓ Large datasets<br>✓ Same operation on all data<br>✓ Predictable patterns</p>
+                </div>
+                <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; border-left: 4px solid #2ecc71;">
+                    <h4 style="color: #2ecc71;">When to Use Array Processors?</h4>
+                    <p>✓ Massively parallel tasks<br>✓ Irregular data<br>✓ Matrix operations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-world Applications -->
+        <div class="card">
+            <h2>Real-World Applications</h2>
+            <table class="comparison-table">
+                <tr>
+                    <th>Technology</th>
+                    <th>Processing Type</th>
+                    <th>Applications</th>
+                </tr>
+                <tr>
+                    <td>Intel/AMD CPUs</td>
+                    <td>Instruction Pipeline</td>
+                    <td>General computing, OS operations</td>
+                </tr>
+                <tr>
+                    <td>ARM Processors</td>
+                    <td>RISC Pipeline</td>
+                    <td>Mobile devices, IoT, embedded systems</td>
+                </tr>
+                <tr>
+                    <td>Intel AVX/SSE</td>
+                    <td>Vector Processing</td>
+                    <td>Multimedia, scientific computing</td>
+                </tr>
+                <tr>
+                    <td>NVIDIA GPUs</td>
+                    <td>Array Processing</td>
+                    <td>Graphics, AI/ML, cryptocurrency mining</td>
+                </tr>
+                <tr>
+                    <td>Google TPU</td>
+                    <td>Array Processing</td>
+                    <td>Neural network training, AI inference</td>
+                </tr>
+                <tr>
+                    <td>Supercomputers</td>
+                    <td>MIMD + Vector</td>
+                    <td>Climate modeling, physics simulations</td>
+                </tr>
+            </table>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="parallel_processing_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Parallel Processing</a>
+                </div>
+        
+    </div>
+<footer style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.95); border-radius: 15px; margin-top: 20px;">
+            <p style="color: #666; font-size: 0.9em;">
+                <a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">© Dr. Jay M. Joshi</a>
+            </p>
+        </footer>
+    <script>
+        const flynnData = {
+            sisd: {
+                title: 'SISD - Single Instruction, Single Data',
+                content: 'Traditional sequential computers where one instruction operates on one data stream at a time.',
+                examples: ['Traditional CPUs', 'Early computers', 'Single-core processors', 'Von Neumann architecture']
+            },
+            simd: {
+                title: 'SIMD - Single Instruction, Multiple Data',
+                content: 'One instruction operates on multiple data elements simultaneously. Perfect for data-parallel operations.',
+                examples: ['Vector processors', 'GPUs', 'Multimedia extensions (SSE, AVX)', 'Array processors']
+            },
+            misd: {
+                title: 'MISD - Multiple Instruction, Single Data',
+                content: 'Multiple instructions operate on the same data stream. Rarely used in practice.',
+                examples: ['Fault-tolerant systems', 'Redundant computing', 'Some signal processing applications']
+            },
+            mimd: {
+                title: 'MIMD - Multiple Instruction, Multiple Data',
+                content: 'Multiple processors execute different instructions on different data streams independently.',
+                examples: ['Multi-core processors', 'Distributed systems', 'Cloud computing', 'Modern supercomputers']
+            }
+        };
+
+        function showTab(tabId) {
+            const sections = document.querySelectorAll('.content-section');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            sections.forEach(section => section.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleInfo(type) {
+            const infoDisplay = document.getElementById('info-display');
+            const data = flynnData[type];
+            
+            document.getElementById('info-title').textContent = data.title;
+            document.getElementById('info-content').textContent = data.content;
+            
+            const examplesList = document.getElementById('info-examples');
+            examplesList.innerHTML = '';
+            data.examples.forEach(ex => {
+                const li = document.createElement('li');
+                li.textContent = ex;
+                examplesList.appendChild(li);
+            });
+            
+            infoDisplay.style.display = 'block';
+        }
+
+        function animatePipeline() {
+            const packet = document.getElementById('dataPacket');
+            const positions = [10, 150, 290, 430, 570];
+            let currentPos = 0;
+            
+            const interval = setInterval(() => {
+                if (currentPos < positions.length) {
+                    packet.style.left = positions[currentPos] + 'px';
+                    currentPos++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        packet.style.left = '10px';
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function calculatePerformance() {
+            const n = parseInt(document.getElementById('numOps').value);
+            const k = parseInt(document.getElementById('numStages').value);
+            
+            const nonPipelined = n * k;
+            const pipelined = k + (n - 1);
+            const speedup = (nonPipelined / pipelined).toFixed(2);
+            
+            document.getElementById('perfResult').innerHTML = `
+                <div style="background: #f8f9ff; padding: 15px; border-radius: 8px;">
+                    Non-pipelined time: ${nonPipelined} cycles<br>
+                    Pipelined time: ${pipelined} cycles<br>
+                    <span style="color: #667eea; font-size: 1.2em;">Speedup: ${speedup}x</span>
+                </div>
+            `;
+        }
+
+        function performVectorAdd() {
+            const result = document.getElementById('vectorResult');
+            const results = [7, 9, 11, 13, 15];
+            
+            results.forEach((val, idx) => {
+                setTimeout(() => {
+                    document.getElementById('r' + (idx + 1)).textContent = val;
+                    document.getElementById('r' + (idx + 1)).style.background = 
+                        'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+                }, idx * 200);
+            });
+            
+            result.style.display = 'flex';
+        }
+
+        function simulateArrayProcessor() {
+            const sim = document.getElementById('arraySimulation');
+            const status = document.getElementById('arrayStatus');
+            sim.style.display = 'block';
+            
+            const data = [5, 10, 15, 20];
+            let step = 0;
+            
+            status.textContent = 'Broadcasting instruction: MULTIPLY by 2';
+            
+            const interval = setInterval(() => {
+                if (step < 10) {
+                    data.forEach((val, idx) => {
+                        const newVal = val + step;
+                        document.getElementById('pe' + (idx + 1)).textContent = 
+                            `PE${idx + 1}: ${newVal}`;
+                        document.getElementById('pe' + (idx + 1)).style.background = 
+                            `linear-gradient(135deg, hsl(${step * 25}, 70%, 50%) 0%, hsl(${step * 25 + 40}, 70%, 50%) 100%)`;
+                    });
+                    step++;
+                    status.textContent = `Processing step ${step}/10 - All PEs working in parallel!`;
+                } else {
+                    clearInterval(interval);
+                    status.textContent = '✓ Processing complete! All PEs finished simultaneously.';
+                    status.style.color = '#2ecc71';
+                }
+            }, 500);
+        }
+
+        // Initialize with random scroll effect
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, idx) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, idx * 100);
+            });
+        });
+    </script>
+</body>
+</html>

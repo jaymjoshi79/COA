@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            white-space: nowrap;
+            color: #555;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .subsection {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .subsection:hover {
+            background: #e9ecef;
+        }
+
+        .subsection h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subsection-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .subsection.expanded .subsection-content {
+            max-height: 1000px;
+            margin-top: 10px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .subsection.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .hierarchy-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .hierarchy-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin: 10px;
+            min-width: 150px;
+        }
+
+	footer {
+            text-align: center;
+            padding: 40px;
+            color: #495057;
+            margin-top: 50px;
+        }
+        .hierarchy-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .hierarchy-item.fast {
+            border-top: 4px solid #28a745;
+        }
+
+        .hierarchy-item.medium {
+            border-top: 4px solid #ffc107;
+        }
+
+        .hierarchy-item.slow {
+            border-top: 4px solid #dc3545;
+        }
+
+        .page-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+	.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	.btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+        ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        li {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Organization</h1>
+            <p class="subtitle">Understanding Computer Storage Systems</p>
+        </header>
+
+        <div class="nav-tabs" id="navTabs">
+            <button class="tab active" onclick="showSection('hierarchy')">Memory Hierarchy</button>
+            <button class="tab" onclick="showSection('main')">Main Memory</button>
+            <button class="tab" onclick="showSection('auxiliary')">Auxiliary Memory</button>
+            <button class="tab" onclick="showSection('associative')">Associative Memory</button>
+            <button class="tab" onclick="showSection('cache')">Cache Memory</button>
+            <button class="tab" onclick="showSection('virtual')">Virtual Memory</button>
+            <button class="tab" onclick="showSection('management')">Memory Management</button>
+        </div>
+
+        <div class="content">
+            <!-- Memory Hierarchy Section -->
+            <div id="hierarchy" class="section active">
+                <div class="card">
+                    <h3><span class="card-icon">1</span> Memory Hierarchy </h3>
+                    <p>The memory hierarchy is a structured arrangement of storage components designed to optimize the balance between <span class="highlight">speed, cost, and capacity</span>.</p>
+                    
+                    <div class="hierarchy-visual">
+                        <div class="hierarchy-item fast">
+                            <h4>🚀 Cache Memory</h4>
+                            <p><strong>Fastest</strong></p>
+                            <p>Smallest capacity</p>
+                            <p>Most expensive</p>
+                        </div>
+                        <div class="hierarchy-item medium">
+                            <h4>⚡ Main Memory</h4>
+                            <p><strong>Medium Speed</strong></p>
+                            <p>Medium capacity</p>
+                            <p>Moderate cost</p>
+                        </div>
+                        <div class="hierarchy-item slow">
+                            <h4>💾 Auxiliary Memory</h4>
+                            <p><strong>Slowest</strong></p>
+                            <p>Largest capacity</p>
+                            <p>Least expensive</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Memory Section -->
+            <div id="main" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">2</span> Main Memory </h3>
+                    <p>Main Memory serves as the central storage unit, containing instructions and data actively used by the CPU.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            RAM and ROM Chips 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <ul>
+                                <li><strong>RAM (Random-Access Memory):</strong> Permits both read and write operations from any memory location within a fixed time interval, enabling true "random access".</li>
+                                <li><strong>ROM (Read-Only Memory):</strong> Performs only read operations. Binary information is permanent and cannot be altered during computation. Used for fixed programs and constant tables.</li>
+                                <li><strong>PROM:</strong> Programmable ROM - can be programmed once after manufacturing.</li>
+                                <li><strong>EEPROM:</strong> Electrically Erasable PROM - can be erased and reprogrammed electronically.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Memory Address Map 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Details how the system allocates total available address space among installed RAM and ROM chips to prevent address conflicts. Ensures each memory location has a unique address.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Memory Connection to CPU 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Covers the physical interface requirements for CPU-memory interaction:</p>
+                            <ul>
+                                <li>Address lines for location selection</li>
+                                <li>Data lines for information transfer</li>
+                                <li>Control signals for read/write operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auxiliary Memory Section -->
+            <div id="auxiliary" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">3</span> Auxiliary Memory </h3>
+                    <p>Auxiliary memory devices provide vast storage capacity for data not immediately required by the CPU.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            💿 Magnetic Disks 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Focuses on the structure, organization, and data storage principles of magnetic disk units. Includes discussion of tracks, sectors, and cylinders used for data organization.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            📼 Magnetic Tapes 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Covers characteristics and operation of magnetic tape systems, typically used for long-term archiving and large data backups. Sequential access storage medium.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Associative Memory Section -->
+            <div id="associative" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">4</span> Associative Memory </h3>
+                    <p>Also known as <span class="highlight">Content Addressable Memory (CAM)</span>, this specialized memory retrieves data based on content comparison rather than address specification.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Hardware Organization 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Describes the internal register and memory cell structure supporting simultaneous searching across all stored words. Enables parallel content-based retrieval.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Match Logic 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Details specialized combinatorial logic required to execute parallel comparisons between search arguments and stored data.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Read & Write Operations 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Explains specific control sequences and logic for accessing (reading) and updating (writing) information in content-based storage systems.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cache Memory Section -->
+            <div id="cache" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">5</span> Cache Memory </h3>
+                    <p>High-speed buffer memory designed to bridge the speed gap between the fast CPU and slower main memory.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Associative Mapping 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>A main memory block can be loaded into any free cache location. Offers maximum flexibility but requires complex comparison logic for locating data.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Direct Mapping 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Simpler predefined mapping where each memory block maps to only one specific cache line. Reduces search complexity but may cause conflicts.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Set-Associative Mapping 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Hybrid approach grouping cache lines into sets. A memory block can reside anywhere within its assigned set, balancing speed and simplicity.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Writing & Initialization 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Covers coherence protocols ensuring data integrity between cache and main memory, plus necessary cache hardware initialization steps.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Virtual Memory Section -->
+            <div id="virtual" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">6</span> Virtual Memory </h3>
+                    <p>Memory management concept using auxiliary memory to create the illusion of larger main memory space than physically available.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Address Space vs Memory Space 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <ul>
+                                <li><strong>Address Space:</strong> The set of logical addresses generated by the running program.</li>
+                                <li><strong>Memory Space:</strong> The actual physical capacity of main memory available in the system.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Address Mapping Using Pages 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Details the mechanism of dividing address space and memory space into fixed-size units called pages and frames, fundamental to virtual address translation.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Associative Memory Page Table 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Uses specialized fast memory to store frequently accessed page table entries, accelerating virtual-to-physical address translation.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Page Replacement 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Covers algorithms and policies managing page movement between physical memory and auxiliary storage when required pages aren't memory-resident.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Management Section -->
+            <div id="management" class="section">
+                <div class="card">
+                    <h3><span class="card-icon">7</span> Memory Management Hardware </h3>
+                    <p>Specific hardware required to support and automate complex virtual memory and cache structures.</p>
+                    
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Segmented-Page Mapping 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Architecture combining logical segmentation (for program structure) with paging (for efficient memory allocation), providing both logical organization and efficient physical management.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Numerical Example 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Provides practical calculation examples demonstrating how address translation works under the segmented-page system with real numbers.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection" onclick="toggleSubsection(this)">
+                        <h4>
+                            Memory Protection 
+                            <span class="toggle-icon">▼</span>
+                        </h4>
+                        <div class="subsection-content">
+                            <p>Explores hardware mechanisms preventing unauthorized memory access, crucial for operating system security and multitasking environments.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="memory_hierarchy_page.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Memory Hierarchy</a>
+                
+        </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+        <footer>
+            © Dr. Jay M. Joshi
+        </footer>
+
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            const tabs = document.querySelectorAll('.tab');
+            
+            sections.forEach(s => s.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleSubsection(element) {
+            element.classList.toggle('expanded');
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

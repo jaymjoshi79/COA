@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Operations - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            gap: 25px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            transition: background 0.3s ease;
+        }
+
+        .code-block:hover {
+            background: #e9ecef;
+        }
+
+        .code-block code {
+            display: block;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .instruction-format {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .instruction-field {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9em;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .instruction-field:hover {
+            transform: scale(1.05);
+        }
+
+.topic-actions {
+        display: flex;
+        justify-content: center;  /* center horizontally */
+        margin-top: 20px;         /* keep spacing from top */
+        gap: 10px;
+    }
+	.btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+	    text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+	.footer {
+	    
+            text-align: center;
+            padding: 30px;
+            color:white;
+            margin-top: 40px;
+        }
+	
+	.btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+	
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+.btn-secondary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .vector-demo {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .vector-visual {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .vector-element {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: bold;
+            animation: popIn 0.5s ease;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .vector-element:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .interactive-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .interactive-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .interactive-button:active {
+            transform: translateY(0);
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefit-list li {
+            padding: 12px 0 12px 35px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .benefit-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .instruction-format {
+                grid-template-columns: 1fr;
+            }
+
+            .vector-element {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vector Operations</h1>
+            <p class="subtitle">Understanding High-Performance Computing with Vectors</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2><span class="icon">📊</span> What are Vector Operations?</h2>
+                <p>Many scientific problems require arithmetic operations on large arrays of numbers. These numbers are usually formulated as <span class="highlight">vectors and matrices</span> of floating-point numbers.</p>
+                <p style="margin-top: 15px;">A vector <strong>V</strong> of length <strong>n</strong> is an ordered set of a one-dimensional array of data items. It can be represented as:</p>
+                <div class="code-block">
+                    <code>V = [V₁  V₂  V₃  ...  Vₙ]  (row vector)</code>
+                </div>
+                <p>The element Vᵢ of vector V is written as <strong>V(i)</strong> where the index <strong>i</strong> refers to a memory address or register where the number is stored.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔄</span> Scalar vs. Vector Processing</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Scalar Processing</th>
+                            <th>Vector Processing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Operations</strong></td>
+                            <td>One element at a time</td>
+                            <td>Multiple elements simultaneously</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loop Overhead</strong></td>
+                            <td>High (fetch, execute per iteration)</td>
+                            <td>Minimal (single instruction)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instruction</strong></td>
+                            <td>C(I) = B(I) + A(I)</td>
+                            <td>C(1:100) = A(1:100) + B(1:100)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efficiency</strong></td>
+                            <td>Lower for large datasets</td>
+                            <td>Higher for large datasets</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">💻</span> Scalar Processing Example</h2>
+                <p>Traditional C loop processing elements sequentially:</p>
+                <div class="code-block">
+                    <code>for (i = 1; i <= 100; i++) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;C[i] = B[i] + A[i];<br>
+}</code>
+                </div>
+                <p style="margin-top: 15px;">This requires the following machine language sequence:</p>
+                <div class="code-block">
+                    <code>&nbsp;&nbsp;&nbsp;Initialize I = 0<br>
+20    Read A(I)<br>
+&nbsp;&nbsp;      Read B(I)<br>
+&nbsp;&nbsp;      Store C(I) = A(I) + B(I)<br>
+&nbsp;&nbsp;      Increment I = I + 1<br>
+&nbsp;&nbsp;      If I ≤ 100 go to 20<br>
+&nbsp;&nbsp;      Continue</code>
+                </div>
+                <p style="margin-top: 15px;">This loop reads a pair of operands from arrays A and B, performs floating-point addition, updates the control variable, and repeats 100 times.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">⚡</span> Vector Processing Example</h2>
+                <p>A computer capable of vector processing eliminates the overhead with a single vector instruction:</p>
+                <div class="code-block">
+                    <code>C(1:100) = A(1:100) + B(1:100)</code>
+                </div>
+                <p style="margin-top: 15px;">The vector instruction includes:</p>
+                <ul class="benefit-list">
+                    <li>Initial address of the operands</li>
+                    <li>Length of the vectors</li>
+                    <li>Operation to be performed</li>
+                </ul>
+                <p style="margin-top: 15px;">The addition is done with a <span class="highlight">pipelined floating-point adder</span>, significantly improving performance.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🏗️</span> Vector Instruction Format</h2>
+                <p>A typical vector instruction format (Figure 9-11):</p>
+                <div class="instruction-format">
+                    <div class="instruction-field">Operation<br>Code</div>
+                    <div class="instruction-field">Base Address<br>Source 1</div>
+                    <div class="instruction-field">Base Address<br>Source 2</div>
+                    <div class="instruction-field">Base Address<br>Destination</div>
+                    <div class="instruction-field">Vector<br>Length</div>
+                </div>
+                <p style="margin-top: 20px;">This is essentially a <strong>three-address instruction</strong> with three fields specifying base addresses and an additional field for vector length.</p>
+                <div class="vector-demo">
+                    <p><strong>Implementation Options:</strong></p>
+                    <ul class="benefit-list">
+                        <li><strong>Memory-based:</strong> Vectors reside in memory, accessed during operation</li>
+                        <li><strong>Register-based:</strong> Store all operands in registers prior to addition. Base address and length specify a group of CPU registers.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🎯</span> Benefits of Vector Processing</h2>
+                <ul class="benefit-list">
+                    <li><strong>Reduced Loop Overhead:</strong> Eliminates time to fetch and execute loop control instructions</li>
+                    <li><strong>Single Instruction Execution:</strong> One composite instruction handles entire vector operation</li>
+                    <li><strong>Pipelined Operations:</strong> Floating-point operations executed in parallel pipeline stages</li>
+                    <li><strong>Improved Performance:</strong> Significant speedup for large-scale scientific computations</li>
+                    <li><strong>Simplified Programming:</strong> Higher-level abstraction for array operations</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🎨</span> Interactive Vector Visualization</h2>
+                <div class="vector-demo">
+                    <p><strong>Vector A:</strong></p>
+                    <div class="vector-visual" id="vectorA"></div>
+                    <p style="margin-top: 20px;"><strong>Vector B:</strong></p>
+                    <div class="vector-visual" id="vectorB"></div>
+                    <p style="margin-top: 20px;"><strong>Result C = A + B:</strong></p>
+                    <div class="vector-visual" id="vectorC"></div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="interactive-button" onclick="generateVectors()">Generate New Vectors</button>
+                        <button class="interactive-button" onclick="performAddition()">Perform Addition</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	<div class="topic-actions" style="text-align: center;">
+                    <a href="matrix_mult_vector.html" style="text-decoration: none;" class="btn btn-primary">Start Learning Matrix Multiplication Using Vector Processing</a>
+                </div>
+	<a href="https://jaymjoshi79.github.io/jaymjoshi79-portfolio/" style="text-decoration: none;">
+	<div class="footer">
+            <p>© Dr. Jay M. Joshi</p>
+        </div>
+
+    </div>
+
+    <script>
+        let vectorAData = [];
+        let vectorBData = [];
+        let vectorCData = [];
+
+        function generateVectors() {
+            vectorAData = Array.from({length: 8}, () => Math.floor(Math.random() * 10));
+            vectorBData = Array.from({length: 8}, () => Math.floor(Math.random() * 10));
+            vectorCData = Array(8).fill('?');
+            
+            displayVector('vectorA', vectorAData);
+            displayVector('vectorB', vectorBData);
+            displayVector('vectorC', vectorCData);
+        }
+
+        function displayVector(elementId, data) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            data.forEach((val, idx) => {
+                const elem = document.createElement('div');
+                elem.className = 'vector-element';
+                elem.textContent = val;
+                elem.style.animationDelay = `${idx * 0.1}s`;
+                container.appendChild(elem);
+            });
+        }
+
+        function performAddition() {
+            if (vectorAData.length === 0) {
+                generateVectors();
+            }
+            
+            vectorCData = vectorAData.map((val, idx) => val + vectorBData[idx]);
+            
+            const container = document.getElementById('vectorC');
+            container.innerHTML = '';
+            vectorCData.forEach((val, idx) => {
+                setTimeout(() => {
+                    const elem = document.createElement('div');
+                    elem.className = 'vector-element';
+                    elem.textContent = val;
+                    elem.style.animation = 'popIn 0.5s ease';
+                    container.appendChild(elem);
+                }, idx * 100);
+            });
+        }
+
+        // Initialize on load
+        window.onload = generateVectors;
+    </script>
+</body>
+</html>
